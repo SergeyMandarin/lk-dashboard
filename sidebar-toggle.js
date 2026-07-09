@@ -81,8 +81,38 @@
     document.body.appendChild(btn);
   }
 
+  /* Иконки разделов средней рельсы: вешаем класс lk-sec-<ключ> по НАЗВАНИЮ
+     пункта (не по client-specific cat_id и не по nth-child — порядок и состав
+     разделов у клиентов разные, а имена стандартные). Сами иконки — в CSS
+     (.upper_tabs_nav li.lk-sec-*). Неизвестные пункты класс не получают и
+     остаются на текущей иконке-фолбэке. Пока только русские названия. */
+  function tagRailIcons() {
+    var MAP = [
+      [/общий результат/i, "overall"],
+      [/филиал/i, "branches"],
+      [/раздел/i, "sections"],
+      [/вопрос/i, "questions"],
+      [/[сc]водн/i, "summary"],
+      [/pdf/i, "pdf"],
+      [/артефакт/i, "artifacts"],
+      [/статус/i, "status"]
+    ];
+    var items = document.querySelectorAll(".upper_tabs_nav li.tab_menu_item");
+    [].forEach.call(items, function (li) {
+      var txt = (li.textContent || "").trim().toLowerCase();
+      MAP.some(function (pair) {
+        if (pair[0].test(txt)) {
+          li.classList.add("lk-sec-" + pair[1]);
+          return true;
+        }
+        return false;
+      });
+    });
+  }
+
   function onReady() {
     createBurger();
+    tagRailIcons();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
     setTimeout(reflowCharts, 500);

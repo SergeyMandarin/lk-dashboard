@@ -1101,15 +1101,81 @@ table#main_menu_title_text {
 html.sb-open table#main_menu_title_text {
   max-width: calc(100vw - 220px - 52px);
 }
-/* Шапка-приветствие (фиолетовая полоса из Figma) */
+/* Шапка-приветствие (фиолетовая полоса из Figma): компактная высота,
+   шрифт Montserrat, текст по центру полосы. Высоту/междустрочье задаём на всех
+   ячейках, но БЕЗ font-size — иначе он каскадит в ячейку языка и раскрывает
+   скрытый текст кнопки «Язык». */
 #main_menu_title_text td {
-  padding: 9px 16px;
+  height: 28px !important;
+  padding: 0 16px !important;
+  line-height: 28px !important;
+  vertical-align: middle !important;
 }
-#main_menu_title_text td.gray-lighter2,
+/* Приветствие центрируем по всей ширине полосы, а не по под-ячейке: первая
+   ячейка занимает всё, пустые ячейки-распорки справа схлопываем в 0. Кнопку
+   языка (#set-language, position:absolute) это не трогает — она остаётся справа. */
+#main_menu_title_text > tbody > tr > td:first-child {
+  width: 100% !important;
+  text-align: center !important;
+}
+#main_menu_title_text > tbody > tr > td:not(:first-child) {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+/* Цвет/шрифт приветствия — ТОЛЬКО первая ячейка и ссылки внутри неё
+   (.unwatchedLink живёт только в приветствии), чтобы не задеть кнопку языка. */
+#main_menu_title_text > tbody > tr > td:first-child,
 #main_menu_title_text .unwatchedLink,
 #main_menu_title_text a.unwatchedLink {
   color: #ffffff !important;
   background-color: transparent !important;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 14px !important;
+}
+/* Правый край шапки: прячем иконку «Печать»… */
+a[onclick*="print_option"] {
+  display: none !important;
+}
+/* …а на её место выводим кнопку выбора языка: глобус + «Язык», белым по
+   фиолетовой полосе. По клику открывается штатный диалог смены языка
+   (select + Ok/Cancel) — логику не трогаем, только вид. Позиционируется
+   абсолютно от body (её offsetParent), правый край выравниваем внутрь бара
+   (right:42px = край окна − 26px поле бара − 16px внутренний отступ). */
+body #main_menu_title_text #set-language {
+  position: absolute !important;
+  top: 17px !important; /* по центру полосы (полоса y14..42) */
+  right: 42px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 2px 0 22px !important; /* место под иконку-глобус слева */
+  font-family: "Montserrat", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'%3e%3ccircle cx='12' cy='12' r='9'/%3e%3cpath d='M3 12h18'/%3e%3cpath d='M12 3c2.6 2.7 4 5.7 4 9s-1.4 6.3-4 9c-2.6-2.7-4-5.7-4-9s1.4-6.3 4-9z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+  background-size: 16px 16px !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+}
+body #main_menu_title_text #set-language span.ui-button-text {
+  font-size: 13px !important;
+  color: #ffffff !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+body #main_menu_title_text #set-language:hover {
+  opacity: 0.82 !important;
 }
 
 .ui-button.ui-widget.ui-corner-all.ui-button-text-only.link_to_general_filters_div {
@@ -1250,9 +1316,9 @@ a#link_to_clear_general_filters {
   font-size: 12px;
   border-radius: 5px !important;
   min-height: 30px;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3e%3cpath d='M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z' fill='%23ab192d'/%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3e%3cpath d='M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z' fill='%23fff'/%3e%3c/svg%3e") !important;
   background-repeat: no-repeat !important;
-  background-position: top left !important;
+  background-position: left center !important; /* иконка по центру бокса — вровень с шестерёнкой */
   background-size: auto 21px !important;
   background-color: transparent !important;
 }
@@ -1292,7 +1358,7 @@ button.ui-multiselect.ui-widget.ui-corner-all {
   background-position: center;
   height: 22px;
   display: inline-block;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='9' viewBox='0 0 16 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 0.872359L8.03724 7.12769L15.0745 0.872359' stroke='black' stroke-width='2'/%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='9' viewBox='0 0 16 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 0.872359L8.03724 7.12769L15.0745 0.872359' stroke='%23541261' stroke-width='2'/%3e%3c/svg%3e") !important;
 }
 .ui-multiselect:focus span.ui-icon,
 button.ui-multiselect.ui-widget.ui-state-default.ui-corner-all.ui-state-active
@@ -1363,7 +1429,8 @@ li.fathertab.upper_tabs_item.tab_menu_item.Ajax2TabInActive:hover
   color: #000 !important;
 }
 li.fathertab.upper_tabs_item.tab_menu_item.Ajax2TabInActive:hover {
-  background-color: #eaeaea;
+  /* Наведение — светло-фиолетовый, чуть светлее активного пункта (0.1). */
+  background-color: rgba(84, 18, 97, 0.07) !important;
 }
 li.fathertab.upper_tabs_item.tab_menu_item.Ajax2TabInActive {
   transition: all 0.5s linear;
@@ -1917,7 +1984,7 @@ input#update_filters {
   background-repeat: no-repeat !important;
   background-position: center !important;
   background-size: auto 25px !important;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 640 512'%3e%3cpath d='M308.5 135.3c7.1-6.3 9.9-16.2 6.2-25c-2.3-5.3-4.8-10.5-7.6-15.5L304 89.4c-3-5-6.3-9.9-9.8-14.6c-5.7-7.6-15.7-10.1-24.7-7.1l-28.2 9.3c-10.7-8.8-23-16-36.2-20.9L199 27.1c-1.9-9.3-9.1-16.7-18.5-17.8C173.9 8.4 167.2 8 160.4 8h-.7c-6.8 0-13.5 .4-20.1 1.2c-9.4 1.1-16.6 8.6-18.5 17.8L115 56.1c-13.3 5-25.5 12.1-36.2 20.9L50.5 67.8c-9-3-19-.5-24.7 7.1c-3.5 4.7-6.8 9.6-9.9 14.6l-3 5.3c-2.8 5-5.3 10.2-7.6 15.6c-3.7 8.7-.9 18.6 6.2 25l22.2 19.8C32.6 161.9 32 168.9 32 176s.6 14.1 1.7 20.9L11.5 216.7c-7.1 6.3-9.9 16.2-6.2 25c2.3 5.3 4.8 10.5 7.6 15.6l3 5.2c3 5.1 6.3 9.9 9.9 14.6c5.7 7.6 15.7 10.1 24.7 7.1l28.2-9.3c10.7 8.8 23 16 36.2 20.9l6.1 29.1c1.9 9.3 9.1 16.7 18.5 17.8c6.7 .8 13.5 1.2 20.4 1.2s13.7-.4 20.4-1.2c9.4-1.1 16.6-8.6 18.5-17.8l6.1-29.1c13.3-5 25.5-12.1 36.2-20.9l28.2 9.3c9 3 19 .5 24.7-7.1c3.5-4.7 6.8-9.5 9.8-14.6l3.1-5.4c2.8-5 5.3-10.2 7.6-15.5c3.7-8.7 .9-18.6-6.2-25l-22.2-19.8c1.1-6.8 1.7-13.8 1.7-20.9s-.6-14.1-1.7-20.9l22.2-19.8zM112 176a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zM504.7 500.5c6.3 7.1 16.2 9.9 25 6.2c5.3-2.3 10.5-4.8 15.5-7.6l5.4-3.1c5-3 9.9-6.3 14.6-9.8c7.6-5.7 10.1-15.7 7.1-24.7l-9.3-28.2c8.8-10.7 16-23 20.9-36.2l29.1-6.1c9.3-1.9 16.7-9.1 17.8-18.5c.8-6.7 1.2-13.5 1.2-20.4s-.4-13.7-1.2-20.4c-1.1-9.4-8.6-16.6-17.8-18.5L583.9 307c-5-13.3-12.1-25.5-20.9-36.2l9.3-28.2c3-9 .5-19-7.1-24.7c-4.7-3.5-9.6-6.8-14.6-9.9l-5.3-3c-5-2.8-10.2-5.3-15.6-7.6c-8.7-3.7-18.6-.9-25 6.2l-19.8 22.2c-6.8-1.1-13.8-1.7-20.9-1.7s-14.1 .6-20.9 1.7l-19.8-22.2c-6.3-7.1-16.2-9.9-25-6.2c-5.3 2.3-10.5 4.8-15.6 7.6l-5.2 3c-5.1 3-9.9 6.3-14.6 9.9c-7.6 5.7-10.1 15.7-7.1 24.7l9.3 28.2c-8.8 10.7-16 23-20.9 36.2L315.1 313c-9.3 1.9-16.7 9.1-17.8 18.5c-.8 6.7-1.2 13.5-1.2 20.4s.4 13.7 1.2 20.4c1.1 9.4 8.6 16.6 17.8 18.5l29.1 6.1c5 13.3 12.1 25.5 20.9 36.2l-9.3 28.2c-3 9-.5 19 7.1 24.7c4.7 3.5 9.5 6.8 14.6 9.8l5.4 3.1c5 2.8 10.2 5.3 15.5 7.6c8.7 3.7 18.6 .9 25-6.2l19.8-22.2c6.8 1.1 13.8 1.7 20.9 1.7s14.1-.6 20.9-1.7l19.8 22.2zM464 304a48 48 0 1 1 0 96 48 48 0 1 1 0-96z' fill='%23000'/%3e%3c/svg%3e") !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 640 512'%3e%3cpath d='M308.5 135.3c7.1-6.3 9.9-16.2 6.2-25c-2.3-5.3-4.8-10.5-7.6-15.5L304 89.4c-3-5-6.3-9.9-9.8-14.6c-5.7-7.6-15.7-10.1-24.7-7.1l-28.2 9.3c-10.7-8.8-23-16-36.2-20.9L199 27.1c-1.9-9.3-9.1-16.7-18.5-17.8C173.9 8.4 167.2 8 160.4 8h-.7c-6.8 0-13.5 .4-20.1 1.2c-9.4 1.1-16.6 8.6-18.5 17.8L115 56.1c-13.3 5-25.5 12.1-36.2 20.9L50.5 67.8c-9-3-19-.5-24.7 7.1c-3.5 4.7-6.8 9.6-9.9 14.6l-3 5.3c-2.8 5-5.3 10.2-7.6 15.6c-3.7 8.7-.9 18.6 6.2 25l22.2 19.8C32.6 161.9 32 168.9 32 176s.6 14.1 1.7 20.9L11.5 216.7c-7.1 6.3-9.9 16.2-6.2 25c2.3 5.3 4.8 10.5 7.6 15.6l3 5.2c3 5.1 6.3 9.9 9.9 14.6c5.7 7.6 15.7 10.1 24.7 7.1l28.2-9.3c10.7 8.8 23 16 36.2 20.9l6.1 29.1c1.9 9.3 9.1 16.7 18.5 17.8c6.7 .8 13.5 1.2 20.4 1.2s13.7-.4 20.4-1.2c9.4-1.1 16.6-8.6 18.5-17.8l6.1-29.1c13.3-5 25.5-12.1 36.2-20.9l28.2 9.3c9 3 19 .5 24.7-7.1c3.5-4.7 6.8-9.5 9.8-14.6l3.1-5.4c2.8-5 5.3-10.2 7.6-15.5c3.7-8.7 .9-18.6-6.2-25l-22.2-19.8c1.1-6.8 1.7-13.8 1.7-20.9s-.6-14.1-1.7-20.9l22.2-19.8zM112 176a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zM504.7 500.5c6.3 7.1 16.2 9.9 25 6.2c5.3-2.3 10.5-4.8 15.5-7.6l5.4-3.1c5-3 9.9-6.3 14.6-9.8c7.6-5.7 10.1-15.7 7.1-24.7l-9.3-28.2c8.8-10.7 16-23 20.9-36.2l29.1-6.1c9.3-1.9 16.7-9.1 17.8-18.5c.8-6.7 1.2-13.5 1.2-20.4s-.4-13.7-1.2-20.4c-1.1-9.4-8.6-16.6-17.8-18.5L583.9 307c-5-13.3-12.1-25.5-20.9-36.2l9.3-28.2c3-9 .5-19-7.1-24.7c-4.7-3.5-9.6-6.8-14.6-9.9l-5.3-3c-5-2.8-10.2-5.3-15.6-7.6c-8.7-3.7-18.6-.9-25 6.2l-19.8 22.2c-6.8-1.1-13.8-1.7-20.9-1.7s-14.1 .6-20.9 1.7l-19.8-22.2c-6.3-7.1-16.2-9.9-25-6.2c-5.3 2.3-10.5 4.8-15.6 7.6l-5.2 3c-5.1 3-9.9 6.3-14.6 9.9c-7.6 5.7-10.1 15.7-7.1 24.7l9.3 28.2c-8.8 10.7-16 23-20.9 36.2L315.1 313c-9.3 1.9-16.7 9.1-17.8 18.5c-.8 6.7-1.2 13.5-1.2 20.4s.4 13.7 1.2 20.4c1.1 9.4 8.6 16.6 17.8 18.5l29.1 6.1c5 13.3 12.1 25.5 20.9 36.2l-9.3 28.2c-3 9-.5 19 7.1 24.7c4.7 3.5 9.5 6.8 14.6 9.8l5.4 3.1c5 2.8 10.2 5.3 15.5 7.6c8.7 3.7 18.6 .9 25-6.2l19.8-22.2c6.8 1.1 13.8 1.7 20.9 1.7s14.1-.6 20.9-1.7l19.8 22.2zM464 304a48 48 0 1 1 0 96 48 48 0 1 1 0-96z' fill='%23fff'/%3e%3c/svg%3e") !important;
 }
 #link_to_clear_general_filters {
   background-position: left 20px center !important;
@@ -2265,6 +2332,7 @@ input[type="submit"]:hover {
   padding-left: 22px; /* место под иконку слева от текста */
   line-height: 18px;
   white-space: nowrap;
+  text-align: left !important; /* иконка + текст слева, не по центру блока */
 }
 #general_filters_form > div {
   position: relative;
@@ -5270,9 +5338,12 @@ form .show-entire-crit-report thead .StickyHeader td {
    ============================================================ */
 
 /* Плавные переходы ширины меню и контента */
-.top_tabs_row,
+.top_tabs_row {
+  transition: width 0.25s ease, background-size 0.25s ease,
+    background-position 0.25s ease !important;
+}
 .upper_tabs_nav {
-  transition: width 0.25s ease !important;
+  transition: width 0.25s ease, margin-top 0.25s ease !important;
 }
 .begin-report-area {
   transition: max-width 0.25s ease, margin-left 0.25s ease !important;
@@ -5313,7 +5384,9 @@ body .upper_tabs_nav .tabs_menu.upper_tabs_list > li > a.linkClass {
   transform: translateX(-12px);
 }
 /* Иконка пункта зафиксирована слева в ОБОИХ состояниях — не двигается;
-   текст выезжает из-под неё (в т.ч. при наведении положение не меняется) */
+   текст выезжает из-под неё (в т.ч. при наведении положение не меняется).
+   По вертикали приподнимаем иконку на 2px — плейсхолдерный глиф «нижне-
+   тяжёлый», из-за чего визуально казался ниже центра относительно текста. */
 body
   .upper_tabs_nav
   > ul.tabs_menu.upper_tabs_list
@@ -5323,7 +5396,7 @@ body
   .upper_tabs_nav
   > ul.tabs_menu.upper_tabs_list
   > li.fathertab.upper_tabs_item.tab_menu_item {
-  background-position: 23px center !important;
+  background-position: 23px calc(50% - 2px) !important;
 }
 /* В свёрнутом виде жёстко держим ширину рельса 60px и клипаем подписи —
    иначе скрытый (opacity:0) текст растягивает панель */
@@ -5373,27 +5446,28 @@ html.sb-open .begin-report-area {
 /* --- Кнопка-бургер --- */
 #lk-burger {
   position: fixed;
-  top: 4px;
-  left: 8px;
+  /* 26x26, скругление 10 (как полоска «Добро пожаловать»).
+     Горизонтально — по центру свёрнутого рельса (61px): left = (61-26)/2 ≈ 18.
+     Вертикально — по центру полоски приветствия (её центр ≈ y30): top = 30-13 = 17. */
+  top: 17px;
+  left: 18px;
   z-index: 2147483000;
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 5px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.6) !important;
-  border-radius: 8px;
+  border: none !important;
+  border-radius: 10px;
   cursor: pointer;
-  /* Сразу видимая фиолетовая кнопка (бренд-цвет) с белым контуром на шапке */
   background: var(--main-brand-color) !important;
-  transition: filter 0.2s ease, border-color 0.2s ease;
+  transition: filter 0.2s ease;
 }
 #lk-burger:hover {
   background: var(--main-brand-color) !important;
-  border-color: #fff !important;
   filter: brightness(1.2);
 }
 #lk-burger span {
@@ -5421,9 +5495,138 @@ html.sb-open #lk-burger span:nth-child(3) {
    ============================================================ */
 /* Подписи в свёрнутом виде скрыты через opacity:0, поэтому hover-раскрытие
    темы (font-size) ни на что не влияет; иконка зафиксирована выше — не дёргается. */
-/* Логотип/фон рельса по наведению не реагирует */
-html:not(.sb-open).page-main-menu .top_tabs_row:hover {
-  background-position: center top 0px;
+/* Логотип: в свёрнутом виде компактный; при наведении не дёргается
+   (в базовой теме hover раздувал его до 100px). */
+.page-main-menu .top_tabs_row,
+.page-main-menu .top_tabs_row:hover {
+  background-size: auto 50px !important;
+  background-position: center top 52px !important; /* ниже кнопки-бургера */
+}
+/* При раскрытии панели логотип увеличивается (по макету — кружок 180px),
+   а меню опускается ниже логотипа с разделителем. */
+html.sb-open .page-main-menu .top_tabs_row,
+html.sb-open .page-main-menu .top_tabs_row:hover {
+  background-size: auto 180px !important;
+  background-position: center top 40px !important;
+}
+/* Меню ниже логотипа + разделитель под лого: по макету — линия 180×2px,
+   цвет акцента (#541261), по центру рельса (не во всю ширину). */
+html.sb-open tr:first-child > td:first-child:last-child > .upper_tabs_nav,
+html.sb-open
+  .top_tabs_row
+  > tbody
+  > tr:first-child
+  > td.upper_tabs_nav:nth-child(2) {
+  margin-top: 245px !important;
+  padding-top: 18px !important;
+  background-image: linear-gradient(
+    var(--main-brand-color),
+    var(--main-brand-color)
+  ) !important;
+  background-size: 180px 2px !important;
+  background-position: top center !important;
+  background-repeat: no-repeat !important;
+}
+/* Цвет подписей меню как в макете (#3C3C3B); активный пункт — акцентный. */
+html.sb-open .top_tabs_row .tabs_menu.upper_tabs_list > li > a.linkClass {
+  color: var(--text-color) !important;
+}
+html.sb-open .upper_tabs_nav li.fathertab.Ajax2TabActive a.linkClass {
+  color: var(--main-brand-color) !important;
+}
+/* Плавное раскрытие нижнего блока — как у среднего.
+   Средний блок открывается «шторкой»: контейнер .upper_tabs_nav имеет
+   overflow:hidden и анимирует width, поэтому текст и разделитель проявляются
+   слева направо и НЕ вылезают за пределы рельсы. Нижний блок —
+   это отдельная position:fixed таблица (overflow у таблицы не режет контент по
+   width), поэтому тот же эффект даём через clip-path: в свёрнутом виде видно
+   левые 60px (иконки), в раскрытом — весь блок; переход анимируем. */
+#menu_top_level_wrapper {
+  transition: clip-path 0.25s ease !important;
+}
+html:not(.sb-open) #menu_top_level_wrapper {
+  clip-path: inset(0 calc(100% - 60px) 0 0) !important;
+}
+/* Нижний блок (Главная/Управление/Отчёты/Выход): разделитель 180×2px акцент. */
+html.sb-open #menu_top_level_wrapper {
+  clip-path: inset(0 0 0 0) !important;
+  padding-top: 18px !important;
+  background-image: linear-gradient(
+    var(--main-brand-color),
+    var(--main-brand-color)
+  ) !important;
+  background-size: 180px 2px !important;
+  /* Тот же отступ слева (18px от края блока → абсолютные 20px), что и у
+     верхнего разделителя среднего блока, чтобы обе линии совпадали. */
+  background-position: left 18px top !important;
+  background-repeat: no-repeat !important;
+}
+html.sb-open #menu_top_level_wrapper td.top_menu {
+  text-align: left !important;
+}
+/* Нижние подписи: тот же эффект появления, что у среднего блока — текст
+   «выезжает» из-под неподвижной иконки. Отличие структуры: здесь иконка —
+   фон САМОЙ ссылки (а не родителя, как <li> в среднем блоке), поэтому:
+   • сдвиг делаем через text-indent (двигает только текст, фон-иконка стоит);
+   • появление — через color (а не opacity, иначе спряталась бы и иконка).
+   Отступы выровнены со средним блоком: иконка на 23px, текст на 46px.
+   Иконку рисуем той же высоты (16px), что и в среднем блоке, иначе она
+   крупнее и «съедает» зазор до текста.
+   Высота строки 30px (line-height 20 + по 5px свер/снизу) синхронизирована с
+   шагом пунктов среднего блока — чтобы вся панель выглядела единообразно.
+   display:block — чтобы фон наведения заполнял всю строку (в т.ч. свёрнуто). */
+#menu_top_level_wrapper td.top_menu a {
+  display: block !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: transparent !important;
+  padding-left: 46px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  line-height: 20px !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  background-position: 23px center !important;
+  background-size: auto 16px !important;
+  text-indent: -12px;
+  transition: color 0.25s ease, text-indent 0.25s ease !important;
+}
+/* Наведение — тот же эффект, что и в среднем блоке (без активного пункта).
+   Работает в обоих состояниях: свёрнуто фон закрывает видимые 60px рельса. */
+#menu_top_level_wrapper td.top_menu a:hover {
+  background-color: rgba(84, 18, 97, 0.07) !important;
+}
+/* Раскрыто: текст проявляется (цвет) и доезжает до 44px. Иконка не двигается. */
+html.sb-open #menu_top_level_wrapper td.top_menu a {
+  color: var(--text-color) !important;
+  text-indent: 0 !important;
+}
+/* Свёрнуто: подпись невидима (color: transparent), но ИКОНКА видна.
+   Держим ссылку в ширину рельсы (60px), чтобы скрытый текст не расширял блок. */
+html:not(.sb-open) #menu_top_level_wrapper td.top_menu a {
+  width: 60px !important;
+  max-width: 60px !important;
+  overflow: hidden !important;
+}
+/* Свёрнутое состояние: опускаем меню так, чтобы отступ после логотипа совпадал
+   с зазором между кнопкой и логотипом (лого 52..102 → пункты с 111). */
+html:not(.sb-open) tr:first-child > td:first-child:last-child > .upper_tabs_nav,
+html:not(.sb-open)
+  .top_tabs_row
+  > tbody
+  > tr:first-child
+  > td.upper_tabs_nav:nth-child(2) {
+  margin-top: 111px !important;
+}
+/* Подсветка активного пункта бокового меню (наш акцент).
+   Базовая тема красит активный li в серый и наше правило для div его не ловит. */
+.upper_tabs_nav li.fathertab.Ajax2TabActive {
+  background-color: rgba(84, 18, 97, 0.1) !important;
+  box-shadow: inset 3px 0 0 0 var(--main-brand-color) !important;
+}
+.upper_tabs_nav li.fathertab.Ajax2TabActive a.linkClass {
+  color: var(--main-brand-color) !important;
 }
 /* Выпадающие подменю по наведению отключаем полностью */
 .fathertab:hover > .subtab,
@@ -5475,5 +5678,151 @@ select,
 .list-select,
 button.ui-multiselect,
 button.ui-multiselect.ui-widget.ui-state-default.ui-corner-all {
-  border-radius: 8px !important;
+  border-radius: 10px !important; /* как в макете — поля скруглены сильнее (было 8) */
+}
+
+/* ============================================================
+   Выравнивание блоков основной страницы по единой рамке (левый край 86,
+   правый — как у шапки-приветствия). Карточки в сетке имеют разный colspan,
+   из-за чего «плавали» справа: пустые фантомные колонки съедали по 26px.
+   Решение: убираем горизонтальный border-spacing (источник разброса) и задаём
+   отступы-рамку самой таблице-сетке (по 26px слева/справа). Фильтры — туда же.
+   Раскладку/порядок карточек резолвим на стороне сервера, CSS их не трогает.
+   ============================================================ */
+table.grid_reports_table {
+  border-spacing: 0 24px !important; /* убираем горизонтальные зазоры колонок */
+  width: calc(100% - 52px) !important;
+  margin-left: 26px !important;
+  margin-right: 26px !important;
+  box-sizing: border-box !important;
+}
+#general_filters_form {
+  margin-left: 26px !important; /* левый край фильтров в линию с карточками */
+}
+/* Зазор 10px между фильтрами (и перед кнопкой-шестерёнкой) */
+#general_filters_form > div {
+  margin-right: 10px !important;
+}
+
+/* ============================================================
+   ФИЛЬТРЫ → настоящие кнопки «Подтвердить» (зелёная) и «Очистить» (серая),
+   как в макете Figma: иконка слева + текст, скругление 10px, высота 30px,
+   Montserrat ExtraBold 16, белые текст и иконки.
+   Иконки (шестерёнка/корзина) перекрашены в белый в их data-URI выше
+   (fill %23fff). Селекторы с префиксом body — чтобы перебить разрозненные
+   легаси-правила иконок-«пиктограмм» выше по файлу. Правила НЕ трогают
+   .upper_tabs_nav-контекст (свёрнутая рельса) — там своя специфичность.
+   ============================================================ */
+/* Подтвердить — зелёная (#16A34A) */
+body input#update_filters {
+  background-color: #16a34a !important;
+  top: 12px !important; /* по центру строки с выпадашками (их середина ~98px) */
+  margin-left: 5px !important; /* мультиселекты имеют margin 0 5px; даём кнопке
+                                 такой же левый зазор → отступ до неё = 10px как везде */
+  background-position: left 12px center !important;
+  background-size: auto 17px !important;
+  background-repeat: no-repeat !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  height: 30px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  padding: 0 16px 0 36px !important;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+}
+body input#update_filters:hover {
+  background-color: #12833c !important;
+  border-color: #12833c !important;
+  color: #ffffff !important;
+}
+/* Очистить — серая (#64748B) */
+body a#link_to_clear_general_filters {
+  background-color: #64748b !important;
+  top: 27px !important; /* выравниваем по центру строки с выпадашками */
+  background-position: left 12px center !important;
+  background-size: auto 17px !important;
+  background-repeat: no-repeat !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  padding: 0 16px 0 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  /* «Очистить» лежит в отдельном контейнере (не в форме фильтров), который сам
+     добавляет ~16px слева. Отрицательный margin компенсирует его, давая итоговый
+     видимый зазор 10px до «Подтвердить» — как между остальными элементами. */
+  margin-left: -6px !important;
+}
+body a#link_to_clear_general_filters:hover {
+  background-color: #525e70 !important;
+}
+/* Текст «Очистить» был спрятан (font-size:0 на span) — показываем, белый. */
+body #link_to_clear_general_filters .ui-button-text {
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+/* Нативный select даты (Предыдущий год): у него стрелка браузера (appearance:auto)
+   и её не перекрасить. Отключаем нативную и рисуем такой же фиолетовый (#541261)
+   шеврон, как у мультиселектов, — чтобы стрелки во всех фильтрах совпадали. */
+body #general_filters_form select.list-select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='16' height='9' viewBox='0 0 16 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M1 0.872359L8.03724 7.12769L15.0745 0.872359' stroke='%23541261' stroke-width='2'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 14px auto !important;
+  padding-right: 32px !important;
+}
+
+/* ============================================================
+   ИКОНКИ РАЗДЕЛОВ ЛЕВОЙ РЕЛЬСЫ (средний блок).
+   Класс lk-sec-<ключ> проставляет sidebar-toggle.js по НАЗВАНИЮ пункта
+   (не по client-specific cat_id и не по nth-child). Неизвестные пункты
+   класс не получают и остаются на текущей иконке-фолбэке. Иконки из
+   папки проекта tags (Figma), перекрашены в #3C3C3B. !important — базовая
+   иконка задаётся без !important, поэтому перебивается легко.
+   ============================================================ */
+.upper_tabs_nav li.tab_menu_item.lk-sec-branches {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' id%3D'Layer_1' viewBox%3D'0 0 24 24' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' data-name%3D'Layer 1'%3E%3Cpath d%3D'm12 7v-6.54c.913.346 1.753.879 2.465 1.59l3.484 3.486c.712.711 1.245 1.551 1.591 2.464h-6.54c-.552 0-1-.449-1-1zm7.5 11c3.044 0 4.279-.811 4.5-1.079v-2.421c0-.883-1.85-1.5-4.5-1.5s-4.5.617-4.5 1.5v2.421c.221.268 1.456 1.079 4.5 1.079m0 6c2.859 0 4.5-.79 4.5-2.167v-2.61c-1.079.466-2.57.777-4.5.777s-3.421-.311-4.5-.777v2.61c0 1.377 1.641 2.167 4.5 2.167m-6.5-2.167v-7.333c0-1.052.634-3.5 6.5-3.5.175 0 .33.009.496.013-.005-.401-.012-.911-.019-1.013h-6.976c-1.654 0-3-1.346-3-3v-6.976c-.161-.011-.322-.024-.485-.024h-4.516c-2.757 0-5 2.243-5 5v14c0 2.757 2.243 5 5 5h8.751c-.651-.842-.751-1.727-.751-2.167zm-7-2.833c0 .552-.447 1-1 1s-1-.448-1-1v-3c0-.552.447-1 1-1s1 .448 1 1zm4 0c0 .552-.447 1-1 1s-1-.448-1-1v-7c0-.552.447-1 1-1s1 .448 1 1z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-sections {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%0A  %3Cpath d%3D'm24%2C15H8v-6h16v6ZM8%2C7h16c0-2.757-2.243-5-5-5h-11v5Zm-2%2C2H0v6h6v-6Zm2%2C13h11c2.757%2C0%2C5-2.243%2C5-5H8v5ZM6%2C2h-1C2.243%2C2%2C0%2C4.243%2C0%2C7h6V2Zm0%2C15H0c0%2C2.757%2C2.243%2C5%2C5%2C5h1v-5Z'%2F%3E%0A%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-questions {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm18%2C11.996v-7C18%2C2.239%2C15.757-.004%2C13-.004H5C2.243-.004%2C0%2C2.239%2C0%2C4.996v12.854c0%2C.793.435%2C1.519%2C1.134%2C1.894.318.171.667.255%2C1.015.255.416%2C0%2C.831-.121%2C1.191-.36l3.963-2.643h5.697c2.757%2C0%2C5-2.243%2C5-5Zm-9%2C2.004c-.552%2C0-1-.448-1-1s.448-1%2C1-1%2C1%2C.448%2C1%2C1-.448%2C1-1%2C1Zm1.447-4.371c-.447.246-.447.318-.447.371%2C0%2C.553-.448%2C1-1%2C1s-1-.447-1-1c0-1.308%2C1.038-1.879%2C1.481-2.123.29-.159.595-.535.502-1.066-.069-.392-.402-.725-.793-.793-.306-.056-.602.022-.832.216-.228.19-.358.47-.358.767%2C0%2C.553-.448%2C1-1%2C1s-1-.447-1-1c0-.889.391-1.727%2C1.072-2.299.681-.572%2C1.577-.814%2C2.463-.653%2C1.209.211%2C2.204%2C1.205%2C2.417%2C2.417.223%2C1.272-.382%2C2.543-1.506%2C3.164Zm13.553-.633v12.854c0%2C.793-.435%2C1.519-1.134%2C1.894-.318.171-.667.255-1.015.256-.416%2C0-.831-.121-1.19-.36l-3.964-2.644h-5.697c-1.45%2C0-2.747-.631-3.661-1.62l.569-.38h5.092c3.859%2C0%2C7-3.141%2C7-7v-7c0-.308-.027-.608-.065-.906%2C2.311.44%2C4.065%2C2.469%2C4.065%2C4.906Z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-summary {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' id%3D'Layer_1' viewBox%3D'0 0 24 24' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' data-name%3D'Layer 1'%3E%3Cpath d%3D'm0 10v8c0 2.757 2.243 5 5 5h14c2.757 0 5-2.243 5-5v-8zm9 9c0 .553-.448 1-1 1s-1-.447-1-1v-2c0-.553.448-1 1-1s1 .447 1 1zm4 0c0 .553-.448 1-1 1s-1-.447-1-1v-6c0-.553.448-1 1-1s1 .447 1 1zm4 0c0 .553-.448 1-1 1s-1-.447-1-1v-4c0-.553.448-1 1-1s1 .447 1 1zm2-18h-14c-2.757 0-5 2.243-5 5v2h24v-2c0-2.757-2.243-5-5-5zm-14.5 5c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5zm4 0c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-pdf {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M7.98%2C16.11c0%2C.47-.41%2C.86-.89%2C.86h-.83s0-1.72%2C0-1.72h.84c.48%2C0%2C.89%2C.39%2C.89%2C.86Zm7.02-8.11h6.54c-.35-.91-.88-1.75-1.59-2.46l-3.48-3.49c-.71-.71-1.55-1.24-2.46-1.59V7c0%2C.55%2C.45%2C1%2C1%2C1Zm-2.91%2C7.25h-.84v3.5s.84%2C0%2C.84%2C0c.48%2C0%2C.89-.39%2C.89-.86v-1.78c0-.47-.41-.86-.89-.86Zm9.91-4.76v8.51c0%2C2.76-2.24%2C5-5%2C5H7c-2.76%2C0-5-2.24-5-5V5C2%2C2.24%2C4.24%2C0%2C7%2C0h4.51c.16%2C0%2C.32%2C.01%2C.49%2C.02V7c0%2C1.65%2C1.35%2C3%2C3%2C3h6.98c.01%2C.16%2C.02%2C.32%2C.02%2C.49Zm-12.77%2C5.62c0-1.16-.96-2.11-2.14-2.11h-1.09c-.55%2C0-1%2C.45-1%2C1v4.44c0%2C.35%2C.28%2C.62%2C.62%2C.62s.62-.28%2C.62-.62v-1.22h.84c1.18%2C0%2C2.14-.95%2C2.14-2.11Zm5%2C0c0-1.16-.96-2.11-2.14-2.11h-1.09c-.55%2C0-1%2C.45-1%2C1v4.44c0%2C.35%2C.28%2C.56%2C.62%2C.56s1.46%2C0%2C1.46%2C0c1.18%2C0%2C2.14-.95%2C2.14-2.11v-1.78Zm4.79-1.48c0-.35-.28-.62-.62-.62h-2.31c-.35%2C0-.62%2C.28-.62%2C.62v4.81c0%2C.35%2C.28%2C.62%2C.62%2C.62s.62-.28%2C.62-.62v-1.8h1.24c.35%2C0%2C.62-.28%2C.62-.62s-.28-.62-.62-.62h-1.24v-1.14h1.69c.35%2C0%2C.62-.28%2C.62-.62Z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-artifacts {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M24%2C15v6.5c0%2C1.381-1.119%2C2.5-2.5%2C2.5s-2.5-1.119-2.5-2.5%2C1.119-2.5%2C2.5-2.5c.171%2C0%2C.338%2C.018%2C.5%2C.05v-4.05c0-.551-.448-1-1-1h-3c-.552%2C0-1%2C.449-1%2C1v6.5c0%2C1.381-1.119%2C2.5-2.5%2C2.5s-2.5-1.119-2.5-2.5%2C1.119-2.5%2C2.5-2.5c.171%2C0%2C.338%2C.018%2C.5%2C.05v-4.05c0-1.654%2C1.346-3%2C3-3h3c1.654%2C0%2C3%2C1.346%2C3%2C3Zm-15.104-3.157c-.562-.808-.896-1.786-.896-2.843V5c0-2.757%2C2.243-5%2C5-5h6c1.709%2C0%2C3.217%2C.864%2C4.119%2C2.175l-4.962%2C4.994-.475-.479c-.736-.738-1.894-.792-2.711-.111l-6.075%2C5.265Zm1.091-8.228c0%2C.828%2C.672%2C1.5%2C1.5%2C1.5s1.5-.672%2C1.5-1.5-.672-1.5-1.5-1.5-1.5%2C.672-1.5%2C1.5Zm.013%2C17.885c0%2C.925%2C.281%2C1.785%2C.76%2C2.5H4.5c-2.485%2C0-4.5-2.015-4.5-4.5v-5c0-2.485%2C2.015-4.5%2C4.5-4.5h.766c.448%2C0%2C.848%2C.296%2C.958%2C.73%2C.769%2C3.024%2C3.501%2C5.264%2C6.764%2C5.27l.012%2C.002v1.291c-1.743%2C.616-3%2C2.252-3%2C4.207Zm-6-1.5h-1.945c.2%2C.977%2C.968%2C1.75%2C1.945%2C1.95v-1.95Zm0-4H2v2h2v-2Zm0-3.95c-.978%2C.199-1.745%2C.972-1.945%2C1.95h1.945v-1.95ZM23.919%2C4.203l-4.351%2C4.374c-.781%2C.781-2.051%2C.781-2.83%2C.002l-.476-.48-5.909%2C5.126c.77%2C.484%2C1.672%2C.775%2C2.646%2C.775h.101c.465-2.279%2C2.484-4%2C4.899-4h3c.979%2C0%2C1.885%2C.293%2C2.657%2C.781%2C.213-.555%2C.343-1.152%2C.343-1.781V5c0-.273-.038-.536-.081-.797Z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
+}
+.upper_tabs_nav li.tab_menu_item.lk-sec-status {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%233c3c3b' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm20%2C0H4C1.794%2C0%2C0%2C1.794%2C0%2C4v12c0%2C2.206%2C1.794%2C4%2C4%2C4h2.923l3.748%2C3.157c.382.339.862.507%2C1.337.507.468%2C0%2C.931-.162%2C1.293-.484l3.847-3.18h2.852c2.206%2C0%2C4-1.794%2C4-4V4c0-2.206-1.794-4-4-4Zm-2.298%2C7.712l-5.793%2C5.707c-.386.387-.896.58-1.407.58s-1.025-.195-1.416-.585l-2.782-2.696c-.397-.385-.407-1.018-.022-1.414.385-.397%2C1.018-.406%2C1.414-.022l2.793%2C2.707%2C5.809-5.701c.396-.387%2C1.027-.383%2C1.414.011.388.393.384%2C1.026-.01%2C1.414Z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: auto 16px !important;
 }
