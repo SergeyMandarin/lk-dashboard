@@ -11,7 +11,9 @@
 ## Подключение в ЛК клиента
 
 В поле для JS в личном кабинете вставить **загрузчик** (в нём нет символа `<`,
-поэтому поле его не обрежет). Заменить `USERNAME` и `REPO` на свои:
+поэтому поле его не обрежет). Файл отдаём через **jsDelivr** прямо из GitHub-репо
+(домен `cdn.jsdelivr.net` разрешён в CSP платформы; `github.io` — заблокирован).
+Заменить `USERNAME` и `REPO` на свои:
 
 ```javascript
 (function () {
@@ -20,15 +22,17 @@
       document.documentElement.classList.add("sb-open");
   } catch (e) {}
   var s = document.createElement("script");
-  s.src = "https://USERNAME.github.io/REPO/sidebar-toggle.js";
+  s.src = "https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/sidebar-toggle.js";
   s.async = false;
   (document.head || document.documentElement).appendChild(s);
 })();
 ```
 
-CSS пока подключается штатным полем CSS дашборда (содержимым `dashboard.css`).
+Репозиторий должен быть **public**. CSS пока подключается штатным полем CSS
+дашборда (содержимым `dashboard.css`).
 
 ## Обновление
-Меняем файл в репозитории → коммит/пуш (или загрузка через веб-интерфейс).
-GitHub Pages отдаёт с коротким кешем (~10 мин), клиентов трогать не нужно.
-Если нужно мгновенно — добавить версию к URL в загрузчике: `...sidebar-toggle.js?v=2`.
+Меняем файл в репозитории → коммит/пуш. jsDelivr кеширует `@main` (~до 12 ч),
+клиентов трогать не нужно. Чтобы обновление доехало **сразу** — открыть один раз
+пург-ссылку:
+`https://purge.jsdelivr.net/gh/USERNAME/REPO@main/sidebar-toggle.js`
