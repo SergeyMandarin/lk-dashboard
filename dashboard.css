@@ -5929,12 +5929,25 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   left: 0 !important;
   z-index: 3;
 }
-/* Убираем боковые margin у шапки: с ними sticky фиксируется со сдвигом (~margin),
+/* Убираем боковые margin у шапки: с ними sticky фиксируется СО СДВИГОМ (~margin),
    а left в этом контексте игнорируется (шапка зажата containing-block). Без margin
-   natural = точка пиннинга — фиксация без сдвига; разделитель совпадает по ширине
-   с подзаголовком (он тоже sticky, .grid_report_td h1 + div). */
+   natural = точка пиннинга — фиксация без сдвига. Но margin держал инсет разделителя
+   и позицию угловых иконок — поэтому инсет возвращаем другими средствами (ниже). */
 .grid_report_td h1,
 .grid_report_td .dragableBoxHeader {
   margin-left: 0 !important;
   margin-right: 0 !important;
+  /* Разделитель: инсет 20px делаем ГРАДИЕНТОМ (border тянется от margin, а margin
+     даёт sticky-сдвиг). Линия 2px акцент, отступ 20px с каждой стороны. */
+  border-bottom: 0 !important;
+  background-image: linear-gradient(var(--main-brand-color), var(--main-brand-color)) !important;
+  background-repeat: no-repeat !important;
+  background-position: bottom center !important;
+  background-size: calc(100% - 40px) 2px !important;
+}
+/* Угловые иконки шапки (шестерёнка/редактирование) — сдвиг на 20px внутрь:
+   компенсируем убранный боковой margin, возвращаем их прежний инсет. */
+.grid_report_td h1 a,
+.grid_report_td .dragableBoxHeader a {
+  transform: translateX(-20px) !important;
 }
