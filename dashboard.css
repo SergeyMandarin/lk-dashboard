@@ -5923,8 +5923,18 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    на экране. Для узких блоков без скролла правило инертно.
    ============================================================ */
 .grid_report_td h1,
-.grid_report_td .dragableBoxHeader {
+.grid_report_td .dragableBoxHeader,
+.grid_report_td h1 + div {
   position: sticky !important;
   left: 0 !important;
   z-index: 3;
+}
+/* Убираем боковые margin у шапки: с ними sticky фиксируется со сдвигом (~margin),
+   а left в этом контексте игнорируется (шапка зажата containing-block). Без margin
+   natural = точка пиннинга — фиксация без сдвига; разделитель совпадает по ширине
+   с подзаголовком (он тоже sticky, .grid_report_td h1 + div). */
+.grid_report_td h1,
+.grid_report_td .dragableBoxHeader {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
