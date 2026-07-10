@@ -5891,7 +5891,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    ============================================================ */
 #lk-hbar{
   position: fixed;
-  bottom: 20px;
+  bottom: 0;
   height: 14px;
   display: none;
   z-index: 9000;
