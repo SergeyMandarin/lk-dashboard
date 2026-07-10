@@ -56,7 +56,10 @@
     } catch (e) {}
     /* после анимации сдвига контента (0.25s) перерисовываем графики и полосу */
     setTimeout(reflowCharts, 320);
-    setTimeout(updateHBar, 340);
+    setTimeout(function () {
+      updateHBar();
+      sizeExportBars();
+    }, 340);
   }
 
   function toggle() {
@@ -359,6 +362,49 @@
     updateHBar();
   }
 
+  /* Ширину панели кнопок задаём здесь: блок внутри слота растянулся бы на всю
+     ширину данных (напр. 5737), а нам нужна ширина видимой области скроллера,
+     чтобы кнопки центрировались по экрану. */
+  function sizeExportBars() {
+    var bars = document.querySelectorAll(".lk-export-bar");
+    [].forEach.call(bars, function (bar) {
+      var scroller = bar.closest(".lk-pannable");
+      bar.style.width = scroller ? scroller.clientWidth + "px" : "";
+    });
+  }
+
+  /* Кнопки экспорта лежат ВНУТРИ широкой таблицы (в .dashboard-report-slot рядом
+     с данными), поэтому уезжают при гориз.прокрутке. Оборачиваем их в один
+     sticky-контейнер (.lk-export-bar) — стили в CSS его центрируют и держат на
+     виду. Слот пинить нельзя (утащил бы данные), поэтому пиним только обёртку. */
+  function wrapExportBars() {
+    var slots = document.querySelectorAll(".dashboard-report-slot");
+    [].forEach.call(slots, function (slot) {
+      if (slot.getAttribute("data-lk-exportbar") === "1") return;
+      var ctrls = [].filter.call(slot.children, function (c) {
+        if (c.tagName === "FORM") return true;
+        if (c.tagName === "INPUT" && ("" + c.className).indexOf("btn-input") !== -1) {
+          return true;
+        }
+        return false;
+      });
+      if (!ctrls.length) return;
+      slot.setAttribute("data-lk-exportbar", "1");
+      var bar = document.createElement("div");
+      bar.className = "lk-export-bar";
+      slot.insertBefore(bar, ctrls[0]);
+      ctrls.forEach(function (c) {
+        bar.appendChild(c);
+      });
+    });
+    sizeExportBars();
+  }
+
+  function enhanceReports() {
+    initWideScroll();
+    wrapExportBars();
+  }
+
   function onReady() {
     createBurger();
     tagRailIcons();
@@ -366,10 +412,11 @@
     reflowCharts();
     setTimeout(reflowCharts, 500);
     setTimeout(reflowCharts, 1500);
-    /* широкие отчёты — липкая полоса + drag-to-pan (тоже могут грузиться по ajax) */
-    initWideScroll();
-    setTimeout(initWideScroll, 800);
-    setTimeout(initWideScroll, 1800);
+    /* широкие отчёты: липкая полоса + drag-to-pan + обёртка кнопок экспорта
+       (данные/кнопки могут подгружаться по ajax — повторяем с задержками) */
+    enhanceReports();
+    setTimeout(enhanceReports, 800);
+    setTimeout(enhanceReports, 1800);
   }
 
   if (document.readyState === "loading") {
@@ -384,9 +431,10 @@
   window.addEventListener("scroll", scheduleHBar, { passive: true });
   window.addEventListener("resize", function () {
     refreshScrollers();
+    sizeExportBars();
     scheduleHBar();
   });
   window.addEventListener("load", function () {
-    setTimeout(initWideScroll, 300);
+    setTimeout(enhanceReports, 300);
   });
 })();

@@ -5877,7 +5877,7 @@ input.btn-input[onclick*="IEprompt"],input.btn-input[onclick*="open_export_type_
   background-repeat:no-repeat !important; background-position:left 12px center !important; background-size:auto 13px !important;
   margin:4px 8px 4px 0 !important; min-width:0 !important; width:auto !important;
 }
-input.btn-input[onclick*="IEprompt"]{margin-left:30px !important;background-color:#365d8d !important;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Filled' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M23.954%2C5.542%2C15.536%2C13.96a5.007%2C5.007%2C0%2C0%2C1-7.072%2C0L.046%2C5.542C.032%2C5.7%2C0%2C5.843%2C0%2C6V18a5.006%2C5.006%2C0%2C0%2C0%2C5%2C5H19a5.006%2C5.006%2C0%2C0%2C0%2C5-5V6C24%2C5.843%2C23.968%2C5.7%2C23.954%2C5.542Z'%2F%3E%3Cpath d%3D'M14.122%2C12.546l9.134-9.135A4.986%2C4.986%2C0%2C0%2C0%2C19%2C1H5A4.986%2C4.986%2C0%2C0%2C0%2C.744%2C3.411l9.134%2C9.135A3.007%2C3.007%2C0%2C0%2C0%2C14.122%2C12.546Z'%2F%3E%3C%2Fsvg%3E") !important;}
+input.btn-input[onclick*="IEprompt"]{background-color:#365d8d !important;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Filled' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M23.954%2C5.542%2C15.536%2C13.96a5.007%2C5.007%2C0%2C0%2C1-7.072%2C0L.046%2C5.542C.032%2C5.7%2C0%2C5.843%2C0%2C6V18a5.006%2C5.006%2C0%2C0%2C0%2C5%2C5H19a5.006%2C5.006%2C0%2C0%2C0%2C5-5V6C24%2C5.843%2C23.968%2C5.7%2C23.954%2C5.542Z'%2F%3E%3Cpath d%3D'M14.122%2C12.546l9.134-9.135A4.986%2C4.986%2C0%2C0%2C0%2C19%2C1H5A4.986%2C4.986%2C0%2C0%2C0%2C.744%2C3.411l9.134%2C9.135A3.007%2C3.007%2C0%2C0%2C0%2C14.122%2C12.546Z'%2F%3E%3C%2Fsvg%3E") !important;}
 input.btn-input[onclick*="IEprompt"]:hover{background-color:#2c4a70 !important;}
 input.btn-input[onclick*="open_export_type_dialogue"]{background-color:#1d6f42 !important;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%0A  %3Cpath d%3D'm24%2C15H8v-6h16v6ZM8%2C7h16c0-2.757-2.243-5-5-5h-11v5Zm-2%2C2H0v6h6v-6Zm2%2C13h11c2.757%2C0%2C5-2.243%2C5-5H8v5ZM6%2C2h-1C2.243%2C2%2C0%2C4.243%2C0%2C7h6V2Zm0%2C15H0c0%2C2.757%2C2.243%2C5%2C5%2C5h1v-5Z'%2F%3E%0A%3C%2Fsvg%3E") !important;}
 input.btn-input[onclick*="open_export_type_dialogue"]:hover{background-color:#175833 !important;}
@@ -5950,4 +5950,27 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
 .grid_report_td h1 a,
 .grid_report_td .dragableBoxHeader a {
   transform: translateX(-20px) !important;
+}
+
+/* ============================================================
+   Кнопки экспорта и нижний текст блока — фиксируем в видимой области
+   при гориз.прокрутке отчёта (логика обёртки кнопок — sidebar-toggle.js).
+   ============================================================ */
+/* Панель кнопок (обёртка .lk-export-bar из JS): sticky у левого края видимой
+   области, кнопки по центру. Ширина = видимая ширина скроллера (из JS).
+   .dashboard-report-slot держим text-align:left, иначе -webkit-center унёс бы
+   блок-обёртку в центр данных (5737) и кнопки уехали бы за скролл. */
+.lk-export-bar {
+  position: sticky;
+  left: 0;
+  text-align: center;
+  margin: 10px 0;
+  z-index: 2;
+}
+/* Нижний текст блока (примечания после таблицы) — sticky, остаётся по центру
+   видимой области. Только соседние с таблицей div-ы; данные — table, не заденет. */
+.grid_report_td center > table ~ div {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 2;
 }
