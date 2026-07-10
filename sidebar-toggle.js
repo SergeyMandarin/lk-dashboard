@@ -245,7 +245,12 @@
       var visTop = Math.max(r.top, 0);
       var visBottom = Math.min(r.bottom, vh);
       var visH = visBottom - visTop;
-      var nativeOffscreen = r.bottom > vh - HBAR_H;
+      /* высота родной горизонтальной полосы отчёта */
+      var sbH = el.offsetHeight - el.clientHeight;
+      sbH = sbH > 0 ? sbH : HBAR_H;
+      /* дублёр показываем ТОЛЬКО когда родная полоса целиком ушла ниже вьюпорта,
+         иначе у нижнего края отчёта на миг видны обе полосы */
+      var nativeOffscreen = r.bottom > vh + sbH;
       if (visH > 0 && nativeOffscreen && visH > bestVis) {
         bestVis = visH;
         best = el;
