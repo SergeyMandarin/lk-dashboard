@@ -127,6 +127,7 @@
      Windows 11 игнорирует "::-webkit-scrollbar", поэтому рисуем полосу сами —
      заодно делаем её жирнее и в акцентном цвете. */
   var HBAR_H = 14;
+  var HBAR_BOTTOM = 20; /* отступ полосы от низа экрана (= низ блока) */
   var THUMB_MIN = 40;
   var hbar = null;
   var thumb = null;
@@ -242,7 +243,7 @@
       var visTop = Math.max(r.top, 0);
       var visBottom = Math.min(r.bottom, vh);
       var visH = visBottom - visTop;
-      var nativeOffscreen = r.bottom > vh - HBAR_H;
+      var nativeOffscreen = r.bottom > vh - HBAR_BOTTOM - HBAR_H;
       if (visH > 0 && nativeOffscreen && visH > bestVis) {
         bestVis = visH;
         best = el;

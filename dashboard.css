@@ -5891,7 +5891,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    ============================================================ */
 #lk-hbar{
   position: fixed;
-  bottom: 0;
+  bottom: 20px;
   height: 14px;
   display: none;
   z-index: 9000;
@@ -5914,3 +5914,17 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
 
 .lk-pannable{ cursor: grab; }
 .lk-pannable.lk-panning{ cursor: grabbing; user-select: none; }
+
+
+/* ============================================================
+   Шапка блока-отчёта: фиксируем при ГОРИЗОНТАЛЬНОЙ прокрутке отчёта
+   (заголовок H1/.dragableBoxHeader лежит внутри скроллера <center>).
+   position:sticky + left:0 — не зависит от ширины блока и его позиции
+   на экране. Для узких блоков без скролла правило инертно.
+   ============================================================ */
+.grid_report_td h1,
+.grid_report_td .dragableBoxHeader {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 3;
+}
