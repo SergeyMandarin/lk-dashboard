@@ -409,6 +409,54 @@
     wrapExportBars();
   }
 
+  /* Данные отчёта (широкая таблица + кнопки) грузятся по AJAX и могут прийти
+     ПОЗЖЕ фиксированных таймеров — тогда полоса/обёртка кнопок не появлялись
+     ("то работает, то нет"). Наблюдаем за DOM и до-enhance'им, когда контент
+     реально добавился. Фильтр по релевантности — чтобы не срабатывать на
+     анимацию графиков; дебаунс — чтобы не гонять на каждую мутацию. */
+  var enhanceScheduled = false;
+  var reportObserver = null;
+
+  function scheduleEnhance() {
+    if (enhanceScheduled) return;
+    enhanceScheduled = true;
+    setTimeout(function () {
+      enhanceScheduled = false;
+      enhanceReports();
+    }, 150);
+  }
+
+  function mutationTouchesReport(records) {
+    var hit = false;
+    [].forEach.call(records, function (rec) {
+      if (hit) return;
+      [].forEach.call(rec.addedNodes, function (n) {
+        if (hit || n.nodeType !== 1) return;
+        var t = n.tagName;
+        if (t === "TABLE" || t === "CENTER" || t === "FORM" || t === "INPUT") {
+          hit = true;
+        } else if (
+          n.querySelector &&
+          n.querySelector("center, table, .dashboard-report-slot")
+        ) {
+          hit = true;
+        }
+      });
+    });
+    return hit;
+  }
+
+  function observeReports() {
+    if (reportObserver || !window.MutationObserver) return;
+    reportObserver = new MutationObserver(function (records) {
+      if (mutationTouchesReport(records)) scheduleEnhance();
+    });
+    reportObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+
   function onReady() {
     createBurger();
     tagRailIcons();
@@ -421,6 +469,8 @@
     enhanceReports();
     setTimeout(enhanceReports, 800);
     setTimeout(enhanceReports, 1800);
+    /* и наблюдаем за поздней AJAX-загрузкой данных отчёта */
+    observeReports();
   }
 
   if (document.readyState === "loading") {
