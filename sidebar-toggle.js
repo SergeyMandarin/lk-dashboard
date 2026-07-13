@@ -114,7 +114,10 @@
       [/артефакт/i, "artifacts"],
       [/статус/i, "status"]
     ];
-    var items = document.querySelectorAll(".upper_tabs_nav li.tab_menu_item");
+    /* десктопная рельса (.tab_menu_item) + мобильная (#reports_categories li) */
+    var items = document.querySelectorAll(
+      ".upper_tabs_nav li.tab_menu_item, #reports_categories li"
+    );
     [].forEach.call(items, function (li) {
       var txt = (li.textContent || "").trim().toLowerCase();
       MAP.some(function (pair) {
