@@ -6464,7 +6464,7 @@ html.lk-m {
   #lk-mnav #reports_categories li.lk-sec-overall {
     /* красный кружок с белым «?» — ЗАПОЛНЯЕТ бокс (как настоящие иконки),
        иначе тонкий глиф «?» не доходит до края и зазор до текста больше (18 vs 14) */
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Ccircle%20cx='12'%20cy='12'%20r='11'%20fill='%23e00000'/%3E%3Ctext%20x='12'%20y='17.5'%20font-size='16'%20font-weight='700'%20fill='%23ffffff'%20text-anchor='middle'%20font-family='Arial,sans-serif'%3E?%3C/text%3E%3C/svg%3E") !important;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Ccircle%20cx='12'%20cy='12'%20r='11.7'%20fill='%23e00000'/%3E%3Ctext%20x='12'%20y='17.5'%20font-size='16'%20font-weight='700'%20fill='%23ffffff'%20text-anchor='middle'%20font-family='Arial,sans-serif'%3E?%3C/text%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: 18px center !important;
     background-size: auto 16px !important;
