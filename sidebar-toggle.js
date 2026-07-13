@@ -670,28 +670,37 @@
   function mnavDebug() {
     if (location.hash.indexOf("lkdbg") === -1) return;
     var out = [];
-    out.push("innerW=" + window.innerWidth + " screenW=" + screen.width);
-    out.push("mdw767=" + window.matchMedia("(max-device-width:767px)").matches);
-    var navs = document.querySelectorAll(".upper_tabs_nav");
-    out.push(".upper_tabs_nav count=" + navs.length);
-    [].forEach.call(navs, function (n, i) {
-      out.push(
-        i + ") " + n.tagName + "." + ("" + n.className).slice(0, 24) +
-        " inMnav=" + (mnav ? mnav.contains(n) : false) +
-        " disp=" + getComputedStyle(n).display +
-        " w=" + Math.round(n.getBoundingClientRect().width)
-      );
-    });
-    var bm = document.getElementById("menu_top_level_wrapper");
-    out.push("bottomMenu=" + (bm ? bm.tagName + " inMnav=" + (mnav ? mnav.contains(bm) : "-") : "none"));
-    var it = document.querySelector(".tab_menu_item, li.top_menu, td.top_menu");
-    out.push("menuItem=" + (it ? it.tagName + "." + ("" + it.className).slice(0, 30) : "none"));
+    out.push("W=" + window.innerWidth + " selects=" + document.querySelectorAll("select").length);
+    /* цепочка предков пункта рельсы "Филиалы" — покажет контейнер мобильной рельсы */
+    var item = [].filter.call(
+      document.querySelectorAll("a, li, span, div, option, td, strong"),
+      function (e) {
+        return (e.textContent || "").trim() === "Филиалы" && e.children.length <= 1;
+      }
+    )[0];
+    if (item) {
+      var p = item;
+      for (var i = 0; i < 7 && p && p !== document.body; i++) {
+        out.push(
+          i + ")" + p.tagName + "." + ("" + p.className).slice(0, 22) +
+          (p.id ? "#" + p.id.slice(0, 12) : "") +
+          (mnav && mnav.contains(p) ? " [inMnav]" : "")
+        );
+        p = p.parentElement;
+      }
+    } else {
+      out.push("'Филиалы' NOT FOUND");
+    }
+    out.push(
+      "ul.upper=" + document.querySelectorAll("ul.upper_tabs, ul.tabs_menu").length +
+      " toprow=" + document.querySelectorAll(".top_tabs_row").length
+    );
     var box = document.getElementById("lk-dbg") || document.createElement("div");
     box.id = "lk-dbg";
     box.style.cssText =
       "position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#000;" +
       "color:#0f0;font:13px monospace;padding:10px;white-space:pre-wrap;" +
-      "max-height:70vh;overflow:auto;";
+      "max-height:80vh;overflow:auto;";
     box.textContent = out.join("\n");
     document.body.appendChild(box);
   }
