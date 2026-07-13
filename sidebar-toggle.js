@@ -665,10 +665,42 @@
     else exitFilt();
   }
 
+  /* Диагностика для реального телефона: открыть URL с #lkdbg — покажет структуру
+     рельсы/меню (device-правила платформы у нас на десктопе не воспроизводятся). */
+  function mnavDebug() {
+    if (location.hash.indexOf("lkdbg") === -1) return;
+    var out = [];
+    out.push("innerW=" + window.innerWidth + " screenW=" + screen.width);
+    out.push("mdw767=" + window.matchMedia("(max-device-width:767px)").matches);
+    var navs = document.querySelectorAll(".upper_tabs_nav");
+    out.push(".upper_tabs_nav count=" + navs.length);
+    [].forEach.call(navs, function (n, i) {
+      out.push(
+        i + ") " + n.tagName + "." + ("" + n.className).slice(0, 24) +
+        " inMnav=" + (mnav ? mnav.contains(n) : false) +
+        " disp=" + getComputedStyle(n).display +
+        " w=" + Math.round(n.getBoundingClientRect().width)
+      );
+    });
+    var bm = document.getElementById("menu_top_level_wrapper");
+    out.push("bottomMenu=" + (bm ? bm.tagName + " inMnav=" + (mnav ? mnav.contains(bm) : "-") : "none"));
+    var it = document.querySelector(".tab_menu_item, li.top_menu, td.top_menu");
+    out.push("menuItem=" + (it ? it.tagName + "." + ("" + it.className).slice(0, 30) : "none"));
+    var box = document.getElementById("lk-dbg") || document.createElement("div");
+    box.id = "lk-dbg";
+    box.style.cssText =
+      "position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#000;" +
+      "color:#0f0;font:13px monospace;padding:10px;white-space:pre-wrap;" +
+      "max-height:70vh;overflow:auto;";
+    box.textContent = out.join("\n");
+    document.body.appendChild(box);
+  }
+
   function onReady() {
     createBurger();
     syncMnav();
     syncFilt();
+    mnavDebug();
     tagRailIcons();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
@@ -710,6 +742,7 @@
       syncMnav();
       syncFilt();
       enhanceReports();
+      mnavDebug();
     }, 300);
   });
 })();
