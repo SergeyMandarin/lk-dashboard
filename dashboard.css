@@ -6564,13 +6564,16 @@ html.lk-wide {
     padding: 12px 0 !important;
   }
   /* ячейка приветствия = блок на всю ширину (шапка заполняет по ней и выравнивается
-     с блоками отчётов) + внутренний padding 72px, чтобы центрированное приветствие
-     не подлезало под бургер (слева) и «Язык» (справа) на узких планшетах. */
-  #main_menu_title_text .gray-lighter2 {
+     с блоками отчётов) + внутренний padding-клиренс, чтобы центрированное приветствие
+     не подлезало под бургер (слева) и «Язык» (справа) на узких планшетах.
+     Селектор nth-child(2) — чтобы перебить lk-m'ное правило un-hide той же
+     специфичности (иначе ячейка оставалась inline и шапка съёживалась). «Язык»
+     занимает ~80px от края полосы, поэтому клиренс 88. */
+  #main_menu_title_text td.gray-lighter2:nth-child(2) {
     display: block !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 0 72px !important;
+    padding: 0 88px !important;
     text-align: center !important;
   }
   /* «Язык» — по вертикали центр полосы (top:29 при height 22); по горизонтали
