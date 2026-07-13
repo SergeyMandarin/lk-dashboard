@@ -6437,12 +6437,19 @@ html.lk-m {
   #lk-mnav #reports_categories li a,
   #lk-mnav #reports_categories li font { text-decoration: none !important; }
   /* нижнее меню — высота строки как у верхнего блока (верх: height:27 border-box;
-     низ был auto=46). Реплицируем 27px → одинаковый ритм. */
+     низ был auto=46). Реплицируем 27px → одинаковый ритм. Иконка 16px (была 18)
+     — иначе крупнее и зазор иконка→текст не совпадал с верхним блоком. */
   #lk-mnav #menu_top_level_wrapper .top_menu a {
     line-height: 1.35 !important;
     height: 27px !important;
     box-sizing: border-box !important;
+    background-size: auto 16px !important;
+    background-position: 18px center !important;
   }
+  /* разделитель нижнего блока (фон-линия на #menu_top_level_wrapper) — ближе к
+     «Главная»: сокращаем отступ сверху 30px → ~12px (padding-top + ul margin). */
+  #lk-mnav #menu_top_level_wrapper { padding-top: 12px !important; }
+  #lk-mnav #menu_top_level_wrapper ul { margin-top: 0 !important; }
 
   /* фолбэк красный «?» для пунктов без секц-иконки (+ «Общий результат», у
      которого иконки нет). Размер/позиция/метод — как у секц-иконок: auto 16px,
