@@ -6087,3 +6087,67 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   #lk-mnav .tab_menu_item a:active,
   #lk-mnav #menu_top_level_wrapper td.top_menu a:active { background-color: rgba(84,18,97,0.07) !important; }
 }
+
+/* ============================================================
+   Мобилка — фильтры под кнопку "Фильтры" (логика — sidebar-toggle.js):
+   полноэкранный оверлей #lk-filt, формы в столбик, влево.
+   ============================================================ */
+@media (max-width: 767px) {
+  #lk-filt-btn {
+    display: inline-flex; align-items: center;
+    margin: 12px 18px; padding: 12px 24px;
+    background: var(--main-brand-color); color: #fff; border: 0; border-radius: 10px;
+    font: 700 15px Montserrat, Arial, sans-serif; cursor: pointer;
+  }
+  #lk-filt-bd {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.45); z-index: 99999;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  #lk-filt {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff; z-index: 100000;
+    transform: translateX(100%); transition: transform .25s ease;
+    overflow-y: auto; overflow-x: hidden;
+  }
+  #lk-filt-hdr {
+    background: var(--main-brand-color); color: #fff; height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 16px Montserrat, Arial, sans-serif; position: sticky; top: 0;
+  }
+  #lk-filt-close {
+    position: absolute; right: 0; top: 0; width: 60px; height: 60px;
+    background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer;
+  }
+  html.filt-open #lk-filt { transform: translateX(0); }
+  html.filt-open #lk-filt-bd { opacity: 1; pointer-events: auto; }
+
+  /* формы фильтров в столбик, влево, на всю ширину */
+  #lk-filt #general_filters_form {
+    width: 100% !important; max-width: 100% !important;
+    padding: 14px 18px 28px !important; box-sizing: border-box; color: #3c3c3b;
+  }
+  #lk-filt #general_filters_form * { max-width: 100% !important; }
+  #lk-filt #general_filters_form table,
+  #lk-filt #general_filters_form tbody,
+  #lk-filt #general_filters_form tr,
+  #lk-filt #general_filters_form td,
+  #lk-filt #general_filters_form form {
+    display: block !important; width: 100% !important; box-sizing: border-box;
+    margin-left: 0 !important; margin-right: 0 !important; text-align: left !important;
+  }
+  #lk-filt #general_filters_form td {
+    padding: 5px 0 !important; white-space: normal !important;
+    line-height: 1.35 !important; font-size: 15px !important; vertical-align: middle;
+  }
+  #lk-filt #general_filters_form select,
+  #lk-filt #general_filters_form .list-select,
+  #lk-filt #general_filters_form .ui-multiselect,
+  #lk-filt #general_filters_form input:not([type=checkbox]):not([type=radio]) {
+    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
+    font-size: 15px !important;
+  }
+  #lk-filt #general_filters_form td:first-child,
+  #lk-filt #general_filters_form b,
+  #lk-filt #general_filters_form label { font-weight: 600 !important; }
+}

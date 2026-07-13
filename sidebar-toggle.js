@@ -531,9 +531,100 @@
     else exitMnav();
   }
 
+  /* ============================================================
+     Мобильные фильтры: на узких экранах прячем блок фильтров под кнопку
+     "Фильтры", по тапу — полноэкранный оверлей со стопкой. Формы
+     (general_filters_form + clear_general_filters_form) переносим в
+     оверлей #lk-filt и возвращаем на десктопе (обратимо). Оформление —
+     CSS (@media, #lk-filt). Показ — класс filt-open. Без символа "меньше". */
+  var FILT_BP = 767;
+  var filt = null;
+  var filtBd = null;
+  var filtBtn = null;
+  var filtBuilt = false;
+  var filtMoved = [];
+
+  function buildFilt() {
+    if (filt) return;
+    filtBd = document.createElement("div");
+    filtBd.id = "lk-filt-bd";
+    filtBd.addEventListener("click", function () {
+      root.classList.remove("filt-open");
+    });
+    filt = document.createElement("div");
+    filt.id = "lk-filt";
+    var hdr = document.createElement("div");
+    hdr.id = "lk-filt-hdr";
+    hdr.textContent = "Фильтры";
+    var close = document.createElement("button");
+    close.id = "lk-filt-close";
+    close.type = "button";
+    close.textContent = "✕";
+    close.addEventListener("click", function () {
+      root.classList.remove("filt-open");
+    });
+    hdr.appendChild(close);
+    filt.appendChild(hdr);
+    document.body.appendChild(filtBd);
+    document.body.appendChild(filt);
+  }
+
+  function enterFilt() {
+    if (filtBuilt) return;
+    var form = document.getElementById("general_filters_form");
+    if (!form) return;
+    buildFilt();
+    filt.style.display = "";
+    filtBd.style.display = "";
+    if (!filtBtn) {
+      filtBtn = document.createElement("button");
+      filtBtn.id = "lk-filt-btn";
+      filtBtn.type = "button";
+      filtBtn.textContent = "Фильтры";
+      filtBtn.addEventListener("click", function () {
+        root.classList.add("filt-open");
+      });
+    }
+    form.parentNode.insertBefore(filtBtn, form);
+    filtMoved = [];
+    var pieces = [form, document.getElementById("clear_general_filters_form")];
+    pieces.forEach(function (el) {
+      if (!el) return;
+      filtMoved.push({ el: el, parent: el.parentNode, next: el.nextSibling });
+      filt.appendChild(el);
+    });
+    root.classList.remove("filt-open");
+    filtBuilt = true;
+  }
+
+  function exitFilt() {
+    if (!filtBuilt) return;
+    filtMoved.forEach(function (o) {
+      try {
+        if (o.next && o.next.parentNode === o.parent) {
+          o.parent.insertBefore(o.el, o.next);
+        } else {
+          o.parent.appendChild(o.el);
+        }
+      } catch (e) {}
+    });
+    filtMoved = [];
+    if (filtBtn && filtBtn.parentNode) filtBtn.parentNode.removeChild(filtBtn);
+    if (filt) filt.style.display = "none";
+    if (filtBd) filtBd.style.display = "none";
+    root.classList.remove("filt-open");
+    filtBuilt = false;
+  }
+
+  function syncFilt() {
+    if (FILT_BP >= window.innerWidth) enterFilt();
+    else exitFilt();
+  }
+
   function onReady() {
     createBurger();
     syncMnav();
+    syncFilt();
     tagRailIcons();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
@@ -563,6 +654,7 @@
     sizeExportBars();
     scheduleHBar();
     syncMnav();
+    syncFilt();
   });
   window.addEventListener("load", function () {
     setTimeout(enhanceReports, 300);
