@@ -543,6 +543,8 @@
   var filtBtn = null;
   var filtBuilt = false;
   var filtMoved = [];
+  var filtRow = null;
+  var filtActionsOrig = [];
 
   function buildFilt() {
     if (filt) return;
@@ -593,12 +595,41 @@
       filtMoved.push({ el: el, parent: el.parentNode, next: el.nextSibling });
       filt.appendChild(el);
     });
+    /* Подтвердить (submit — оставляем в форме) + Очистить (ссылка) в один ряд */
+    var confirmBtn = document.getElementById("update_filters");
+    var clearLink = document.getElementById("link_to_clear_general_filters");
+    filtActionsOrig = [];
+    [confirmBtn, clearLink].forEach(function (el) {
+      if (el) {
+        filtActionsOrig.push({ el: el, parent: el.parentNode, next: el.nextSibling });
+      }
+    });
+    if (confirmBtn) {
+      filtRow = document.createElement("div");
+      filtRow.id = "lk-filt-actions";
+      confirmBtn.parentNode.insertBefore(filtRow, confirmBtn);
+      filtRow.appendChild(confirmBtn);
+      if (clearLink) filtRow.appendChild(clearLink);
+    }
     root.classList.remove("filt-open");
     filtBuilt = true;
   }
 
   function exitFilt() {
     if (!filtBuilt) return;
+    /* вернуть Подтвердить/Очистить на исходные места и снять ряд */
+    filtActionsOrig.forEach(function (o) {
+      try {
+        if (o.next && o.next.parentNode === o.parent) {
+          o.parent.insertBefore(o.el, o.next);
+        } else {
+          o.parent.appendChild(o.el);
+        }
+      } catch (e) {}
+    });
+    filtActionsOrig = [];
+    if (filtRow && filtRow.parentNode) filtRow.parentNode.removeChild(filtRow);
+    filtRow = null;
     filtMoved.forEach(function (o) {
       try {
         if (o.next && o.next.parentNode === o.parent) {

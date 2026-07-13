@@ -6151,3 +6151,45 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   #lk-filt #general_filters_form b,
   #lk-filt #general_filters_form label { font-weight: 600 !important; }
 }
+
+/* ============================================================
+   Мобилка — фильтры, уточнения: шапка над контентом, крестик по шапке,
+   блок скролла страницы, отступ 12px, единый шрифт виджетов, условные
+   поля дат (уважаем инлайн-скрытие), Подтвердить+Очистить в один ряд.
+   ============================================================ */
+@media (max-width: 767px) {
+  #lk-filt-hdr { z-index: 10 !important; }
+  #lk-filt-close { height: 60px !important; box-sizing: border-box !important; padding: 0 !important; line-height: 60px !important; overflow: hidden; }
+  #lk-filt-close:hover { background: rgba(255,255,255,.14) !important; }
+
+  /* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями */
+  html.filt-open, html.filt-open body,
+  html.sb-open, html.sb-open body { overflow: hidden !important; }
+
+  /* меньший левый отступ: margin формы 0 + зануляем вложенные */
+  #lk-filt #general_filters_form { margin: 0 !important; padding: 14px 12px 28px !important; }
+  #lk-filt #general_filters_form table,
+  #lk-filt #general_filters_form tbody,
+  #lk-filt #general_filters_form tr,
+  #lk-filt #general_filters_form td,
+  #lk-filt #general_filters_form div { padding-left: 0 !important; margin-left: 0 !important; }
+  #lk-filt #general_filters_form td { padding: 5px 0 !important; }
+
+  /* единый шрифт в дропдаунах-виджетах */
+  #lk-filt #general_filters_form .ui-multiselect,
+  #lk-filt #general_filters_form .ui-multiselect *,
+  #lk-filt #general_filters_form .list-select,
+  #lk-filt #general_filters_form .list-select * { font-size: 15px !important; }
+
+  /* уважаем инлайн-скрытие платформы: поля дат видны только при "Задать диапазон дат" */
+  #lk-filt #general_filters_form [style*="display: none"],
+  #lk-filt #general_filters_form [style*="display:none"] { display: none !important; }
+
+  /* Подтвердить + Очистить в один ряд 50/50 */
+  #lk-filt-actions { display: flex !important; gap: 12px; justify-content: center; align-items: center; flex-wrap: nowrap; padding: 18px 12px 8px !important; }
+  #lk-filt-actions > * {
+    flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
+    box-sizing: border-box !important; margin: 0 !important;
+    padding-left: 8px !important; padding-right: 8px !important; white-space: nowrap;
+  }
+}
