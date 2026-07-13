@@ -6492,9 +6492,9 @@ html.lk-m {
     width: auto !important;
     box-sizing: border-box !important;
     text-align: center !important;
-    /* на мобилке шапка-приветствие идёт ПОД лого (#top_title_graphics y0..160),
-       а бургер/«Язык» (absolute/fixed сверху) висят над ЛОГО — не над шапкой,
-       поэтому наложения нет и большой padding-top не нужен; планшет переопределит */
+    /* инсет 26px как у блоков отчётов (стандартизируем ширину/отступы),
+       планшет переопределит на свой (30). */
+    margin: 14px 26px 10px !important;
     padding: 16px 20px !important;
   }
   #main_menu_title_text > tbody,
@@ -6508,6 +6508,15 @@ html.lk-m {
     height: auto !important;
     white-space: normal !important;
   }
+  /* клиентское лого (#top_title_graphics) убираем и на мобилке, и на планшете */
+  #top_title_graphics { display: none !important; }
+  /* бургер — в самый левый верхний угол (мобилка); планшет переопределит на
+     положение внутри полосы (top:27, left:42). */
+  #lk-burger { top: 0 !important; left: 0 !important; }
+  /* «Язык» на МОБИЛКЕ пока скрыт (позицию решим позже); на планшете он остаётся
+     в полосе, поэтому прячем только когда НЕ lk-wide. Специфичность выше базового
+     #set-language{display:inline-flex!important} (2 id). */
+  &:not(.lk-wide) #main_menu_title_text #set-language { display: none !important; }
   /* ячейку приветствия платформа на мобилке прячет (.gray-lighter2:nth-child(2)
      {display:none}, стр.~5023 в device-media) — возвращаем */
   #main_menu_title_text td.gray-lighter2:nth-child(2) { display: inline !important; }
@@ -6526,12 +6535,11 @@ html.lk-m {
    ПЛАНШЕТ (html.lk-wide) — верхняя панель-шапка + ширина контента.
    - Контент .begin-report-area имел max-width:1284 (резерв под свёрнутую рельсу) →
      снимаем, растягиваем; блоки+шапка на едином симметричном инсете 30px.
-   - #top_title_graphics (лого) → display:none.
-   - Шапка компактная (padding 12/24 вместо мобильного 46), «Язык»/бургер в полосе.
+   - Шапка компактная (padding 12/24 вместо мобильного 16/20), инсет 30 вместо
+     мобильного 26, «Язык»/бургер — внутри полосы (мобилка их прячет/в угол).
    ============================================================ */
 html.lk-wide {
-  #top_title_graphics { display: none !important; }
-
+  /* #top_title_graphics скрыт в html.lk-m выше (общий для мобилки и планшета) */
   .begin-report-area {
     max-width: none !important;
     width: 100% !important;
