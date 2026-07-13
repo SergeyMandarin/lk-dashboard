@@ -6209,3 +6209,14 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   .ui-multiselect-menu .ui-multiselect-checkboxes li { padding: 2px 0 !important; }
   .ui-multiselect-menu input.ui-multiselect-filter { font-size: 15px !important; }
 }
+
+/* ============================================================
+   Мобилка — правки после теста на реальном телефоне:
+   бургер прячем при открытых фильтрах, скрываем платформенный
+   тоглер меню (2 серые полоски).
+   ============================================================ */
+@media (max-width: 767px) {
+  html.filt-open #lk-burger { display: none !important; }
+  a.fieldset_toggler.menu_top_level_wrapper,
+  .fieldset_toggler { display: none !important; }
+}

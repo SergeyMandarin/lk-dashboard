@@ -701,6 +701,15 @@
     syncFilt();
   });
   window.addEventListener("load", function () {
-    setTimeout(enhanceReports, 300);
+    /* после load ширина уже с учётом viewport-меты (телефон перевёрстан из 980
+       в device-width) — перезапускаем меню/фильтры, иначе рельса могла не
+       переместиться (syncMnav мог отработать на 980 = "десктоп"). */
+    syncMnav();
+    syncFilt();
+    setTimeout(function () {
+      syncMnav();
+      syncFilt();
+      enhanceReports();
+    }, 300);
   });
 })();
