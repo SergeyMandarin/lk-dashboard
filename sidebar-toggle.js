@@ -481,6 +481,22 @@
      бургер уже переключает (отдельный обработчик не нужен). Оформление —
      в CSS (@media max-width, #lk-mnav). Код без символа "меньше" — см. верх. */
   var MNAV_BP = 767;
+
+  /* Мобильный режим определяем по факту МОБИЛЬНОГО HTML (сервер отдаёт его по
+     user-agent телефонам И планшетам), а НЕ по ширине вьюпорта — иначе телефон
+     в ландшафте (широкий) выпадал из мобильной вёрстки. Класс lk-m включает
+     мобильный CSS; lk-wide (планшет: короткая сторона экрана больше 550px,
+     не зависит от ориентации) — для просторных планшетных оверрайдов. */
+  function isMobileHTML() {
+    return !!document.querySelector(".mobile_categories_list");
+  }
+  function syncModeClasses() {
+    var m = isMobileHTML();
+    root.classList.toggle("lk-m", m);
+    var shortEdge = Math.min(screen.width, screen.height);
+    root.classList.toggle("lk-wide", m && shortEdge > 550);
+  }
+
   var mnav = null;
   var mnavBackdrop = null;
   var mnavBuilt = false;
@@ -546,7 +562,7 @@
   }
 
   function syncMnav() {
-    if (MNAV_BP >= window.innerWidth) enterMnav();
+    if (isMobileHTML()) enterMnav();
     else exitMnav();
   }
 
@@ -667,7 +683,7 @@
   }
 
   function syncFilt() {
-    if (FILT_BP >= window.innerWidth) enterFilt();
+    if (isMobileHTML()) enterFilt();
     else exitFilt();
   }
 
@@ -712,6 +728,7 @@
   }
 
   function onReady() {
+    syncModeClasses();
     createBurger();
     syncMnav();
     syncFilt();
@@ -744,6 +761,7 @@
     refreshScrollers();
     sizeExportBars();
     scheduleHBar();
+    syncModeClasses();
     syncMnav();
     syncFilt();
   });
@@ -751,9 +769,11 @@
     /* после load ширина уже с учётом viewport-меты (телефон перевёрстан из 980
        в device-width) — перезапускаем меню/фильтры, иначе рельса могла не
        переместиться (syncMnav мог отработать на 980 = "десктоп"). */
+    syncModeClasses();
     syncMnav();
     syncFilt();
     setTimeout(function () {
+      syncModeClasses();
       syncMnav();
       syncFilt();
       enhanceReports();

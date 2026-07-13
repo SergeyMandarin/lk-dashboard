@@ -5987,8 +5987,8 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    Рельса + нижнее меню прячутся в бургер-оверлей #lk-mnav
    (перенос кусков — sidebar-toggle.js). Показ по классу sb-open.
    ============================================================ */
-@media (max-width: 767px) {
-  html, body { overflow-x: hidden !important; max-width: 100% !important; }
+html.lk-m {
+  &, body { overflow-x: hidden !important; max-width: 100% !important; }
   .middle-right { display: block !important; width: 100% !important; max-width: 100% !important; }
   #main_menu_title_text { width: 100% !important; max-width: 100% !important; }
 
@@ -6014,8 +6014,8 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     background: rgba(0,0,0,.45); z-index: 99999;
     opacity: 0; pointer-events: none; transition: opacity .25s;
   }
-  html.sb-open #lk-mnav { transform: translateX(0); }
-  html.sb-open #lk-mnav-bd { opacity: 1; pointer-events: auto; }
+  &.sb-open #lk-mnav { transform: translateX(0); }
+  &.sb-open #lk-mnav-bd { opacity: 1; pointer-events: auto; }
 
   /* рельса разделов — вертикальный список */
   #lk-mnav .upper_tabs_nav {
@@ -6066,7 +6066,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    бургера и залипает вверху, выровненные отступы иконка-текст, единый
    transition у среднего и нижнего блоков.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   #lk-mnav { padding-top: 0 !important; }
   #lk-mnav-hdr {
     height: 60px !important; box-sizing: border-box !important;
@@ -6100,7 +6100,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    Мобилка — фильтры под кнопку "Фильтры" (логика — sidebar-toggle.js):
    полноэкранный оверлей #lk-filt, формы в столбик, влево.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   #lk-filt-btn {
     display: inline-flex; align-items: center;
     margin: 12px 18px; padding: 12px 24px;
@@ -6127,8 +6127,8 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     position: absolute; right: 0; top: 0; width: 60px; height: 60px;
     background: transparent; border: 0; color: #fff; font-size: 22px; cursor: pointer;
   }
-  html.filt-open #lk-filt { transform: translateX(0); }
-  html.filt-open #lk-filt-bd { opacity: 1; pointer-events: auto; }
+  &.filt-open #lk-filt { transform: translateX(0); }
+  &.filt-open #lk-filt-bd { opacity: 1; pointer-events: auto; }
 
   /* формы фильтров в столбик, влево, на всю ширину */
   #lk-filt #general_filters_form {
@@ -6165,14 +6165,14 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    блок скролла страницы, отступ 12px, единый шрифт виджетов, условные
    поля дат (уважаем инлайн-скрытие), Подтвердить+Очистить в один ряд.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   #lk-filt-hdr { z-index: 10 !important; }
   #lk-filt-close { height: 60px !important; box-sizing: border-box !important; padding: 0 !important; line-height: 60px !important; overflow: hidden; }
   #lk-filt-close:hover { background: rgba(255,255,255,.14) !important; }
 
   /* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями */
-  html.filt-open, html.filt-open body,
-  html.sb-open, html.sb-open body { overflow: hidden !important; }
+  &.filt-open, &.filt-open body,
+  &.sb-open, &.sb-open body { overflow: hidden !important; }
 
   /* меньший левый отступ: margin формы 0 + зануляем вложенные */
   #lk-filt #general_filters_form { margin: 0 !important; padding: 14px 12px 28px !important; }
@@ -6207,7 +6207,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    висит на body и позиционировалось за экраном (left:409). Притягиваем
    в экран, поднимаем над оверлеем, нормализуем шрифт. Только ≤767.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   .ui-multiselect-menu {
     left: 12px !important; right: 12px !important; width: auto !important;
     max-width: calc(100vw - 24px) !important; z-index: 100002 !important;
@@ -6223,8 +6223,8 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    бургер прячем при открытых фильтрах, скрываем платформенный
    тоглер меню (2 серые полоски).
    ============================================================ */
-@media (max-width: 767px) {
-  html.filt-open #lk-burger { display: none !important; }
+html.lk-m {
+  &.filt-open #lk-burger { display: none !important; }
   a.fieldset_toggler.menu_top_level_wrapper,
   .fieldset_toggler { display: none !important; }
 }
@@ -6234,7 +6234,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    position:fixed (TD.font-style в TR.bottom-tr absolute) → налезал на
    контент. Делаем static, пусть живёт внизу страницы в потоке.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   .bottom-tr { position: static !important; }
   td.font-style { position: static !important; }
 }
@@ -6245,7 +6245,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    с id-специфичностью выигрывают у их классовых. Селекторы шире: и td.top_menu,
    и li.top_menu; рельса и меню — вертикально, на всю ширину, нормальный шрифт.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   /* нормальный шрифт (бьём device font 30-45px) */
   #lk-mnav .tab_menu_item, #lk-mnav .tab_menu_item a,
   #lk-mnav .top_menu, #lk-mnav .top_menu a, #lk-mnav .top_menu a:hover,
@@ -6279,7 +6279,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    (UL display:none) c li.topTabActive/topTabInactive. В оверлее: раскрываем
    список, прячем свёрнутый заголовок, вертикальный список, шрифт 15.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   #lk-mnav .mobile_categories_list {
     display: block !important; position: static !important;
     width: auto !important; height: auto !important;
@@ -6316,7 +6316,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    класс проставляет tagRailIcons и мобильным пунктам) + позиция;
    + НЕ сдвигаем контент при открытии рельсы (оверлей просто наплывает).
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   /* иконка только у распознанных пунктов (с классом lk-sec-*) */
   #lk-mnav #reports_categories li[class*="lk-sec-"] {
     padding-left: 48px !important;
@@ -6325,10 +6325,10 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     background-repeat: no-repeat !important;
   }
   /* открытие рельсы не должно ужимать/двигать контент */
-  html.sb-open .begin-report-area { max-width: none !important; }
-  html.sb-open table#main_menu_title_text { max-width: 100% !important; }
-  html.sb-open .top_tabs_row,
-  html.sb-open .upper_tabs_nav { width: auto !important; }
+  &.sb-open .begin-report-area { max-width: none !important; }
+  &.sb-open table#main_menu_title_text { max-width: 100% !important; }
+  &.sb-open .top_tabs_row,
+  &.sb-open .upper_tabs_nav { width: auto !important; }
 }
 
 /* ============================================================
@@ -6337,7 +6337,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    только мобильная раскладка: иконки-действия (edit/print) в правый
    верхний угол + место под них, перенос длинных слов.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   /* место сверху под иконки, чтобы центрированный заголовок не наезжал */
   table.grid_reports_table td.grid_report_td h1 {
     padding-top: 42px !important;
@@ -6370,7 +6370,7 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
    разваливается на узком экране. В оверлее-рельсе (#lk-mnav) —
    остаётся видимым по правилу display:block !important выше.
    ============================================================ */
-@media (max-width: 767px) {
+html.lk-m {
   .mobile_categories_list { display: none !important; }
   #lk-mnav .mobile_categories_list { display: block !important; }
 }
