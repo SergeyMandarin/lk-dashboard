@@ -6384,19 +6384,59 @@ html.lk-m {
    экрана > 550px), см. syncModeClasses() в sidebar-toggle.js.
    ============================================================ */
 html.lk-wide {
+  /* рельса-сайдбар как на ДЕСКТОПЕ: слайд по бургеру + сдвиг контента +
+     память (класс sb-open в localStorage, см. JS). Ширина фикс 280, без
+     бэкдропа (push, а не оверлей). Слайд-transform наследуется из html.lk-m
+     (закрыт: translateX(-100%), sb-open: translateX(0)) — здесь НЕ трогаем. */
   #lk-mnav {
-    transform: none !important;
     width: 280px !important;
     max-width: 280px !important;
     z-index: 5 !important; /* ниже оверлейного — чтобы не перекрывать дропдауны */
     box-shadow: 1px 0 10px rgba(0, 0, 0, 0.08) !important;
     border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
   }
-  #lk-mnav-bd { display: none !important; }
-  #lk-burger { display: none !important; }
-  .top_tabs_row { display: none !important; }
-  #container {
+  #lk-mnav-bd { display: none !important; } /* push, а не оверлей — бэкдроп не нужен */
+  .top_tabs_row { display: none !important; } /* платформенная лого-полоса перекрывала сайдбар */
+  /* бургер оставляем видимым (в отличие от desktop-desktop он тут нужен) */
+  #container { transition: padding-left 0.25s ease !important; }
+  &.sb-open #container {
     padding-left: 280px !important;
     box-sizing: border-box !important;
+  }
+}
+
+/* ============================================================
+   Рельса #lk-mnav — доводка (телефон И планшет, html.lk-m):
+   - нижнее меню (Главная/Выход) прижато к низу (flex-колонка + margin-top:auto);
+   - чистое выделение активного пункта во всю ширину (без платформенной рамки);
+   - текст по центру иконки (flex align-items:center);
+   - фолбэк красный «?» для пунктов без нашей секц-иконки (Карта/CX/Впечатления/
+     Инструкция + «Общий результат», у которого иконки пока нет) — чтобы не забыть.
+   ============================================================ */
+html.lk-m {
+  #lk-mnav { display: flex !important; flex-direction: column !important; }
+  #menu_top_level_wrapper { margin-top: auto !important; }
+
+  #reports_categories li.topTabActive {
+    background: rgba(84, 18, 97, 0.1) !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+  }
+  #reports_categories li,
+  #menu_top_level_wrapper td.top_menu a {
+    display: flex !important;
+    align-items: center !important;
+  }
+  #reports_categories li a,
+  #reports_categories li font { display: inline !important; }
+
+  #reports_categories li:not([class*="lk-sec-"]),
+  #reports_categories li.lk-sec-overall {
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Ctext%20x='12'%20y='18'%20font-size='19'%20font-weight='700'%20fill='%23e00000'%20text-anchor='middle'%20font-family='Arial,sans-serif'%3E?%3C/text%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: 18px center !important;
+    background-size: auto 17px !important;
+    padding-left: 48px !important;
   }
 }

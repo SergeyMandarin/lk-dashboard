@@ -538,7 +538,9 @@
       mnavMoved.push({ el: el, parent: el.parentNode, next: el.nextSibling });
       mnav.appendChild(el);
     });
-    root.classList.remove(OPEN_CLASS); /* на мобилке стартуем закрытым */
+    /* телефон-оверлей стартует закрытым; планшет (lk-wide, desktop-like)
+       уважает сохранённое положение (localStorage), как десктоп */
+    if (!root.classList.contains("lk-wide")) root.classList.remove(OPEN_CLASS);
     mnavBuilt = true;
   }
 
@@ -727,6 +729,18 @@
     document.body.appendChild(box);
   }
 
+  /* Активный пункт рельсы («Общий результат») платформа отдаёт как font-тег БЕЗ
+     ссылки (на десктопе он кликабелен) — оборачиваем содержимое в ссылку (a) на
+     общий вид. Сессия у платформы кука-based (соседние ссылки тоже без chk_key). */
+  function linkActiveRailItem() {
+    var li = document.querySelector("#reports_categories li.topTabActive");
+    if (!li || li.querySelector("a")) return;
+    var a = document.createElement("a");
+    a.href = "main-menu.php";
+    while (li.firstChild) a.appendChild(li.firstChild);
+    li.appendChild(a);
+  }
+
   function onReady() {
     syncModeClasses();
     createBurger();
@@ -734,6 +748,7 @@
     syncFilt();
     mnavDebug();
     tagRailIcons();
+    linkActiveRailItem();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
     setTimeout(reflowCharts, 500);
