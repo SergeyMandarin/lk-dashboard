@@ -6193,3 +6193,19 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     padding-left: 8px !important; padding-right: 8px !important; white-space: nowrap;
   }
 }
+
+/* ============================================================
+   Мобилка — ФИКС дропдаунов фильтров (jQuery UI multiselect): меню
+   висит на body и позиционировалось за экраном (left:409). Притягиваем
+   в экран, поднимаем над оверлеем, нормализуем шрифт. Только ≤767.
+   ============================================================ */
+@media (max-width: 767px) {
+  .ui-multiselect-menu {
+    left: 12px !important; right: 12px !important; width: auto !important;
+    max-width: calc(100vw - 24px) !important; z-index: 100002 !important;
+    box-sizing: border-box !important;
+  }
+  .ui-multiselect-menu, .ui-multiselect-menu * { font-size: 15px !important; }
+  .ui-multiselect-menu .ui-multiselect-checkboxes li { padding: 2px 0 !important; }
+  .ui-multiselect-menu input.ui-multiselect-filter { font-size: 15px !important; }
+}
