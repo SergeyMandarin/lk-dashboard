@@ -11,6 +11,9 @@
      Применяются в реальных правилах ниже, без !important-перебивок. */
   --fs-report-title: clamp(16.5px, 3.6vw, 19px);
   --fs-report-body: clamp(13.5px, 3vw, 15px);
+  /* Флюидный боковой инсет контента (шапка + блоки отчётов) — «резина» вместо
+     фикс-px: растёт с шириной, но с мин/макс-границами (как % с ограничением). */
+  --lk-inset: clamp(20px, 3.5vw, 44px);
   /* --logo-img-main: url(https://eu.checker-soft.com/demo/checker-files/media/68/css/images/Mercedes-Logo.png);
   --logo-img-sec: url(https://eu.checker-soft.com/demo/checker-files/company-images/68-Logo-948.png); */
 }
@@ -6489,12 +6492,10 @@ html.lk-m {
 html.lk-m {
   #main_menu_title_text {
     display: block !important;
-    width: auto !important;
+    width: auto !important; /* заполняет по контенту-ячейке (см. .gray-lighter2 ниже) */
     box-sizing: border-box !important;
     text-align: center !important;
-    /* инсет 26px как у блоков отчётов (стандартизируем ширину/отступы),
-       планшет переопределит на свой (30). */
-    margin: 14px 26px 10px !important;
+    margin: 14px var(--lk-inset) 10px !important;
     padding: 16px 20px !important;
   }
   #main_menu_title_text > tbody,
@@ -6529,6 +6530,11 @@ html.lk-m {
     font-size: 14px !important;
     line-height: 1.4 !important;
   }
+  /* блоки отчётов — тот же флюид-инсет, что и у шапки (выравнивание + резина) */
+  table.grid_reports_table {
+    margin-left: var(--lk-inset) !important;
+    margin-right: var(--lk-inset) !important;
+  }
 }
 
 /* ============================================================
@@ -6546,19 +6552,37 @@ html.lk-wide {
     margin: 0 !important;
   }
   table.grid_reports_table {
-    width: calc(100% - 60px) !important;
-    margin: 0 30px !important;
+    width: calc(100% - 2 * var(--lk-inset)) !important;
+    margin: 0 var(--lk-inset) !important;
   }
 
-  /* шапка компактная и с инсетом (переопределяет мобильный padding 46) */
+  /* шапка компактная; инсет флюидный (как блоки). Горизонтальный паддинг — 0,
+     клиренс от бургера/«Язык» задаём на ЯЧЕЙКЕ приветствия ниже (чтобы шапка
+     заполняла ширину контентом-ячейкой, а не съёживалась от padding). */
   #main_menu_title_text {
-    margin: 14px 30px 10px !important;
-    padding: 12px 24px !important;
+    margin: 14px var(--lk-inset) 10px !important;
+    padding: 12px 0 !important;
   }
-  /* «Язык» — по центру полосы по вертикали (базовое top:17 под старую полосу
-     y14..42; теперь полоса 53px, центр y40 → top 29 при height 22). */
-  #main_menu_title_text #set-language { top: 29px !important; }
-  /* бургер — часть полосы: по центру по вертикали (полоса 14..67 → top 27 при 26px),
-     отступ слева от края полосы = отступу «Язык» справа (12px): 30(инсет)+12=42. */
-  #lk-burger { top: 27px !important; left: 42px !important; }
+  /* ячейка приветствия = блок на всю ширину (шапка заполняет по ней и выравнивается
+     с блоками отчётов) + внутренний padding 72px, чтобы центрированное приветствие
+     не подлезало под бургер (слева) и «Язык» (справа) на узких планшетах. */
+  #main_menu_title_text .gray-lighter2 {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 72px !important;
+    text-align: center !important;
+  }
+  /* «Язык» — по вертикали центр полосы (top:29 при height 22); по горизонтали
+     едет за флюид-инсетом: 12px внутри правого края полосы */
+  #main_menu_title_text #set-language {
+    top: 29px !important;
+    right: calc(var(--lk-inset) + 12px) !important;
+  }
+  /* бургер — часть полосы: центр по вертикали (top:27 при 26px), по горизонтали
+     едет за инсетом: 12px внутри левого края полосы */
+  #lk-burger {
+    top: 27px !important;
+    left: calc(var(--lk-inset) + 12px) !important;
+  }
 }
