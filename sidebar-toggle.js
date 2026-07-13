@@ -741,6 +741,26 @@
     li.appendChild(a);
   }
 
+  /* Платформа в мобильном HTML добавляет ДВА неразрывных пробела (  )
+     в начало подписи пунктов средней рельсы (#reports_categories li) — для
+     отступа от инлайн-иконки. У нас иконка — ФОН, поэтому эти nbsp только
+     сдвигают текст вправо и ломают единый зазор иконка→текст (у нижнего меню
+     их нет). Срезаем ведущие пробелы/nbsp у первого текстового узла пункта. */
+  function trimRailText() {
+    var items = document.querySelectorAll("#reports_categories li");
+    [].forEach.call(items, function (li) {
+      var wk = document.createTreeWalker(li, NodeFilter.SHOW_TEXT, null, false);
+      var n;
+      while ((n = wk.nextNode())) {
+        if (n.nodeValue && n.nodeValue.length) {
+          var t = n.nodeValue.replace(/^[\s ]+/, "");
+          if (t !== n.nodeValue) n.nodeValue = t;
+          break;
+        }
+      }
+    });
+  }
+
   function onReady() {
     syncModeClasses();
     createBurger();
@@ -748,6 +768,7 @@
     syncFilt();
     mnavDebug();
     tagRailIcons();
+    trimRailText();
     linkActiveRailItem();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
