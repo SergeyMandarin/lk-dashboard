@@ -6374,3 +6374,29 @@ html.lk-m {
   .mobile_categories_list { display: none !important; }
   #lk-mnav .mobile_categories_list { display: block !important; }
 }
+
+/* ============================================================
+   ПЛАНШЕТ (html.lk-wide): просторная «десктопоподобная» раскладка из
+   мобильного DOM. Рельса #lk-mnav (уже перенесена JS) — ПОСТОЯННЫЙ левый
+   сайдбар (не слайд-оверлей), контент #container сдвигается вправо. Бургер
+   и бэкдроп скрыты, платформенная лого-полоса .top_tabs_row (fixed 60px,
+   перекрывала сайдбар) — тоже. Ставится по классу lk-wide (короткая сторона
+   экрана > 550px), см. syncModeClasses() в sidebar-toggle.js.
+   ============================================================ */
+html.lk-wide {
+  #lk-mnav {
+    transform: none !important;
+    width: 280px !important;
+    max-width: 280px !important;
+    z-index: 5 !important; /* ниже оверлейного — чтобы не перекрывать дропдауны */
+    box-shadow: 1px 0 10px rgba(0, 0, 0, 0.08) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+  #lk-mnav-bd { display: none !important; }
+  #lk-burger { display: none !important; }
+  .top_tabs_row { display: none !important; }
+  #container {
+    padding-left: 280px !important;
+    box-sizing: border-box !important;
+  }
+}
