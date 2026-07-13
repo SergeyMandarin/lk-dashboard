@@ -19,6 +19,19 @@
 (function () {
   "use strict";
 
+  /* Мобильный вьюпорт: у страницы НЕТ meta viewport, поэтому телефоны рендерят её
+     в ~980px (десктопный фолбэк) и наши @media (max-width:767) не срабатывают —
+     виден сломанный десктоп. Добавляем device-width СИНХРОННО и как можно раньше
+     (файл желательно подключать в head), чтобы телефон сразу считал реальную ширину.
+     На десктопе device-width = ширина окна, поэтому там ничего не меняется. */
+  (function ensureViewport() {
+    if (document.querySelector('meta[name="viewport"]')) return;
+    var m = document.createElement("meta");
+    m.name = "viewport";
+    m.content = "width=device-width, initial-scale=1";
+    (document.head || document.documentElement).appendChild(m);
+  })();
+
   var OPEN_CLASS = "sb-open";
   var STORAGE_KEY = "lk-sidebar-open";
   var root = document.documentElement;
