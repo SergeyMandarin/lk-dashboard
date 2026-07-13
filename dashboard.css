@@ -6322,3 +6322,63 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   html.sb-open .top_tabs_row,
   html.sb-open .upper_tabs_nav { width: auto !important; }
 }
+
+/* ============================================================
+   Мобилка — основные блоки отчётов (grid_report_td):
+   адекватные шрифты + вписывание текста в ширину экрана;
+   иконки-действия (edit/print) уводим в угол, заголовок под них.
+   ============================================================ */
+@media (max-width: 767px) {
+  /* заголовок блока — компактный размер, место сверху под иконки */
+  table.grid_reports_table td.grid_report_td h1 {
+    font-size: 21px !important;
+    line-height: 1.25 !important;
+    margin: 8px 0 !important;
+    padding-top: 42px !important;
+    position: relative;
+  }
+  /* иконки-действия в правом верхнем углу шапки, чтобы не наезжали на текст */
+  table.grid_reports_table td.grid_report_td h1 > a {
+    width: 32px !important;
+    height: 32px !important;
+    top: 8px !important;
+  }
+  table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(1) { right: 8px !important; }
+  table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(2) { right: 46px !important; }
+  table.grid_reports_table td.grid_report_td h1 > a img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  /* тело блока — читаемый размер вместо 30-35px */
+  table.grid_reports_table td.grid_report_td,
+  table.grid_reports_table td.grid_report_td span,
+  table.grid_reports_table td.grid_report_td strong,
+  table.grid_reports_table td.grid_report_td b,
+  table.grid_reports_table td.grid_report_td u,
+  table.grid_reports_table td.grid_report_td em,
+  table.grid_reports_table td.grid_report_td p,
+  table.grid_reports_table td.grid_report_td li,
+  table.grid_reports_table td.grid_report_td td,
+  table.grid_reports_table td.grid_report_td font,
+  table.grid_reports_table td.grid_report_td a {
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+  }
+  /* длинные слова переносим, чтобы текст не улетал вправо за край блока */
+  table.grid_reports_table td.grid_report_td .lk-pannable {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+/* ============================================================
+   Мобилка — прячем служебный sticky-бар «текущий раздел»
+   (.current_tab_title внутри .mobile_categories_list) в потоке контента:
+   платформа рисует его в 30-40px, он дублирует заголовок блока и
+   разваливается на узком экране. В оверлее-рельсе (#lk-mnav) —
+   остаётся видимым по правилу display:block !important выше.
+   ============================================================ */
+@media (max-width: 767px) {
+  .mobile_categories_list { display: none !important; }
+  #lk-mnav .mobile_categories_list { display: block !important; }
+}
