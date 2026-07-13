@@ -5974,3 +5974,75 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   left: 0 !important;
   z-index: 2;
 }
+/* ============================================================
+   МОБИЛЬНАЯ АДАПТИВНОСТЬ (max-width:767) — первый проход.
+   Рельса + нижнее меню прячутся в бургер-оверлей #lk-mnav
+   (перенос кусков — sidebar-toggle.js). Показ по классу sb-open.
+   ============================================================ */
+@media (max-width: 767px) {
+  html, body { overflow-x: hidden !important; max-width: 100% !important; }
+  .middle-right { display: block !important; width: 100% !important; max-width: 100% !important; }
+  #main_menu_title_text { width: 100% !important; max-width: 100% !important; }
+
+  /* бургер в самый угол */
+  #lk-burger { top: 0 !important; left: 0 !important; margin: 0 !important; border-radius: 0 0 10px 0 !important; }
+
+  /* оверлей-панель */
+  #lk-mnav {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 84%; max-width: 300px;
+    background: #fff; z-index: 100000;
+    transform: translateX(-100%); transition: transform .25s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 18px rgba(0,0,0,.28);
+  }
+  #lk-mnav-hdr {
+    background: var(--main-brand-color); color: #fff;
+    font: 700 16px/1.2 Montserrat, Arial, sans-serif;
+    text-align: center; padding: 18px 16px;
+  }
+  #lk-mnav-bd {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,.45); z-index: 99999;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  html.sb-open #lk-mnav { transform: translateX(0); }
+  html.sb-open #lk-mnav-bd { opacity: 1; pointer-events: auto; }
+
+  /* рельса разделов — вертикальный список */
+  #lk-mnav .upper_tabs_nav {
+    display: flex !important; flex-direction: column !important;
+    width: auto !important; left: auto !important;
+    height: auto !important; max-height: none !important; overflow: visible !important;
+    padding: 6px 0;
+  }
+  #lk-mnav .upper_tabs_nav .tab_menu_item {
+    display: block !important; width: 100% !important; margin: 0 !important;
+    padding: 13px 18px !important; box-sizing: border-box;
+    background-position: 18px center !important;
+  }
+
+  /* нижнее меню: снять платформенный max-width:40, на всю ширину, вернуть ТЕКСТ */
+  #lk-mnav #menu_top_level_wrapper,
+  #lk-mnav #menu_top_level_wrapper * { max-width: none !important; }
+  #lk-mnav #menu_top_level_wrapper,
+  #lk-mnav #menu_top_level_wrapper tbody,
+  #lk-mnav #menu_top_level_wrapper tr,
+  #lk-mnav #menu_top_level_wrapper table {
+    display: block !important; width: 100% !important;
+    position: static !important; height: auto !important; overflow: visible !important;
+  }
+  #lk-mnav #menu_top_level_wrapper { border-top: 1px solid #eee; margin-top: 6px; }
+  #lk-mnav #menu_top_level_wrapper td { display: block !important; width: 100% !important; padding: 0 !important; }
+  #lk-mnav #menu_top_level_wrapper a {
+    content: normal !important;
+    display: block !important; width: 100% !important; white-space: nowrap !important;
+    box-sizing: border-box; padding: 13px 18px !important;
+  }
+
+  #lk-mnav .tab_menu_item,
+  #lk-mnav #menu_top_level_wrapper a {
+    font: 600 15px/1.2 Montserrat, Arial, sans-serif !important;
+    color: var(--text-color, #3c3c3b) !important;
+  }
+}

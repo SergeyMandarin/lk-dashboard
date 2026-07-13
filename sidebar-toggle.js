@@ -457,8 +457,83 @@
     });
   }
 
+  /* ============================================================
+     Мобильное меню: на узких экранах (max-width MNAV_BP) прячем боковую
+     рельсу и нижнее меню в выезжающий по бургеру оверлей. Куски переносим
+     в свой фикс-контейнер (#lk-mnav) и ВОЗВРАЩАЕМ на место на десктопе
+     (обратимо, по ресайзу). Показ/скрытие — по классу sb-open, который
+     бургер уже переключает (отдельный обработчик не нужен). Оформление —
+     в CSS (@media max-width, #lk-mnav). Код без символа "меньше" — см. верх. */
+  var MNAV_BP = 767;
+  var mnav = null;
+  var mnavBackdrop = null;
+  var mnavBuilt = false;
+  var mnavMoved = [];
+
+  function buildMnav() {
+    if (mnav) return;
+    mnav = document.createElement("div");
+    mnav.id = "lk-mnav";
+    var hdr = document.createElement("div");
+    hdr.id = "lk-mnav-hdr";
+    hdr.textContent = "Меню";
+    mnav.appendChild(hdr);
+    mnavBackdrop = document.createElement("div");
+    mnavBackdrop.id = "lk-mnav-bd";
+    mnavBackdrop.addEventListener("click", function () {
+      root.classList.remove(OPEN_CLASS);
+    });
+    document.body.appendChild(mnavBackdrop);
+    document.body.appendChild(mnav);
+  }
+
+  /* переносим рельсу + нижнее меню в оверлей (запоминаем исходные места) */
+  function enterMnav() {
+    if (mnavBuilt) return;
+    buildMnav();
+    mnav.style.display = "";
+    mnavBackdrop.style.display = "";
+    mnavMoved = [];
+    var pieces = [
+      document.querySelector(".upper_tabs_nav"),
+      document.getElementById("menu_top_level_wrapper")
+    ];
+    pieces.forEach(function (el) {
+      if (!el) return;
+      mnavMoved.push({ el: el, parent: el.parentNode, next: el.nextSibling });
+      mnav.appendChild(el);
+    });
+    root.classList.remove(OPEN_CLASS); /* на мобилке стартуем закрытым */
+    mnavBuilt = true;
+  }
+
+  /* возвращаем куски на место (десктоп) */
+  function exitMnav() {
+    if (!mnavBuilt) return;
+    mnavMoved.forEach(function (o) {
+      try {
+        if (o.next && o.next.parentNode === o.parent) {
+          o.parent.insertBefore(o.el, o.next);
+        } else {
+          o.parent.appendChild(o.el);
+        }
+      } catch (e) {}
+    });
+    mnavMoved = [];
+    if (mnav) mnav.style.display = "none";
+    if (mnavBackdrop) mnavBackdrop.style.display = "none";
+    root.classList.remove(OPEN_CLASS);
+    mnavBuilt = false;
+  }
+
+  function syncMnav() {
+    if (MNAV_BP >= window.innerWidth) enterMnav();
+    else exitMnav();
+  }
+
   function onReady() {
     createBurger();
+    syncMnav();
     tagRailIcons();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
@@ -487,6 +562,7 @@
     refreshScrollers();
     sizeExportBars();
     scheduleHBar();
+    syncMnav();
   });
   window.addEventListener("load", function () {
     setTimeout(enhanceReports, 300);
