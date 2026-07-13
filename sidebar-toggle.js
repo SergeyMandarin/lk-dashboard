@@ -761,6 +761,24 @@
     });
   }
 
+  /* Приветствие в шапке («Добро пожаловать, …») платформа отдаёт с ведущими
+     неразрывными пробелами — при центрировании они смещают текст вправо.
+     Срезаем ведущие пробелы/nbsp у первого текст-узла ячеек .gray-lighter2. */
+  function trimHeaderGreeting() {
+    var cells = document.querySelectorAll("#main_menu_title_text td.gray-lighter2");
+    [].forEach.call(cells, function (c) {
+      var wk = document.createTreeWalker(c, NodeFilter.SHOW_TEXT, null, false);
+      var n;
+      while ((n = wk.nextNode())) {
+        if (n.nodeValue && n.nodeValue.trim().length) {
+          var t = n.nodeValue.replace(/^[\s ]+/, "");
+          if (t !== n.nodeValue) n.nodeValue = t;
+          break;
+        }
+      }
+    });
+  }
+
   function onReady() {
     syncModeClasses();
     createBurger();
@@ -769,6 +787,7 @@
     mnavDebug();
     tagRailIcons();
     trimRailText();
+    trimHeaderGreeting();
     linkActiveRailItem();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();

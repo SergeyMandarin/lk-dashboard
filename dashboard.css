@@ -6501,6 +6501,7 @@ html.lk-wide {
     margin: 14px 30px 10px !important;
     padding: 12px 24px !important;
     box-sizing: border-box !important;
+    text-align: center !important; /* приветствие по центру полосы */
   }
   #main_menu_title_text > tbody,
   #main_menu_title_text > tbody > tr {
@@ -6513,4 +6514,13 @@ html.lk-wide {
     height: auto !important;
     white-space: normal !important;
   }
+  /* приветствие видимым (было color:transparent на .gray-lighter2, стр.455-460,
+     из-за чего текст-узел приветствия был невидим; счётчик .unwatchedLink свой белый) */
+  #main_menu_title_text .gray-lighter2 { color: #fff !important; }
+  /* «Язык» — по центру полосы по вертикали (базовое top:17 было под старую полосу
+     y14..42; теперь полоса 53px, центр y40 → top 29 при height 22). */
+  #main_menu_title_text #set-language { top: 29px !important; }
+  /* бургер — часть полосы: по центру по вертикали (полоса 14..67 → top 27 при 26px),
+     отступ слева от края полосы = отступу «Язык» справа (12px): 30(инсет)+12=42. */
+  #lk-burger { top: 27px !important; left: 42px !important; }
 }
