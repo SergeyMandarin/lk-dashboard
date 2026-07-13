@@ -6032,7 +6032,9 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     display: block !important; width: 100% !important;
     position: static !important; height: auto !important; overflow: visible !important;
   }
-  #lk-mnav #menu_top_level_wrapper { border-top: 1px solid #eee; margin-top: 6px; }
+  #lk-mnav #menu_top_level_wrapper { margin-top: 6px; }
+  /* убираем серую tr-границу платформы — оставляем только фиолетовый акцент-разделитель */
+  #lk-mnav #menu_top_level_wrapper tr { border: 0 !important; }
   #lk-mnav #menu_top_level_wrapper td { display: block !important; width: 100% !important; padding: 0 !important; }
   #lk-mnav #menu_top_level_wrapper { clip-path: none !important; }
   #lk-mnav #menu_top_level_wrapper td.top_menu a {
