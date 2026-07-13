@@ -7,6 +7,10 @@
   --element-bg: #ffffff; /* Фон элементов */
   --text-color: #3c3c3b; /* Текст */
   --main-font: "Montserrat";
+  /* Флюидная типографика («резина»): min = телефон, max = десктоп.
+     Применяются в реальных правилах ниже, без !important-перебивок. */
+  --fs-report-title: clamp(16.5px, 3.6vw, 19px);
+  --fs-report-body: clamp(13.5px, 3vw, 15px);
   /* --logo-img-main: url(https://eu.checker-soft.com/demo/checker-files/media/68/css/images/Mercedes-Logo.png);
   --logo-img-sec: url(https://eu.checker-soft.com/demo/checker-files/company-images/68-Logo-948.png); */
 }
@@ -2084,7 +2088,7 @@ input.filter {
   font-weight: 600;
   color: var(--main-brand-color); /* заголовок — акцентный цвет */
   position: relative;
-  font-size: 16px;
+  font-size: var(--fs-report-title); /* «резина»: 16.5px телефон → 19px десктоп */
   /* Разделитель под заголовком — акцент 2px (как в макете), было 1px #e0e0e0. */
   border-bottom: 2px solid var(--main-brand-color) !important;
   margin: 10px 20px 10px;
@@ -2098,6 +2102,13 @@ input.filter {
   white-space: normal;
   flex-wrap: wrap;
   background-color: transparent !important;
+}
+/* Тело report-блоков — флюидный читаемый размер («резина»), одно определение
+   на десктоп и мобилку; заменяет старую мобильную инфляцию 30-35px. */
+table.grid_reports_table td.grid_report_td p,
+table.grid_reports_table td.grid_report_td p * {
+  font-size: var(--fs-report-body);
+  line-height: 1.45;
 }
 .grid_report_td h1 a:nth-child(2) {
   align-self: end;
@@ -5082,9 +5093,8 @@ body[data-layout*="horizontal_rtl"] .menu-bg {
     display: block;
     min-width: 100%;
   }
-  table.grid_reports_table td.grid_report_td p * {
-    font-size: 35px !important;
-  }
+  /* инфляция тела report-блока (35px) убрана — размер теперь флюидный
+     через --fs-report-body в базовом правиле выше */
   div.mobile_categories_list li {
     min-height: 45px;
     line-height: 1.5;
@@ -5201,10 +5211,8 @@ body[data-layout*="horizontal_rtl"] .menu-bg {
     line-height: 1.4;
     font-size: 30px !important;
   }
-  .grid_report_td h1,
-  .title1 {
-    font-size: 45px !important;
-  }
+  /* инфляция заголовка report-блока (45px) убрана — размер флюидный
+     через --fs-report-title в реальном правиле .grid_report_td h1 */
   .grid_report_td h1 a {
     width: 40px !important;
     height: 40px !important;
@@ -6324,20 +6332,19 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
 }
 
 /* ============================================================
-   Мобилка — основные блоки отчётов (grid_report_td):
-   адекватные шрифты + вписывание текста в ширину экрана;
-   иконки-действия (edit/print) уводим в угол, заголовок под них.
+   Мобилка — раскладка шапки report-блоков. Размеры шрифтов теперь
+   ФЛЮИДНЫЕ (см. --fs-report-* в :root + реальные правила выше), здесь —
+   только мобильная раскладка: иконки-действия (edit/print) в правый
+   верхний угол + место под них, перенос длинных слов.
    ============================================================ */
 @media (max-width: 767px) {
-  /* заголовок блока — компактный размер, место сверху под иконки */
+  /* место сверху под иконки, чтобы центрированный заголовок не наезжал */
   table.grid_reports_table td.grid_report_td h1 {
-    font-size: 21px !important;
-    line-height: 1.25 !important;
-    margin: 8px 0 !important;
     padding-top: 42px !important;
-    position: relative;
+    margin: 8px 0 !important;
+    line-height: 1.25 !important;
   }
-  /* иконки-действия в правом верхнем углу шапки, чтобы не наезжали на текст */
+  /* иконки-действия в правом верхнем углу шапки */
   table.grid_reports_table td.grid_report_td h1 > a {
     width: 32px !important;
     height: 32px !important;
@@ -6348,21 +6355,6 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
   table.grid_reports_table td.grid_report_td h1 > a img {
     width: 32px !important;
     height: 32px !important;
-  }
-  /* тело блока — читаемый размер вместо 30-35px */
-  table.grid_reports_table td.grid_report_td,
-  table.grid_reports_table td.grid_report_td span,
-  table.grid_reports_table td.grid_report_td strong,
-  table.grid_reports_table td.grid_report_td b,
-  table.grid_reports_table td.grid_report_td u,
-  table.grid_reports_table td.grid_report_td em,
-  table.grid_reports_table td.grid_report_td p,
-  table.grid_reports_table td.grid_report_td li,
-  table.grid_reports_table td.grid_report_td td,
-  table.grid_reports_table td.grid_report_td font,
-  table.grid_reports_table td.grid_report_td a {
-    font-size: 15px !important;
-    line-height: 1.45 !important;
   }
   /* длинные слова переносим, чтобы текст не улетал вправо за край блока */
   table.grid_reports_table td.grid_report_td .lk-pannable {
