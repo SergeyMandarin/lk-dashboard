@@ -6471,3 +6471,46 @@ html.lk-m {
     padding-left: 48px !important;
   }
 }
+
+/* ============================================================
+   ПЛАНШЕТ (html.lk-wide) — верхняя панель-шапка + ширина контента.
+   - Контент (.begin-report-area) имел max-width:1284 (резерв под свёрнутую
+     рельсу, из-за него правый край не доходил) → снимаем, растягиваем на 100%.
+   - Блоки отчётов и шапка получают ОДИН симметричный инсет 30px → совпадают
+     по ширине (левый/правый край синхронны).
+   - Шапка: прячем лого-таблицу #top_title_graphics; распускаем ячейки таблицы
+     в блок-поток, чтобы текст (приветствие/счётчик) шёл на всю ширину, а не
+     переносился в узкой 136px-ячейке — высота ужимается со 169px до ~53px.
+   ============================================================ */
+html.lk-wide {
+  #top_title_graphics { display: none !important; }
+
+  .begin-report-area {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  table.grid_reports_table {
+    width: calc(100% - 60px) !important;
+    margin: 0 30px !important;
+  }
+
+  #main_menu_title_text {
+    display: block !important;
+    width: auto !important;
+    margin: 14px 30px 10px !important;
+    padding: 12px 24px !important;
+    box-sizing: border-box !important;
+  }
+  #main_menu_title_text > tbody,
+  #main_menu_title_text > tbody > tr {
+    display: block !important;
+    width: auto !important;
+  }
+  #main_menu_title_text td {
+    display: inline !important;
+    width: auto !important;
+    height: auto !important;
+    white-space: normal !important;
+  }
+}
