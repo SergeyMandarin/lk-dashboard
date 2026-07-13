@@ -6264,3 +6264,41 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     background-position: 18px center !important; background-size: auto 18px !important;
   }
 }
+
+/* ============================================================
+   Мобилка — МОБИЛЬНАЯ рельса в оверлее. Сервер отдаёт телефонам другой HTML:
+   рельса = .mobile_categories_list (свёрнутый список) > #reports_categories
+   (UL display:none) c li.topTabActive/topTabInactive. В оверлее: раскрываем
+   список, прячем свёрнутый заголовок, вертикальный список, шрифт 15.
+   ============================================================ */
+@media (max-width: 767px) {
+  #lk-mnav .mobile_categories_list {
+    display: block !important; position: static !important;
+    width: auto !important; height: auto !important;
+  }
+  #lk-mnav .mobile_categories_list .current_tab_title,
+  #lk-mnav .mobile_categories_list .filter_upper { display: none !important; }
+  #lk-mnav .the_categories_list { display: block !important; }
+  #lk-mnav #reports_categories {
+    display: block !important; width: 100% !important;
+    margin: 0 !important; padding: 6px 0 !important; list-style: none !important;
+  }
+  #lk-mnav #reports_categories li,
+  #lk-mnav #reports_categories li * {
+    font-size: 15px !important; line-height: 1.35 !important; text-align: left !important;
+  }
+  #lk-mnav #reports_categories li {
+    display: block !important; width: 100% !important; float: none !important;
+    padding: 13px 18px !important; box-sizing: border-box; margin: 0 !important;
+  }
+  #lk-mnav #reports_categories li a,
+  #lk-mnav #reports_categories li strong,
+  #lk-mnav #reports_categories li font {
+    display: inline !important; padding: 0 !important; margin: 0 !important;
+    font-weight: 600 !important; color: var(--text-color, #3c3c3b) !important; background: none !important;
+  }
+  #lk-mnav #reports_categories li.topTabActive { background: rgba(84,18,97,0.08) !important; }
+  #lk-mnav #reports_categories li.topTabActive strong,
+  #lk-mnav #reports_categories li.topTabActive a,
+  #lk-mnav #reports_categories li.topTabActive font { color: var(--main-brand-color) !important; }
+}

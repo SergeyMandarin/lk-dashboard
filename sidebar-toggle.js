@@ -507,8 +507,11 @@
     mnav.style.display = "";
     mnavBackdrop.style.display = "";
     mnavMoved = [];
+    /* рельса: на десктопе .upper_tabs_nav, на мобильном HTML (сервер отдаёт другой
+       по user-agent) — .mobile_categories_list; берём ту, что есть */
     var pieces = [
-      document.querySelector(".upper_tabs_nav"),
+      document.querySelector(".upper_tabs_nav") ||
+        document.querySelector(".mobile_categories_list"),
       document.getElementById("menu_top_level_wrapper")
     ];
     pieces.forEach(function (el) {
