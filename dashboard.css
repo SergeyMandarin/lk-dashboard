@@ -6050,3 +6050,38 @@ input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#401
     color: var(--text-color, #3c3c3b) !important;
   }
 }
+
+/* ============================================================
+   Мобилка — уточнения меню: без hover (только тап), шапка = высота
+   бургера и залипает вверху, выровненные отступы иконка-текст, единый
+   transition у среднего и нижнего блоков.
+   ============================================================ */
+@media (max-width: 767px) {
+  #lk-mnav { padding-top: 0 !important; }
+  #lk-mnav-hdr {
+    height: 60px !important; box-sizing: border-box !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    position: sticky !important; top: 0 !important; z-index: 2 !important;
+    padding: 0 16px !important;
+  }
+  #lk-burger { border-radius: 0 !important; }
+
+  /* одинаковые иконка(18px@18) + текст(48) у обоих блоков */
+  #lk-mnav .upper_tabs_nav .tab_menu_item {
+    padding: 13px 18px 13px 48px !important;
+    background-position: 18px center !important; background-size: auto 18px !important;
+  }
+  #lk-mnav .upper_tabs_nav .tab_menu_item a { padding: 0 !important; }
+  #lk-mnav #menu_top_level_wrapper td.top_menu a { padding: 13px 18px 13px 48px !important; }
+
+  /* без hover (нет мыши) — подсветка только по нажатию (:active); единый transition */
+  #lk-mnav .tab_menu_item,
+  #lk-mnav .tab_menu_item a,
+  #lk-mnav #menu_top_level_wrapper td.top_menu a { transition: background-color .15s ease !important; }
+  #lk-mnav .tab_menu_item:hover,
+  #lk-mnav .tab_menu_item a:hover,
+  #lk-mnav #menu_top_level_wrapper td.top_menu a:hover { background-color: transparent !important; }
+  #lk-mnav .tab_menu_item:active,
+  #lk-mnav .tab_menu_item a:active,
+  #lk-mnav #menu_top_level_wrapper td.top_menu a:active { background-color: rgba(84,18,97,0.07) !important; }
+}
