@@ -675,12 +675,12 @@
     var item = [].filter.call(
       document.querySelectorAll("a, li, span, div, option, td, strong"),
       function (e) {
-        return (e.textContent || "").trim() === "Филиалы" && e.children.length <= 1;
+        return (e.textContent || "").trim() === "Филиалы" && 1 >= e.children.length;
       }
     )[0];
     if (item) {
       var p = item;
-      for (var i = 0; i < 7 && p && p !== document.body; i++) {
+      for (var i = 0; 7 > i && p && p !== document.body; i++) {
         out.push(
           i + ")" + p.tagName + "." + ("" + p.className).slice(0, 22) +
           (p.id ? "#" + p.id.slice(0, 12) : "") +
