@@ -53,15 +53,30 @@
   /* 1) Состояние применяем сразу (синхронно), до отрисовки при раннем подключении. */
   root.classList.toggle(OPEN_CLASS, isSaved());
 
-  /* Пере-расчёт живых графиков Highcharts под текущую ширину контейнера. */
+  /* Пере-расчёт живых графиков Highcharts под текущую ширину контейнера.
+     ⚠️ НЕ просто c.reflow() — платформа при рендере графика (AJAX) всегда
+     задаёт ЯВНУЮ chart.options.chart.width (напр. 1406), а reflow() у
+     Highcharts — no-op, если у графика уже стоит явная ширина (документировано
+     поведение: "if a size is explicitly set... reflow will not resize it").
+     Из-за этого при сворачивании/раскрытии рельсы контейнер меняет реальную
+     ширину, а SVG графика — нет: тултип (отдельный HTML-div с left/top в
+     координатах СТАРОЙ ширины) визуально отрывается от своего фона-подложки.
+     Лечится ТОЛЬКО принудительным setSize() под текущую ширину родителя
+     контейнера (не самого c.container — у него тоже может быть заморожен
+     inline-width от старого рендера). */
   function reflowCharts() {
     if (window.Highcharts && Highcharts.charts) {
       Highcharts.charts.forEach(function (c) {
-        if (c) {
-          try {
+        if (!c) return;
+        try {
+          var parent = c.container && c.container.parentElement;
+          var w = parent ? parent.clientWidth : 0;
+          if (w) {
+            c.setSize(w, undefined, false);
+          } else {
             c.reflow();
-          } catch (e) {}
-        }
+          }
+        } catch (e) {}
       });
     }
   }
