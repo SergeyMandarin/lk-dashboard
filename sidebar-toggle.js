@@ -171,6 +171,7 @@
      Windows 11 игнорирует "::-webkit-scrollbar", поэтому рисуем полосу сами —
      заодно делаем её жирнее и в акцентном цвете. */
   var HBAR_H = 14;
+  var HBAR_SHOW_THRESHOLD = 80;
   var THUMB_MIN = 40;
   var hbar = null;
   var thumb = null;
@@ -292,7 +293,10 @@
       /* дублёр показываем ТОЛЬКО когда родная полоса целиком ушла ниже вьюпорта,
          иначе у нижнего края отчёта на миг видны обе полосы */
       var nativeOffscreen = r.bottom > vh + sbH;
-      if (visH > 0 && nativeOffscreen && visH > bestVis) {
+      /* полоса-дублёр всплывала даже когда от блока виден 1px у нижнего края
+         экрана (блок ещё практически не виден) — требуем отступ сверху блока,
+         прежде чем показывать полосу (подобрано на глаз). */
+      if (visH > HBAR_SHOW_THRESHOLD && nativeOffscreen && visH > bestVis) {
         bestVis = visH;
         best = el;
       }
@@ -427,7 +431,15 @@
     [].forEach.call(slots, function (slot) {
       if (slot.getAttribute("data-lk-exportbar") === "1") return;
       var ctrls = [].filter.call(slot.children, function (c) {
-        if (c.tagName === "FORM") return true;
+        if (c.tagName === "FORM") {
+          /* Форма-исключение (тег table, style=float:left, целиком широкая
+             таблица с данными И кнопками разом) — если её сюда завернуть,
+             получится пустая sticky-обёртка без реального контента (float
+             выпадает из потока), а relocateFloatButtonRow() ниже решит эту
+             форму отдельно и правильно. */
+          if (c.querySelector('table[style*="float:left"]')) return false;
+          return true;
+        }
         if (c.tagName === "INPUT" && ("" + c.className).indexOf("btn-input") !== -1) {
           return true;
         }
@@ -441,6 +453,61 @@
       ctrls.forEach(function (c) {
         bar.appendChild(c);
       });
+    });
+    sizeExportBars();
+  }
+
+  /* Некоторые отчёты (напр. «Клиентские комментарии» на «Статус анкет») кладут
+     кнопки Сохранить/Выбрать все/Экспорт ВНУТРИ той же огромной таблицы (тег
+     table, style="float:left"), что и сама таблица данных (Сохранить в одной
+     ячейке с гридом, остальные — в другой). Это ломает wrapExportBars() выше:
+     он оборачивает ВЕСЬ элемент form целиком, а форма тут содержит целиком
+     широкую таблицу — .lk-export-bar получается контейнером ВОКРУГ широких
+     данных, а не ВМЕСТО кнопок, и sticky на нём не даёт эффекта (ширины/
+     родителя недостаточно).
+     ⚠️ Проверено вживую: position:sticky на самой float:left-таблице ТОЖЕ не
+     работает (float+sticky на одном элементе не сочетаются в Chrome) — и вообще
+     ни один уровень вложенности между кнопками и скроллером не липнет (несколько
+     вложенных таблиц ломают sticky). Единственный рабочий вариант — физически
+     перенести кнопки в новый div, ПРЯМОЙ потомок скроллера .lk-pannable (там же,
+     где уже успешно липнут заголовок/подписи блока) — переиспользуем готовый
+     .lk-export-bar (тот же CSS, что у «нормальных» отчётов). Сохранить — type=
+     submit, у формы часто нет id → делаем form="id" на кнопке, чтобы отправка
+     не сломалась при переносе за пределы исходного поддерева формы. */
+  function relocateFloatButtonRow() {
+    var floatTables = document.querySelectorAll('table[style*="float:left"]');
+    [].forEach.call(floatTables, function (floatTable) {
+      var save = floatTable.querySelector('input[type="submit"][name="Save"]');
+      if (!save || save.closest('[data-lk-relocated="1"]')) return;
+      var scroller = floatTable.closest(".lk-pannable");
+      if (!scroller) return;
+      var selectAll = floatTable.querySelector(
+        'input[onclick*="checkUncheckAllComments"]'
+      );
+      var exportBtn = floatTable.querySelector(
+        'input.btn-input[onclick*="open_export_type_dialogue"]'
+      );
+      var form = save.closest("form");
+      if (form) {
+        if (!form.id) {
+          form.id = "lk-genform-" + Math.random().toString(36).slice(2, 8);
+        }
+        save.setAttribute("form", form.id);
+      }
+      var wrap = document.createElement("div");
+      wrap.className = "lk-export-bar";
+      wrap.setAttribute("data-lk-relocated", "1");
+      var row1 = document.createElement("div");
+      row1.className = "lk-export-bar-row";
+      var row2 = document.createElement("div");
+      row2.className = "lk-export-bar-row";
+      if (save) row1.appendChild(save);
+      [selectAll, exportBtn].forEach(function (el) {
+        if (el) row2.appendChild(el);
+      });
+      wrap.appendChild(row1);
+      wrap.appendChild(row2);
+      scroller.appendChild(wrap);
     });
     sizeExportBars();
   }
@@ -500,6 +567,7 @@
   function enhanceReports() {
     initWideScroll();
     wrapExportBars();
+    relocateFloatButtonRow();
     hideRecordCounts();
     flexReportActions();
   }
