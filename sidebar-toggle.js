@@ -564,12 +564,331 @@
     });
   }
 
+  /* ============================================================
+     ЭКСПЕРИМЕНТ: своя кнопка «Скачать с оформлением» рядом с родной
+     a.export_download. Родной .xls с сервера приходит вообще без
+     форматирования (ни заливки, ни ширины по контенту — проверено).
+     Вместо парсинга чужого бинарника (штука капризная, у их файла
+     нестандартная internal-структура) строим НОВЫЙ .xlsx с нуля прямо
+     из уже отрисованной DOM-таблицы — все цвета там уже посчитаны
+     платформой (getComputedStyle), дублировать пороги/логику не нужно.
+     Библиотека — ExcelJS (умеет писать заливку ячеек бесплатно, в
+     отличие от community-версии SheetJS, где запись стилей — платная
+     Pro-фича). Грузим ЛЕНИВО, только по клику на страницах с экспортом,
+     с jsDelivr (уже разрешён в CSP платформы под наш sidebar-toggle.js).
+     ============================================================ */
+  var EXCELJS_CDN_URL =
+    "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";
+  var exceljsLoadPromise = null;
+
+  function loadExcelJS() {
+    if (window.ExcelJS) return Promise.resolve();
+    if (exceljsLoadPromise) return exceljsLoadPromise;
+    exceljsLoadPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = EXCELJS_CDN_URL;
+      s.onload = function () {
+        resolve();
+      };
+      s.onerror = function () {
+        exceljsLoadPromise = null;
+        reject(new Error("ExcelJS load failed"));
+      };
+      document.head.appendChild(s);
+    });
+    return exceljsLoadPromise;
+  }
+
+  /* Имя файла — Colored-ЧЧ-ММ_ДД-ММ-ГГГГ.xlsx (текущее время), чтобы разные
+     выгрузки не затирали друг друга в загрузках. Двоеточия в имени файла
+     Windows не разрешает — используем дефис вместо ":". */
+  function pad2(n) {
+    return ("0" + n).slice(-2);
+  }
+  function coloredExportFilename() {
+    var d = new Date();
+    return (
+      "Colored-" +
+      pad2(d.getHours()) +
+      "-" +
+      pad2(d.getMinutes()) +
+      "_" +
+      pad2(d.getDate()) +
+      "-" +
+      pad2(d.getMonth() + 1) +
+      "-" +
+      d.getFullYear() +
+      ".xlsx"
+    );
+  }
+
+  /* "rgb(r,g,b)" / "rgba(r,g,b,a)" в ARGB-hex для заливки ExcelJS.
+     Прозрачные ячейки (alpha=0 — платформа так помечает "заливки нет")
+     возвращают null — просто не ставим fill, ячейка остаётся белой. */
+  function cssColorToArgb(css) {
+    var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(css || "");
+    if (!m) return null;
+    var a = m[4] === undefined ? 1 : parseFloat(m[4]);
+    if (a === 0) return null;
+    function hex(n) {
+      var h = parseInt(n, 10).toString(16);
+      return ("0" + h).slice(-2);
+    }
+    return "FF" + hex(m[1]) + hex(m[2]) + hex(m[3]);
+  }
+
+  /* Заголовки колонок несут служебный префикс вида "0,0,0,0,5 / ФИО
+     проверяющего:" (так лежит в DOM у платформы, не наша разметка) —
+     полезный текст идёт ПОСЛЕ первого слэша. */
+  function cleanHeaderText(text) {
+    var i = text.indexOf("/");
+    if (i === -1) return text;
+    return text.slice(i + 1).trim();
+  }
+
+  /* Правила форматирования — см. COLORED_EXPORT_FORMAT.md в репозитории. */
+  var EXPORT_SKIP_COLS = 2;
+  var EXPORT_HEADER_HEIGHT_PX = 50;
+  var EXPORT_MAX_COL_WIDTH_PX = 300;
+  var EXPORT_MIN_COL_WIDTH_PX = 40;
+  var EXPORT_HEADER_BG_ARGB = "FF365D8D";
+  var EXPORT_BOLD_DATA_COL = 2; /* 2-й столбец файла = «Оценка» */
+
+  /* px → пункты (высота строки Excel — в pt, не px; 96dpi: 1px=0.75pt). */
+  function pxToPt(px) {
+    return px * 0.75;
+  }
+  /* px → «символьные» единицы ширины столбца Excel (Calibri 11 дефолт). */
+  function pxToExcelWidth(px) {
+    return (px - 5) / 7;
+  }
+
+  function buildColoredWorkbook(table) {
+    var rows = [].slice.call(table.querySelectorAll("tr"));
+    var colCount = 0;
+    var headerCells = null;
+    var dataRows = [];
+    rows.forEach(function (tr) {
+      /* строка фильтров под шапкой — пустые input, в экспорт не идёт */
+      if (tr.querySelector("input")) return;
+      var allCells = [].slice.call(tr.children);
+      var isHeaderRow = !!allCells.length && allCells[0].tagName === "TH";
+      var cells = allCells.slice(EXPORT_SKIP_COLS).map(function (cell) {
+        var cs = getComputedStyle(cell);
+        var text = cell.textContent.trim();
+        return {
+          text: isHeaderRow ? cleanHeaderText(text) : text,
+          argb: cssColorToArgb(cs.backgroundColor),
+        };
+      });
+      if (cells.length > colCount) colCount = cells.length;
+      if (isHeaderRow) {
+        headerCells = cells;
+      } else {
+        dataRows.push(cells);
+      }
+    });
+
+    /* автоширина — ТОЛЬКО по данным, заголовок (часто длинный вопрос
+       анкеты) в замере не участвует, иначе раздул бы колонку. */
+    var colMax = [];
+    dataRows.forEach(function (cells) {
+      cells.forEach(function (cell, i) {
+        var len = cell.text.length;
+        if (!colMax[i] || len > colMax[i]) colMax[i] = len;
+      });
+    });
+
+    var wb = new window.ExcelJS.Workbook();
+    var ws = wb.addWorksheet("Экспорт");
+
+    /* Сначала строки данных (без заголовка) — ширины считаем по ним.
+       ⚠️ ws.columns = [...] ДО addRow ломает сборку в ExcelJS 4.4.0
+       (TypeError: e.equivalentTo is not a function внутри toModel). */
+    dataRows.forEach(function (cells) {
+      var rowValues = cells.map(function (c) {
+        return c.text;
+      });
+      var row = ws.addRow(rowValues);
+      cells.forEach(function (cell, i) {
+        var xlCell = row.getCell(i + 1);
+        xlCell.alignment = { wrapText: true };
+        if (i + 1 === EXPORT_BOLD_DATA_COL) {
+          xlCell.font = { bold: true };
+        }
+        if (cell.argb) {
+          xlCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: cell.argb },
+          };
+        }
+      });
+      /* высоту строки НЕ трогаем — Excel сам авто-подгонит под перенос */
+    });
+
+    /* Ширина столбцов — фиксируем ДО вставки строки заголовка. */
+    for (var i = 0; i !== colCount; i++) {
+      var widthPx = Math.min(
+        EXPORT_MAX_COL_WIDTH_PX,
+        Math.max(EXPORT_MIN_COL_WIDTH_PX, (colMax[i] || 8) * 7 + 10)
+      );
+      ws.getColumn(i + 1).width = pxToExcelWidth(widthPx);
+    }
+
+    /* Заголовок — вставляем СВЕРХУ последним, своя фиксированная высота
+       и заливка, чтобы не участвовать в замере ширины выше. */
+    if (headerCells) {
+      var headerValues = headerCells.map(function (c) {
+        return c.text;
+      });
+      var headerRow = ws.insertRow(1, headerValues);
+      headerRow.height = pxToPt(EXPORT_HEADER_HEIGHT_PX);
+      headerCells.forEach(function (cell, i) {
+        var xlCell = headerRow.getCell(i + 1);
+        xlCell.alignment = {
+          wrapText: true,
+          vertical: "middle",
+          horizontal: "center",
+        };
+        xlCell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        xlCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: EXPORT_HEADER_BG_ARGB },
+        };
+      });
+    }
+
+    return wb;
+  }
+
+  function downloadWorkbook(wb, filename) {
+    return wb.xlsx.writeBuffer().then(function (buf) {
+      var blob = new Blob([buf], {
+        type:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () {
+        URL.revokeObjectURL(url);
+      }, 10000);
+    });
+  }
+
+  /* Диалог экспорта (jQuery UI) — это ПРОСТО div.ui-dialog-content, никакого
+     тега form внутри него нет вообще (проверено вживую) — кнопка "Экспортировать
+     эту таблицу" (#do_export, type=submit, но без формы вокруг — сабмитить
+     нечего) переходит на report-performance-concentr.php через свой ЖЕ inline
+     onclick, не через событие submit. Значит перехватывать нужно click по
+     кнопке, в capture-фазе, чтобы успеть до inline onclick платформы.
+
+     Связь "диалог → нужная таблица": id контента диалога — это ВСЕГДА
+     "exportSPAN" + id оригинальной формы блока (напр. содержимого диалога
+     "exportSPANthe_export_form_for_tr_1149551688" соответствует форма
+     "the_export_form_for_tr_1149551688", которая как была, так и осталась
+     в .lk-export-bar внутри нужного .dashboard-report-slot — диалог её не
+     забирает, а просто получает копию под именем с префиксом). Проверено
+     вживую на реальной странице. */
+  function findTableForDialog(dialogContent) {
+    var formId = dialogContent.id.replace(/^exportSPAN/, "");
+    var origForm = formId && document.getElementById(formId);
+    var slot = origForm && origForm.closest(".dashboard-report-slot");
+    return slot && slot.querySelector('table[id^="questions_in_reviews_"]');
+  }
+
+  function closeExportDialog(dialogContent) {
+    var dialog = dialogContent.closest(".ui-dialog");
+    var closeBtn = dialog && dialog.querySelector(".ui-dialog-titlebar-close");
+    if (closeBtn) closeBtn.click();
+  }
+
+  function handleColoredExportClick(dialogContent, submitBtn) {
+    var table = findTableForDialog(dialogContent);
+    if (!table) {
+      console.error("lk colored export: таблица с данными не найдена для этого диалога");
+      submitBtn.value = "Таблица не найдена";
+      setTimeout(function () {
+        submitBtn.value = "Экспортировать эту таблицу";
+      }, 2000);
+      return;
+    }
+    var original = submitBtn.value;
+    submitBtn.setAttribute("disabled", "disabled");
+    submitBtn.value = "Готовим файл...";
+    var failed = false;
+    loadExcelJS()
+      .then(function () {
+        var wb = buildColoredWorkbook(table);
+        return downloadWorkbook(wb, coloredExportFilename());
+      })
+      .catch(function (e) {
+        failed = true;
+        console.error("lk colored export failed:", e);
+        submitBtn.value = "Ошибка (см. консоль)";
+      })
+      .then(function () {
+        submitBtn.removeAttribute("disabled");
+        if (!failed) {
+          submitBtn.value = original;
+          closeExportDialog(dialogContent);
+        } else {
+          setTimeout(function () {
+            submitBtn.value = original;
+          }, 3000);
+        }
+      });
+  }
+
+  /* «Красивенько» — первый и выбранный по умолчанию пункт в выпадающем
+     списке формата (select#export_type) диалога экспорта. Клик по
+     «Экспортировать эту таблицу» перехватываем в capture-фазе — если выбран
+     наш пункт, гасим платформенный onclick (увёл бы на
+     report-performance-concentr.php, где у нас, как выяснили, нет JS) и
+     собираем .xlsx сами. Идемпотентно через data-lk-colored-added на select
+     (диалог создаётся заново при каждом клике «Экспорт» — enhance подхватит). */
+  function enhanceExportDialogs() {
+    var selects = document.querySelectorAll(".ui-dialog select#export_type");
+    [].forEach.call(selects, function (select) {
+      if (select.getAttribute("data-lk-colored-added")) return;
+      select.setAttribute("data-lk-colored-added", "1");
+      var opt = document.createElement("option");
+      opt.value = "lk_colored";
+      opt.textContent = "Красивенько";
+      select.insertBefore(opt, select.firstChild);
+      select.value = "lk_colored";
+      var dialogContent = select.closest(".ui-dialog-content");
+      var submitBtn = dialogContent
+        ? dialogContent.querySelector("#do_export")
+        : null;
+      if (!dialogContent || !submitBtn) return;
+      submitBtn.addEventListener(
+        "click",
+        function (e) {
+          if (select.value !== "lk_colored") return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          handleColoredExportClick(dialogContent, submitBtn);
+        },
+        true
+      );
+    });
+  }
+
   function enhanceReports() {
     initWideScroll();
     wrapExportBars();
     relocateFloatButtonRow();
     hideRecordCounts();
     flexReportActions();
+    enhanceExportDialogs();
   }
 
   /* Данные отчёта (широкая таблица + кнопки) грузятся по AJAX и могут прийти
@@ -600,7 +919,7 @@
           hit = true;
         } else if (
           n.querySelector &&
-          n.querySelector("center, table, .dashboard-report-slot")
+          n.querySelector("center, table, .dashboard-report-slot, form, select")
         ) {
           hit = true;
         }
