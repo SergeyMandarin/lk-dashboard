@@ -6064,6 +6064,13 @@ body:not(.page-main-menu) #menu_top_level td.top_menu a {
    Резерв под лого (margin-top ячейки) + высоту скролла держим ЗДЕСЬ, т.к. они ЗАВИСЯТ от
    состояния рельсы: раскрыто 245, свёрнуто 100 (категории поднимаются ближе к лого —
    было правилом на .upper_tabs_nav, которое JS-инлайн margin:0 перебивал). */
+/* transition отдельно, ОБЩИЙ на обе ветки sb-open/not — раньше margin-top/height
+   менялись СКАЧКОМ (не было transition вообще), пока лого и ширина рельсы (оба —
+   0.25s ease) плавно анимировались рядом → на паре кадров средний блок наезжал/
+   пересекался с ещё не доехавшими соседями. Синхронизировано под тот же тайминг. */
+td.lk-rail-scroll {
+  transition: margin-top 0.25s ease, height 0.25s ease !important;
+}
 html.sb-open body.page-main-menu td.lk-rail-scroll {
   margin-top: 24.5rem !important;
   height: calc(100vh - 24.5rem) !important;
