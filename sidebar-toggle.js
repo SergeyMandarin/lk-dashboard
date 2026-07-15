@@ -19,6 +19,12 @@
 (function () {
   "use strict";
 
+  /* rem-база: 1rem = 10px (62.5% от браузерных 16px) — CSS уже ставит это же
+     правилом html{font-size:62.5%} (главный источник, работает ВЕЗДЕ, включая
+     страницы без нашего JS). Дублируем здесь синхронно, самым первым действием,
+     как явное соответствие и на случай гонки до применения внешнего CSS. */
+  document.documentElement.style.fontSize = "62.5%";
+
   /* Мобильный вьюпорт: у страницы НЕТ meta viewport, поэтому телефоны рендерят её
      в ~980px (десктопный фолбэк) и наши @media (max-width:767) не срабатывают —
      виден сломанный десктоп. Добавляем device-width СИНХРОННО и как можно раньше
@@ -112,7 +118,11 @@
       [/[сc]водн/i, "summary"],
       [/pdf/i, "pdf"],
       [/артефакт/i, "artifacts"],
-      [/статус/i, "status"]
+      [/статус/i, "status"],
+      [/впечатлен/i, "impressions"],
+      [/карта/i, "map"],
+      [/[cс][xх]-?метрик/i, "satisfaction"],
+      [/инструкц/i, "guide"]
     ];
     /* десктопная рельса (.tab_menu_item) + мобильная (#reports_categories li) */
     var items = document.querySelectorAll(
@@ -420,9 +430,63 @@
     sizeExportBars();
   }
 
+  /* Прячем служебный счётчик "N Records" в конце отчёта: это ГОЛЫЙ текст-узел —
+     прямой ребёнок .dashboard-report-slot (после кнопок экспорта, перед br),
+     CSS-ом текст-узел не скрыть → зануляем его значение. Идемпотентно (пустой
+     узел уже не матчит \d+). Прячем и хвостовые br, чтобы не оставался зазор. */
+  function hideRecordCounts() {
+    var slots = document.querySelectorAll(".dashboard-report-slot");
+    [].forEach.call(slots, function (slot) {
+      /* Обходим ВСЁ поддерево слота, а не только прямых детей: "N Records" бывает
+         не только голым текст-узлом слота, но и внутри TD таблицы кнопок (стр.
+         «Статус анкет»), где он сдвигал «Сохранить» с центра. Регулярка требует,
+         чтобы ВЕСЬ узел был "N Records" (^...$) → данные с этим текстом не заденем.
+         Узлы собираем заранее — не мутируем дерево во время обхода. */
+      var walker = document.createTreeWalker(slot, NodeFilter.SHOW_TEXT, null);
+      var hits = [];
+      var node;
+      while ((node = walker.nextNode())) {
+        if (/^\s*\d+\s*Records?[.\s]*$/i.test(node.nodeValue)) hits.push(node);
+      }
+      hits.forEach(function (n) {
+        n.nodeValue = "";
+        var sib = n.nextSibling;
+        while (sib && (sib.nodeName === "BR" ||
+               (sib.nodeType === 3 && !sib.nodeValue.trim()))) {
+          var next = sib.nextSibling;
+          if (sib.nodeName === "BR") sib.parentNode.removeChild(sib);
+          sib = next;
+        }
+      });
+    });
+  }
+
+  /* Иконки строк отчёта (report/pdf/print) лежат в ячейке td.report-dir прямыми
+     детьми (3 ссылки). Чтобы дать равные промежутки/отступы (flex space-around),
+     нельзя ставить flex на сам td — он потеряет table-cell и схлопнет высоту
+     (иконки уедут к верху строки, vertical-align перестанет центрировать). Поэтому
+     оборачиваем содержимое ячейки во внутренний div.lk-report-actions (flex), а td
+     остаётся table-cell с vertical-align:middle → обёртка центрируется вертикально.
+     Идемпотентно (data-lk-flexacts); при AJAX-перезагрузке td новый — обернётся
+     заново. Обёртка не триггерит observeReports (не table/center/form/input/slot). */
+  function flexReportActions() {
+    var imgs = document.querySelectorAll("img[src*='review-report']");
+    [].forEach.call(imgs, function (img) {
+      var td = img.closest("td");
+      if (!td || td.getAttribute("data-lk-flexacts")) return;
+      var wrap = document.createElement("div");
+      wrap.className = "lk-report-actions";
+      while (td.firstChild) wrap.appendChild(td.firstChild);
+      td.appendChild(wrap);
+      td.setAttribute("data-lk-flexacts", "1");
+    });
+  }
+
   function enhanceReports() {
     initWideScroll();
     wrapExportBars();
+    hideRecordCounts();
+    flexReportActions();
   }
 
   /* Данные отчёта (широкая таблица + кнопки) грузятся по AJAX и могут прийти
@@ -632,41 +696,37 @@
       filtMoved.push({ el: el, parent: el.parentNode, next: el.nextSibling });
       filt.appendChild(el);
     });
-    /* Подтвердить (submit — оставляем в форме) + Очистить (ссылка) в один ряд */
+    root.classList.remove("filt-open");
+    filtBuilt = true;
+  }
+
+  /* Подтвердить (submit, живёт в форме) + Очистить (ссылка, живёт в области отчётов,
+     ОТДЕЛЬНО от формы) — оборачиваем в один ряд #lk-filt-actions, чтобы не разлетались.
+     ВСЕГДА, на любом режиме (мобильный оверлей, планшетный инлайн, десктоп) — на десктопе
+     это раньше не делалось (расчёт был на то, что места всегда достаточно), но при узком
+     окне браузера форма фильтров переносится на 2 строки и «Очистить» (у неё СВОЯ верстальная
+     позиция в области отчётов) визуально отрывается от «Подтвердить». Группировка раз и
+     навсегда убирает этот разрыв независимо от ширины окна. */
+  function groupActions() {
+    if (filtRow) return;
     var confirmBtn = document.getElementById("update_filters");
     var clearLink = document.getElementById("link_to_clear_general_filters");
+    if (!confirmBtn) return;
     filtActionsOrig = [];
     [confirmBtn, clearLink].forEach(function (el) {
       if (el) {
         filtActionsOrig.push({ el: el, parent: el.parentNode, next: el.nextSibling });
       }
     });
-    if (confirmBtn) {
-      filtRow = document.createElement("div");
-      filtRow.id = "lk-filt-actions";
-      confirmBtn.parentNode.insertBefore(filtRow, confirmBtn);
-      filtRow.appendChild(confirmBtn);
-      if (clearLink) filtRow.appendChild(clearLink);
-    }
-    root.classList.remove("filt-open");
-    filtBuilt = true;
+    filtRow = document.createElement("div");
+    filtRow.id = "lk-filt-actions";
+    confirmBtn.parentNode.insertBefore(filtRow, confirmBtn);
+    filtRow.appendChild(confirmBtn);
+    if (clearLink) filtRow.appendChild(clearLink);
   }
 
   function exitFilt() {
     if (!filtBuilt) return;
-    /* вернуть Подтвердить/Очистить на исходные места и снять ряд */
-    filtActionsOrig.forEach(function (o) {
-      try {
-        if (o.next && o.next.parentNode === o.parent) {
-          o.parent.insertBefore(o.el, o.next);
-        } else {
-          o.parent.appendChild(o.el);
-        }
-      } catch (e) {}
-    });
-    filtActionsOrig = [];
-    if (filtRow && filtRow.parentNode) filtRow.parentNode.removeChild(filtRow);
-    filtRow = null;
     filtMoved.forEach(function (o) {
       try {
         if (o.next && o.next.parentNode === o.parent) {
@@ -685,8 +745,20 @@
   }
 
   function syncFilt() {
-    if (isMobileHTML()) enterFilt();
-    else exitFilt();
+    /* Оверлей-фильтры + кнопка «Фильтры» — только на ЧИСТОЙ мобилке. Планшет
+       (lk-wide: короткая сторона экрана больше 550) и десктоп держат фильтры
+       инлайн (exitFilt). Признак wide считаем тем же способом, что syncModeClasses,
+       чтобы не зависеть от того, проставлен ли уже класс lk-wide. Подтвердить+
+       Очистить группируем ВСЕГДА (см. комментарий у groupActions). */
+    var wide = Math.min(screen.width, screen.height) > 550;
+    groupActions();
+    if (isMobileHTML() && !wide) {
+      /* чистая мобилка: оверлей + кнопка «Фильтры» */
+      enterFilt();
+    } else {
+      /* планшет и десктоп: фильтры инлайн, на штатных местах */
+      exitFilt();
+    }
   }
 
   /* Диагностика для реального телефона: открыть URL с #lkdbg — покажет структуру
@@ -779,11 +851,49 @@
     });
   }
 
+  /* ДЕСКТОП-рельса: категории (.upper_tabs_nav — свой скролл) и нижнее меню
+     (#menu_top_level_wrapper — ОТДЕЛЬНЫЙ fixed) при НИЗКОМ экране наезжали. Объединяем
+     в ОДИН скролл: переносим меню в ячейку категорий, а ячейку делаем flex-column
+     скроллом НИЖЕ логотипа. Тогда скроллится ВСЯ рельса (категории+меню вместе), лого
+     закреплён сверху, на высоком экране меню прижато к низу (margin:auto сверху).
+     Только десктоп (на мобилке рельса живёт в #lk-mnav — там своя раскладка).
+     Стили ИНЛАЙНОМ: платформенный margin-top логотипа под transition и маскирует
+     CSS-override (ловились промежуточные 245px); инлайн бьёт надёжно, без гонок. */
+  function unifyDesktopRail() {
+    if (isMobileHTML()) return;
+    var cats = document.querySelector(".upper_tabs_nav");
+    if (!cats) return;
+    var td = cats.parentElement;
+    var bm = document.getElementById("menu_top_level_wrapper");
+    if (!td || !bm) return;
+    if (!td.contains(bm)) td.appendChild(bm);
+    cats.style.setProperty("margin-top", "0", "important");
+    cats.style.setProperty("transition", "none", "important");
+    cats.style.setProperty("max-height", "none", "important");
+    cats.style.setProperty("height", "auto", "important");
+    cats.style.setProperty("overflow", "visible", "important");
+    cats.style.setProperty("flex", "0 0 auto", "important");
+    td.style.setProperty("display", "flex", "important");
+    td.style.setProperty("flex-direction", "column", "important");
+    td.style.setProperty("overflow-y", "auto", "important");
+    td.style.setProperty("overflow-x", "hidden", "important");
+    /* Резерв под логотип (margin-top ячейки) и высоту скролла задаёт CSS — он ЗАВИСИТ
+       от состояния рельсы: раскрыто 245, свёрнуто 100 (категории ближе к лого). */
+    td.classList.add("lk-rail-scroll");
+    bm.style.setProperty("position", "static", "important");
+    bm.style.setProperty("margin", "auto 0 0 0", "important");
+    bm.style.setProperty("width", "auto", "important");
+    bm.style.setProperty("clip-path", "none", "important");
+    bm.style.setProperty("z-index", "auto", "important");
+    bm.style.setProperty("flex", "0 0 auto", "important");
+  }
+
   function onReady() {
     syncModeClasses();
     createBurger();
     syncMnav();
     syncFilt();
+    unifyDesktopRail();
     mnavDebug();
     tagRailIcons();
     trimRailText();
@@ -819,6 +929,7 @@
     syncModeClasses();
     syncMnav();
     syncFilt();
+    unifyDesktopRail();
   });
   window.addEventListener("load", function () {
     /* после load ширина уже с учётом viewport-меты (телефон перевёрстан из 980
@@ -827,10 +938,12 @@
     syncModeClasses();
     syncMnav();
     syncFilt();
+    unifyDesktopRail();
     setTimeout(function () {
       syncModeClasses();
       syncMnav();
       syncFilt();
+      unifyDesktopRail();
       enhanceReports();
       mnavDebug();
     }, 300);
