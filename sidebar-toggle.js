@@ -103,6 +103,64 @@
      Лечится ТОЛЬКО принудительным setSize() под текущую ширину родителя
      контейнера (не самого c.container — у него тоже может быть заморожен
      inline-width от старого рендера). */
+  /* Высота графика на ТЕЛЕФОНЕ — доля от его ширины, по типу графика.
+     Платформа задаёт высоту один раз под десктоп и больше не трогает: на
+     телефоне ширина ужимается до ~340, а высота остаётся десктопной (видели
+     341x1165) — донат теряется в пустоте на пол-экрана. Пропорции подобраны
+     живьём: круговой гейдж почти квадратный, линия — приземистее.
+     Возвращаем 0, если тип не знаком: значит высоту не трогаем вовсе. */
+  function phoneChartHeight(chart, w) {
+    var type =
+      (chart.options && chart.options.chart && chart.options.chart.type) || "";
+    if (type === "solidgauge" || type === "pie") return Math.round(w * 0.72);
+    if (type === "spline" || type === "line" || type === "area") {
+      return Math.round(w * 0.62);
+    }
+    if (type === "column" || type === "bar") return Math.round(w * 0.75);
+    return 0;
+  }
+
+  /* Заголовок/подзаголовок считаем ПУСТЫМ, если после вычистки тегов переноса
+     строки и неразрывных пробелов не осталось текста. Платформа шлёт сюда
+     ровно такие «пустышки» из тегов br — визуально пусто, но Highcharts честно
+     резервирует под них место по заданному шрифту (28px!). На узком экране это
+     съедало 143px из 246 (73 сверху + 70 снизу), и гейджу оставалось 103px —
+     он получался крошечным. ⚠️ Убирать можно ТОЛЬКО пустые: на «CX-метриках»
+     подзаголовок несёт текст вопроса анкеты.
+     ⚠️ Угловые скобки регулярки собраны из кодов символов: в этом файле нельзя
+     писать символ «меньше» литералом — поле ввода JS в ЛК обрежет скрипт на
+     первом же таком символе (см. шапку файла). */
+  var BR_TAG_RE = new RegExp(
+    String.fromCharCode(60) + "br\\s*/?" + String.fromCharCode(62),
+    "gi"
+  );
+
+  function isBlankChartTitle(text) {
+    if (text == null) return true;
+    return (
+      String(text)
+        .replace(BR_TAG_RE, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\s+/g, "")
+        .length === 0
+    );
+  }
+
+  /* Пустые заголовки убираем один раз на график: флаг на инстансе. Иначе
+     update() гонялся бы на каждый reflow (а он идёт и по AJAX, и по ресайзу). */
+  function dropBlankChartTitles(c) {
+    if (c.__lkTitlesCleaned) return;
+    var upd = {};
+    if (c.options.title && isBlankChartTitle(c.options.title.text)) {
+      upd.title = { text: null };
+    }
+    if (c.options.subtitle && isBlankChartTitle(c.options.subtitle.text)) {
+      upd.subtitle = { text: null };
+    }
+    c.__lkTitlesCleaned = true;
+    if (upd.title || upd.subtitle) c.update(upd, false);
+  }
+
   function reflowCharts() {
     if (window.Highcharts && Highcharts.charts) {
       Highcharts.charts.forEach(function (c) {
@@ -111,7 +169,15 @@
           var parent = c.container && c.container.parentElement;
           var w = parent ? parent.clientWidth : 0;
           if (w) {
-            c.setSize(w, undefined, false);
+            /* На телефоне правим и высоту, на остальных режимах — только
+               ширину (undefined = не трогать), чтобы не задеть вылизанные
+               десктоп и планшет. */
+            var h = 0;
+            if (isAppMode()) {
+              dropBlankChartTitles(c);
+              h = phoneChartHeight(c, w);
+            }
+            c.setSize(w, h || undefined, false);
           } else {
             c.reflow();
           }
@@ -946,6 +1012,10 @@
     hideRecordCounts();
     flexReportActions();
     enhanceExportDialogs();
+    /* Графики приезжают по AJAX и часто ПОЗЖЕ фиксированных повторов —
+       ловим их здесь же, наблюдателем (см. mutationTouchesReport). Вызов
+       идемпотентен: setSize с теми же размерами ничего не меняет. */
+    reflowCharts();
   }
 
   /* Данные отчёта (широкая таблица + кнопки) грузятся по AJAX и могут прийти
@@ -977,6 +1047,19 @@
         } else if (
           n.querySelector &&
           n.querySelector("center, table, .dashboard-report-slot, form, select")
+        ) {
+          hit = true;
+        } else if (
+          /* Появился САМ контейнер графика — значит Highcharts только что
+             отрисовал его и надо подогнать размеры под телефон. Фиксированные
+             повторы (CHART_RETRY_MS) сюда не успевают: графики приезжают по
+             AJAX позже последней попытки — ловили высоту 400 (дефолт
+             Highcharts) вместо телефонной.
+             ⚠️ Ловим именно ДОБАВЛЕНИЕ контейнера, а не любые мутации svg:
+             иначе setSize вызовет перерисовку → новую мутацию → бесконечный
+             цикл. Контейнер добавляется один раз, поэтому цикла нет. */
+          (n.classList && n.classList.contains("highcharts-container")) ||
+          (n.querySelector && n.querySelector(".highcharts-container"))
         ) {
           hit = true;
         }
