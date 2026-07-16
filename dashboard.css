@@ -7921,9 +7921,11 @@ html.lk-tview-open #lk-tview {
 html.lk-tview-open body {
   overflow: hidden !important;
 }
-/* полосу скролла держим над нижним краем: таб-бар в этом режиме не мешает */
+/* Полосу скролла держим у нижнего края: таб-бар в этом режиме не мешает.
+   ⚠️ display НЕ трогаем: показать/спрятать решает updateHBar в JS. Раньше здесь
+   стоял display:block !important — и полоса висела даже когда JS её погасил и
+   обнулил activeScroller, то есть ползунок замирал в старой позиции и врал. */
 html.lk-tview-open #lk-hbar {
-  display: block !important;
   bottom: 0 !important;
   z-index: 9000 !important;
 }

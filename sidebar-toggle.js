@@ -212,6 +212,27 @@
     );
   }
 
+  /* Подписи осей платформа задаёт в опциях графика: labels.style.fontSize = 27px
+     (рассчитано на десктоп-фолбэк 980px). На телефоне это давало обрезанные в
+     «1. В…» названия подразделов внизу под графиком.
+     ⚠️ Одним CSS не лечится: подписи оси X рисуются через useHTML, то есть это
+     HTML-спаны, которым Highcharts ИНЛАЙНОМ проставляет и font-size, и width с
+     text-overflow:ellipsis — ширину, посчитанную под 27px, !important не
+     исправит, останется многоточие. Поэтому меняем сами опции: тогда Highcharts
+     пересчитает и ширину подписи, и место под неё в раскладке.
+     Идём по всем осям массивом: c.update({xAxis:{…}}) применился бы только к
+     первой. */
+  var PHONE_AXIS_FONT = "11px";
+
+  function fitPhoneAxisLabels(c) {
+    if (c.__lkAxisFont === PHONE_AXIS_FONT) return;
+    c.__lkAxisFont = PHONE_AXIS_FONT;
+    var opt = { labels: { style: { fontSize: PHONE_AXIS_FONT } } };
+    [].concat(c.xAxis || [], c.yAxis || []).forEach(function (ax) {
+      if (ax && ax.update) ax.update(opt, false);
+    });
+  }
+
   function reflowCharts() {
     if (window.Highcharts && Highcharts.charts) {
       Highcharts.charts.forEach(function (c) {
@@ -227,6 +248,10 @@
             var h = 0;
             if (phone) {
               dropBlankChartTitles(c);
+              /* СТРОГО до setSize: он перерисовывает график, и подписи должны
+                 попасть в раскладку уже новым размером — иначе место под ось
+                 останется посчитанным под 27px. */
+              fitPhoneAxisLabels(c);
               h = phoneChartHeight(c, w);
             }
             c.setSize(w, h || undefined, false);
@@ -446,27 +471,41 @@
     var vh = window.innerHeight;
     var best = null;
     var bestVis = 0;
-    [].forEach.call(cachedScrollers, function (el) {
-      if (!el.isConnected) return;
-      if (!(el.scrollWidth - el.clientWidth > 20)) return;
-      var r = el.getBoundingClientRect();
-      var visTop = Math.max(r.top, 0);
-      var visBottom = Math.min(r.bottom, vh);
-      var visH = visBottom - visTop;
-      /* высота родной горизонтальной полосы отчёта */
-      var sbH = el.offsetHeight - el.clientHeight;
-      sbH = sbH > 0 ? sbH : HBAR_H;
-      /* дублёр показываем ТОЛЬКО когда родная полоса целиком ушла ниже вьюпорта,
-         иначе у нижнего края отчёта на миг видны обе полосы */
-      var nativeOffscreen = r.bottom > vh + sbH;
-      /* полоса-дублёр всплывала даже когда от блока виден 1px у нижнего края
-         экрана (блок ещё практически не виден) — требуем отступ сверху блока,
-         прежде чем показывать полосу (подобрано на глаз). */
-      if (visH > HBAR_SHOW_THRESHOLD && nativeOffscreen && visH > bestVis) {
-        bestVis = visH;
-        best = el;
-      }
-    });
+    /* В развёрнутом виде правила другие, и общая логика тут врала: скроллер
+       занимает оверлей ровно по высоте экрана, поэтому «родная полоса ушла ниже
+       вьюпорта» не выполняется никогда — дублёр не выбирался, activeScroller
+       обнулялся, а ползунок замирал на координатах скроллера из карточки.
+       В оверлее кандидат ровно один, он всегда на виду, и родной полосы у него
+       нет — значит и порогов не нужно. */
+    var viewer = root.classList.contains("lk-tview-open")
+      ? document.querySelector("#lk-tview-body .lk-pannable")
+      : null;
+    if (viewer) {
+      if (viewer.scrollWidth - viewer.clientWidth > 20) best = viewer;
+    } else
+      [].forEach.call(cachedScrollers, function (el) {
+        if (!el.isConnected) return;
+        /* узлы из оверлея сюда попадать не должны: он закрыт */
+        if (el.closest("#lk-tview")) return;
+        if (!(el.scrollWidth - el.clientWidth > 20)) return;
+        var r = el.getBoundingClientRect();
+        var visTop = Math.max(r.top, 0);
+        var visBottom = Math.min(r.bottom, vh);
+        var visH = visBottom - visTop;
+        /* высота родной горизонтальной полосы отчёта */
+        var sbH = el.offsetHeight - el.clientHeight;
+        sbH = sbH > 0 ? sbH : HBAR_H;
+        /* дублёр показываем ТОЛЬКО когда родная полоса целиком ушла ниже вьюпорта,
+           иначе у нижнего края отчёта на миг видны обе полосы */
+        var nativeOffscreen = r.bottom > vh + sbH;
+        /* полоса-дублёр всплывала даже когда от блока виден 1px у нижнего края
+           экрана (блок ещё практически не виден) — требуем отступ сверху блока,
+           прежде чем показывать полосу (подобрано на глаз). */
+        if (visH > HBAR_SHOW_THRESHOLD && nativeOffscreen && visH > bestVis) {
+          bestVis = visH;
+          best = el;
+        }
+      });
     if (best) {
       var rb = best.getBoundingClientRect();
       hbar.style.display = "block";
