@@ -41,7 +41,10 @@ html.lk-m:not(.lk-wide) {
   --fs-report-title: 1.65rem; /* было min клампа 16.5px */
   --fs-report-body: 1.35rem; /* было min клампа 13.5px */
   --fs-report-table: 1.1rem; /* таблицы на телефоне — мельче тела блока */
-  --lk-inset: 2rem; /* было min клампа 20px */
+  /* 2026-07-17: 2rem → 0.5rem по решению клиента («уменьшить на три четверти»).
+     На 412px это +30px ширины карточкам — на широких таблицах заметно. Планшет и
+     десктоп не трогаем: там места и так хватает. */
+  --lk-inset: 0.5rem;
 }
 html.lk-m.lk-wide {
   --fs-report-title: 1.775rem; /* было середина клампа (16.5+19)/2 */
@@ -7060,10 +7063,30 @@ html.lk-m {
     font-size: 1.4rem !important;
     line-height: 1.4 !important;
   }
-  /* блоки отчётов — тот же флюид-инсет, что и у шапки (выравнивание + резина) */
+  /* Блоки отчётов — тот же инсет, что и у шапки (выравнивание + резина).
+     ⚠️ width обязателен вместе с margin. Раньше стоял только margin, а ширину
+     таблица брала по содержимому (391px при вьюпорте 412) — при переполнении
+     правый margin схлопывается, и отступы разъезжались: слева 44, справа 25
+     (замер на телефоне 412). box-sizing — чтобы padding\border не прибавлялись
+     к 100% и не возвращали ту же асимметрию. */
   table.grid_reports_table {
+    width: calc(100% - 2 * var(--lk-inset)) !important;
     margin-left: var(--lk-inset) !important;
     margin-right: var(--lk-inset) !important;
+    box-sizing: border-box !important;
+    /* ⚠️ Вот из-за чего блоки стояли криво (слева 44, справа 25). В device-media
+       платформы висит `max-width: 95vw` — на 412px это 391.4px. Ширину он
+       обрезал, а margin-left оставался нетронутым, поэтому лишнее съедалось
+       СПРАВА. Симптом обманчив: выглядит как «левый отступ больше», хотя на деле
+       правого просто не хватало. Снимаем потолок — ширину теперь задаёт width. */
+    max-width: none !important;
+    /* Горизонтальный border-spacing на телефоне обнуляем: он добавляется и МЕЖДУ
+       колонками, и по внешним краям, а на телефоне карточка в ряду всегда одна
+       (проверено на «Филиалах», «Общем результате», «Инструкции» — везде 1 ячейка
+       в строке). То есть все 24px уходили в пустые поля по краям: до правки отступ
+       от края был 5+24=29px вместо заказанных 5. Вертикальные 24px оставляем —
+       это зазор МЕЖДУ карточками, он нужен. */
+    border-spacing: 0 2.4rem !important;
   }
 }
 
@@ -7703,21 +7726,32 @@ html.lk-app #main_menu_title_text {
   /* вровень с таб-баром: ниже диалогов jQuery-UI, выше контента */
   z-index: 900;
 }
+/* Логотип = IMG (см. buildAppHeader): блок облегает картинку, поэтому padding
+   работает как РОВНАЯ обводка при любых пропорциях лого — у демо оно широкое
+   (2344×1474), в квадрате белого сверху\снизу выходило втрое больше, чем сбоку.
+   Обводка 2px — «еле заметная, но отделяющая от фиолетового» (клиент, 2026-07-17).
+   width:auto — ширину диктует картинка; max-width страхует от лого-полотна,
+   которое иначе выдавило бы заголовок. */
 #lk-apphdr-logo {
   flex: 0 0 auto;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
+  width: auto !important;
+  height: 3rem !important;
+  max-width: 11rem;
+  box-sizing: border-box !important;
+  object-fit: contain;
   background-color: #ffffff;
-  background-repeat: no-repeat;
-  background-position: center;
-  /* contain, а не cover: лого клиента бывает любых пропорций (у демо
-     2344x1474) — важно показать целиком, а не обрезать по кругу */
-  background-size: 78% auto;
+  padding: 0.2rem !important;
+  border: 0 !important;
+  border-radius: 0.4rem;
 }
 #lk-apphdr-title {
-  flex: 1 1 auto;
+  /* flex-basis:0 (а не auto): ширину диктуют соседи, а не длина названия —
+     иначе длинный заголовок раздувал бы элемент и толкал счётчик.
+     min-width:0 обязателен: у flex-детей минимум по умолчанию = min-content,
+     и без него ellipsis не сработает, текст полез бы наружу. */
+  flex: 1 1 0;
   min-width: 0;
+  text-align: center;
   color: #ffffff;
   font-family: "Montserrat", "Roboto", Arial, sans-serif;
   font-size: 1.5rem;

@@ -1526,18 +1526,25 @@
        КЛИЕНТА — он только в переменной. Платформа объявляет её инлайном на
        body.page-main-menu, то есть на других страницах её может не быть —
        поэтому картинка из DOM остаётся фолбэком, а не удаляется. */
-    var logo = document.createElement("span");
+    /* Именно IMG, а не фон у span: обводка должна быть РОВНОЙ (клиент просил
+       «еле заметное» ~2px). Фоновая картинка не меняет форму своего блока —
+       у широкого лого (у демо 2344×1474) в квадрате белого сверху\снизу выходило
+       втрое больше, чем по бокам. У img блок облегает картинку сам, и padding
+       даёт одинаковую рамку при ЛЮБЫХ пропорциях лого — то есть у любого клиента. */
+    var logo = document.createElement("img");
     logo.id = "lk-apphdr-logo";
+    logo.alt = "";
     var cssLogo = "";
     try {
       cssLogo = getComputedStyle(document.body)
         .getPropertyValue("--logo-img-main")
         .trim();
     } catch (e) {}
+    /* из значения переменной (url("...")) достаём сам адрес */
+    var m = cssLogo && cssLogo.match(/url\(\s*["']?(.*?)["']?\s*\)/);
     var srcImg = document.querySelector("#top_title_graphics img");
-    var src = srcImg && srcImg.getAttribute("src");
-    if (cssLogo && cssLogo !== "none") logo.style.backgroundImage = cssLogo;
-    else if (src) logo.style.backgroundImage = 'url("' + src + '")';
+    var src = (m && m[1]) || (srcImg && srcImg.getAttribute("src"));
+    if (src) logo.src = src;
     hdr.appendChild(logo);
 
     var title = document.createElement("span");
