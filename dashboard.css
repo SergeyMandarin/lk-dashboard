@@ -6760,6 +6760,9 @@ html.lk-m {
   tr.bottom-tr td.font-style {
     font-size: 0 !important;
     background-size: auto 6.8rem !important;
+    /* Позицию пиним явно: в ЛАНДШАФТЕ device-media платформы сдвигает лого
+       подвала вправо (`calc(100% - 30px)`), и оно уезжало из-под центра. */
+    background-position: center top !important;
     height: auto !important;
     padding: 6.8rem 1rem 1rem !important;
   }
@@ -7390,10 +7393,34 @@ html.lk-app {
    ⚠️ Именно visibility/display у КОНТЕЙНЕРОВ, а не удаление из DOM: рельса
    (.mobile_categories_list) остаётся источником правды — из неё лаунчер берёт
    пункты, а isMobileHTML() по ней определяет мобильный режим. */
+/* ⚠️ .top_tabs_row — ДЕСКТОПНАЯ лого-полоса (fixed, z-index 1000, слева).
+   В портрете её прячет device-media платформы (max-device-width:480), но при
+   повороте device-width становится 915 — правило отключается, и полоса вылезала
+   поверх контента огромным логотипом слева (баг клиента «логотип появляется
+   слева при повороте»). Прячем сами, от ориентации не завися.
+   ⚠️ Внутри неё лежит источник рельсы (.mobile_categories_list →
+   #reports_categories). Скрывать МОЖНО: лаунчер клонирует пункты один раз при
+   загрузке, а querySelector читает и скрытые узлы — проверено, 12 пунктов на
+   месте. По той же причине нельзя УДАЛЯТЬ её из DOM: isMobileHTML() опознаёт
+   мобильный HTML именно по .mobile_categories_list. */
+html.lk-app table.top_tabs_row,
 html.lk-app #lk-burger,
 html.lk-app .mobile_categories_list,
 html.lk-app #menu_top_level_wrapper {
   display: none !important;
+}
+
+/* Резерв под десктопную рельсу контенту не нужен: в варианте A рельсы нет.
+   ⚠️ Всплывает только в ЛАНДШАФТЕ. Базовое правило — `max-width: calc(100vw -
+   6rem)` + `margin-left: auto`, то есть «отдай 60px слева под рельсу». В портрете
+   его гасит device-media платформы (`max-width: 100vw` → лишнего места нет и auto
+   даёт 0), а при повороте device-width становится 915, правило отключается — и
+   контент прижимался вправо с пустой полосой 60px слева (карточка: слева 65,
+   справа 5). На планшете это уже занулено, телефону нужно то же самое. */
+html.lk-app .begin-report-area {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
 }
 
 /* Контенту — место под таб-баром, иначе он перекроет последние строки отчёта.
@@ -7732,17 +7759,25 @@ html.lk-app #main_menu_title_text {
    Обводка 2px — «еле заметная, но отделяющая от фиолетового» (клиент, 2026-07-17).
    width:auto — ширину диктует картинка; max-width страхует от лого-полотна,
    которое иначе выдавило бы заголовок. */
+/* Логотип = IMG (см. buildAppHeader). Круглая обводка + вписываем с обрезкой
+   (решение клиента 2026-07-17: «лишнее просто срезаем, не страшно»).
+   ⚠️ Обводка сделана BORDER'ом, а не padding'ом. С padding белое поле было бы
+   неравномерным: border-radius режет по ВНЕШНЕЙ окружности, а картинка внутри
+   остаётся прямоугольной — по сторонам света рамка видна, а на диагоналях
+   картинка выходила бы за круг и срезалась в ноль. Border же сам круглый,
+   поэтому кольцо ровное по всей окружности.
+   object-fit:cover — вписать по меньшей стороне и срезать лишнее (contain
+   оставлял бы пустые поля у широких лого). */
 #lk-apphdr-logo {
   flex: 0 0 auto;
-  width: auto !important;
+  width: 3rem !important;
   height: 3rem !important;
-  max-width: 11rem;
   box-sizing: border-box !important;
-  object-fit: contain;
+  object-fit: cover;
+  border: 0.2rem solid #ffffff !important;
+  border-radius: 50%;
   background-color: #ffffff;
-  padding: 0.2rem !important;
-  border: 0 !important;
-  border-radius: 0.4rem;
+  padding: 0 !important;
 }
 #lk-apphdr-title {
   /* flex-basis:0 (а не auto): ширину диктуют соседи, а не длина названия —
