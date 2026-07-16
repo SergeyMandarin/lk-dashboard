@@ -75,6 +75,12 @@
      но освобождаем с запасом — отзыв раньше времени убил бы загрузку. */
   var BLOB_TTL_MS = 10000;
 
+  /* Высота нижнего таб-бара варианта A. Держим ЗДЕСЬ только как справочное
+     значение для JS-расчётов; источник правды для вёрстки — CSS-переменная
+     --lk-tabbar-h (её же читают отступы контента и позиция полосы hbar),
+     чтобы значение не разъехалось между файлами. */
+  var TABBAR_H_PX = 56;
+
   function isSaved() {
     try {
       return localStorage.getItem(STORAGE_KEY) === "1";
@@ -1004,14 +1010,49 @@
      в ландшафте (широкий) выпадал из мобильной вёрстки. Класс lk-m включает
      мобильный CSS; lk-wide (планшет: короткая сторона экрана больше 550px,
      не зависит от ориентации) — для просторных планшетных оверрайдов. */
+  var TABLET_SHORT_EDGE = 550;
+
   function isMobileHTML() {
     return !!document.querySelector(".mobile_categories_list");
   }
+  /* Планшет: мобильный HTML, но экран просторный. Считаем по КОРОТКОЙ стороне —
+     не зависит от поворота устройства. */
+  function isTabletWide() {
+    return Math.min(screen.width, screen.height) > TABLET_SHORT_EDGE;
+  }
+  /* ЧИСТЫЙ телефон = мобильный HTML И НЕ планшет. Единственный источник правды:
+     раньше этот же расчёт жил копипастой в syncModeClasses и syncFilt — при
+     правке порога они разъехались бы молча. */
+  function isPhone() {
+    return isMobileHTML() && !isTabletWide();
+  }
+
+  /* ============================================================
+     ВАРИАНТ A (мобильное приложение с нижним таб-баром) — см. MOBILE-PLAN.md.
+     Всё новое включается классом lk-app и ТОЛЬКО на чистом телефоне: планшет
+     (lk-m.lk-wide) и десктоп сохраняют вылизанное ранее поведение.
+     Kill-switch: localStorage.lkAppOff = "1" + перезагрузка — телефон
+     откатывается на старую мобилку без перевыкатки кода.
+     ============================================================ */
+  var APP_CLASS = "lk-app";
+  var APP_OFF_KEY = "lkAppOff";
+
+  function isAppMode() {
+    if (!isPhone()) return false;
+    try {
+      return localStorage.getItem(APP_OFF_KEY) !== "1";
+    } catch (e) {
+      /* localStorage может быть недоступен (приватный режим/политики) —
+         это не повод отключать интерфейс, просто считаем что не выключено. */
+      return true;
+    }
+  }
+
   function syncModeClasses() {
     var m = isMobileHTML();
     root.classList.toggle("lk-m", m);
-    var shortEdge = Math.min(screen.width, screen.height);
-    root.classList.toggle("lk-wide", m && shortEdge > 550);
+    root.classList.toggle("lk-wide", m && isTabletWide());
+    root.classList.toggle(APP_CLASS, isAppMode());
   }
 
   var mnav = null;
@@ -1209,13 +1250,12 @@
 
   function syncFilt() {
     /* Оверлей-фильтры + кнопка «Фильтры» — только на ЧИСТОЙ мобилке. Планшет
-       (lk-wide: короткая сторона экрана больше 550) и десктоп держат фильтры
-       инлайн (exitFilt). Признак wide считаем тем же способом, что syncModeClasses,
-       чтобы не зависеть от того, проставлен ли уже класс lk-wide. Подтвердить+
-       Очистить группируем ВСЕГДА (см. комментарий у groupActions). */
-    var wide = Math.min(screen.width, screen.height) > 550;
+       (lk-wide) и десктоп держат фильтры инлайн (exitFilt). Считаем через
+       isPhone() — тот же источник правды, что и у классов режима (раньше здесь
+       была копипаста расчёта, которая могла разъехаться с syncModeClasses).
+       Подтвердить+Очистить группируем ВСЕГДА (см. комментарий у groupActions). */
     groupActions();
-    if (isMobileHTML() && !wide) {
+    if (isPhone()) {
       /* чистая мобилка: оверлей + кнопка «Фильтры» */
       enterFilt();
     } else {
