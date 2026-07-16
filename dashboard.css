@@ -7842,3 +7842,136 @@ html.lk-app .highcharts-solidgauge-series .highcharts-data-label span {
   font-size: 2.6rem !important;
   font-weight: 800 !important;
 }
+
+/* ---------------------------------------------------------------------------
+   ФАЗА 7: широкие таблицы — липкая первая колонка + полноэкранный просмотр.
+   Логика — sidebar-toggle.js (openTableViewer/addTableViewerButtons).
+   --------------------------------------------------------------------------- */
+
+/* Первая колонка липнет при горизонтальной прокрутке: без неё на 41-колоночной
+   таблице теряется контекст — видишь ответы, но не понимаешь, чья это строка.
+   ⚠️ Клеим НАПРЯМУЮ ячейки внутри скроллера — это единственный рабочий кейс
+   (проверено замером: позиция ячейки до/после прокрутки совпадает). Через
+   вложенные таблицы и float sticky не работает — см. MOBILE-PLAN.
+   Фон обязателен: иначе уезжающие колонки просвечивают сквозь липкую. */
+html.lk-app .lk-pannable table.report:not(#red_border) tr > *:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 3;
+  background-color: #ffffff;
+  box-shadow: 0.2rem 0 0.4rem rgba(60, 20, 80, 0.12);
+}
+/* у строк с заливкой (цветные ячейки-оценки) фон липкой колонки не перебиваем:
+   там платформа красит саму ячейку, и белый фон затёр бы смысл */
+html.lk-app .lk-pannable table.report:not(#red_border) tr > *:first-child[style*="background"] {
+  background-color: inherit;
+}
+
+/* Кнопка «Развернуть» — в общей панели кнопок отчёта */
+.lk-tview-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 3rem;
+  padding: 0 1.4rem;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--main-brand-color);
+  color: #ffffff;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* внутри оверлея разворачивать уже нечего — там крестик */
+html.lk-tview-open .lk-tview-btn {
+  display: none;
+}
+
+/* ---- полноэкранный просмотр ---- */
+#lk-tview {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-color, #f3f2f4);
+  /* выше шапки и таб-бара (900): это отдельный режим на весь экран,
+     но НИЖЕ диалогов jQuery-UI (~100000) — из оверлея работает экспорт */
+  z-index: 950;
+  display: none;
+  flex-direction: column;
+}
+html.lk-tview-open #lk-tview {
+  display: flex;
+}
+html.lk-tview-open body {
+  overflow: hidden !important;
+}
+/* полосу скролла держим над нижним краем: таб-бар в этом режиме не мешает */
+html.lk-tview-open #lk-hbar {
+  display: block !important;
+  bottom: 0 !important;
+  z-index: 9000 !important;
+}
+#lk-tview-hdr {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-sizing: border-box;
+  height: calc(4.8rem + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 0.8rem 0 1.4rem;
+  background: var(--main-brand-color);
+}
+#lk-tview-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #ffffff;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#lk-tview-close {
+  flex: 0 0 auto;
+  width: 4rem;
+  height: 4rem;
+  border: 0;
+  border-radius: 1rem;
+  background: transparent;
+  color: #ffffff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#lk-tview-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /* Строго hidden, а не visible: при overflow-y:auto браузер сам поднимает
+     visible до auto — тогда вбок едет САМ оверлей, скроллер внутри стоит,
+     и липкая первая колонка уезжает вместе с таблицей. Горизонталь — задача
+     скроллера ниже. */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* место под полосу горизонтального скролла у нижнего края */
+  padding-bottom: 1.6rem;
+}
+/* Прокрутку вбок скроллеру давало правило платформы, привязанное к предку
+   .grid_report_td — в оверлее этого предка нет, и overflow-x схлопывался в
+   visible. Возвращаем явно, иначе разворачивать таблицу бессмысленно: видна
+   только первая пара колонок. */
+html.lk-tview-open #lk-tview-body .lk-pannable {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+/* В оверлее прячем всё, кроме ветки с таблицей и её кнопками: заголовок отчёта
+   уже в шапке оверлея, а описание и инструкция «как экспортировать» съедают
+   тот самый экран, ради которого разворачивали (у одного H1 высота 219px).
+   Ветку с данными помечает JS (markTableBranch) — состав этих блоков у разных
+   отчётов разный, а «та ветка, где таблица» — надёжный признак. */
+html.lk-tview-open #lk-tview-body .lk-pannable > *:not([data-lk-tview-keep]) {
+  display: none !important;
+}

@@ -349,8 +349,12 @@
 
   function collectScrollers() {
     var out = [];
+    /* #lk-tview-body — второй адрес намеренно: развёрнутая на весь экран
+       таблица физически уезжает из .grid_report_td в оверлей (см. фазу 7),
+       и без этой ветки скроллер там становится невидим для полосы #lk-hbar. */
     var nodes = document.querySelectorAll(
-      ".grid_report_td center, .grid_report_td div, .grid_report_td table"
+      ".grid_report_td center, .grid_report_td div, .grid_report_td table," +
+        "#lk-tview-body center, #lk-tview-body div, #lk-tview-body table"
     );
     [].forEach.call(nodes, function (el) {
       if (isWideScroller(el) && out.indexOf(el) === -1) out.push(el);
@@ -1069,6 +1073,8 @@
     hideRecordCounts();
     flexReportActions();
     enhanceExportDialogs();
+    /* только телефон: на десктопе/планшете широкие таблицы и так помещаются */
+    if (isAppMode()) addTableViewerButtons();
     /* Графики приезжают по AJAX и часто ПОЗЖЕ фиксированных повторов —
        ловим их здесь же, наблюдателем (см. mutationTouchesReport). Вызов
        идемпотентен: setSize с теми же размерами ничего не меняет. */
@@ -1658,23 +1664,170 @@
     syncTabbarState();
   }
 
+  /* ---- Полноэкранный просмотр широких таблиц (фаза 7) ----
+     Отчёты вроде «Сводной таблицы» — это 41 колонка и ~10000px ширины на
+     экране в 412. Скроллер (drag-to-pan + полоса #lk-hbar) уже работает, но
+     смотреть данные в окошке высотой в треть экрана неудобно: разворачиваем
+     таблицу на весь экран.
+     ⚠️ Переносим ЦЕЛИКОМ сам скроллер (center.lk-pannable): внутри него живут
+     и таблица, и панель кнопок, и формы экспорта. Если тащить только таблицу,
+     развалится «Красивенько» — оно ищет таблицу через форму в
+     .dashboard-report-slot (см. память lk-dashboard-colored-export). Проверено:
+     внутри скроллера ровно один слот, так что забираем его целиком.
+     Перенос — с возвратом (см. mnavMoved/filtMoved): узел платформенный. */
+  var tviewMoved = null;
+
+  function buildTableViewer() {
+    if (document.getElementById("lk-tview")) return;
+
+    var box = document.createElement("div");
+    box.id = "lk-tview";
+
+    var hdr = document.createElement("div");
+    hdr.id = "lk-tview-hdr";
+
+    var title = document.createElement("span");
+    title.id = "lk-tview-title";
+    hdr.appendChild(title);
+
+    var close = document.createElement("button");
+    close.id = "lk-tview-close";
+    close.type = "button";
+    close.textContent = "✕";
+    close.setAttribute("aria-label", "Закрыть таблицу");
+    close.addEventListener("click", closeTableViewer);
+    hdr.appendChild(close);
+
+    box.appendChild(hdr);
+
+    var body = document.createElement("div");
+    body.id = "lk-tview-body";
+    box.appendChild(body);
+
+    document.body.appendChild(box);
+  }
+
+  /* Внутри скроллера рядом с таблицей лежат заголовок отчёта, описание и
+     инструкция «как экспортировать» — в развёрнутом виде они съедают тот самый
+     экран, ради которого всё затевалось (у одного H1 высота 219px!).
+     Помечаем ветку с данными, остальное прячет CSS. Пометка из JS, а не
+     селектором: состав и порядок этих блоков у отчётов разный, а «та ветка, где
+     лежит таблица» — признак надёжный. */
+  var TVIEW_KEEP_SEL = "table.report:not(#red_border), .lk-export-bar";
+
+  function markTableBranch(scroller, on) {
+    [].forEach.call(scroller.children, function (c) {
+      if (!on) {
+        c.removeAttribute("data-lk-tview-keep");
+        return;
+      }
+      /* И matches, и querySelector: у части отчётов таблица (или панель кнопок)
+         сама является прямым потомком скроллера, а не лежит внутри обёртки —
+         одного querySelector мало, он смотрит только потомков.
+         .lk-export-bar в списке обязательно: на «Клиентских комментариях» это
+         отдельная ветка без таблицы, и без пометки в развёрнутом виде пропадали
+         «Сохранить» и «Выбрать все» — выбор комментариев стало бы не сохранить. */
+      if (c.matches(TVIEW_KEEP_SEL) || c.querySelector(TVIEW_KEEP_SEL)) {
+        c.setAttribute("data-lk-tview-keep", "1");
+      }
+    });
+  }
+
+  function openTableViewer(scroller, name) {
+    if (tviewMoved) return;
+    buildTableViewer();
+    var body = document.getElementById("lk-tview-body");
+    /* Название берём из H1 самого отчёта — он лежит в скроллере, а не в слоте.
+       H1 приоритетнее переданного name: name собирают по "h1, center b" внутри
+       слота, а первым center b нередко оказывается врезка («Примечание») —
+       на «Разделах анкеты» именно она и уезжала в шапку вместо названия. */
+    var h1 = scroller.querySelector("h1");
+    var title = (h1 ? h1.textContent.trim() : "") || name || "";
+    document.getElementById("lk-tview-title").textContent =
+      title || "Таблица отчёта";
+    tviewMoved = {
+      el: scroller,
+      parent: scroller.parentNode,
+      next: scroller.nextSibling
+    };
+    markTableBranch(scroller, true);
+    body.appendChild(scroller);
+    root.classList.add("lk-tview-open");
+    /* пересобираем список скроллеров и полосу: узел сменил место и размеры */
+    refreshScrollers();
+    scheduleHBar();
+  }
+
+  function closeTableViewer() {
+    if (!tviewMoved) return;
+    var o = tviewMoved;
+    tviewMoved = null;
+    /* снимаем пометки: вне оверлея прятать соседние блоки незачем */
+    markTableBranch(o.el, false);
+    try {
+      if (o.next && o.next.parentNode === o.parent) {
+        o.parent.insertBefore(o.el, o.next);
+      } else {
+        o.parent.appendChild(o.el);
+      }
+    } catch (e) {
+      console.warn("lk: не удалось вернуть таблицу на место", o.el, e);
+    }
+    root.classList.remove("lk-tview-open");
+    refreshScrollers();
+    scheduleHBar();
+    reflowCharts();
+  }
+
+  /* Кнопку «Развернуть» кладём в панель кнопок отчёта — она уже собрана
+     wrapExportBars() и лежит рядом с данными. В самом оверлее кнопку прячет
+     CSS: там для выхода есть крестик. */
+  function addTableViewerButtons() {
+    var bars = document.querySelectorAll(".lk-export-bar");
+    [].forEach.call(bars, function (bar) {
+      if (bar.getAttribute("data-lk-tview-added")) return;
+      var sc = bar.closest(".lk-pannable");
+      if (!sc) return;
+      /* только для реально широких: у обычных отчётов разворачивать нечего */
+      if (!(sc.scrollWidth - sc.clientWidth > 20)) return;
+      bar.setAttribute("data-lk-tview-added", "1");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "lk-tview-btn";
+      btn.textContent = "Развернуть";
+      btn.addEventListener("click", function () {
+        var slot = bar.closest(".dashboard-report-slot");
+        var h = slot && slot.querySelector("h1, center b");
+        openTableViewer(sc, h ? h.textContent.trim() : "");
+      });
+      bar.appendChild(btn);
+    });
+  }
+
   /* Разбираем навигацию варианта A обратно. Нужен, когда режим перестал быть
      телефонным: поворот планшета, смена ширины, kill-switch. Без этого таб-бар
      остался бы висеть поверх планшетной раскладки, которую мы не трогаем.
      Всё наше — клоны и свои узлы, поэтому просто удаляем: платформенный DOM не
      затронут (в отличие от mnav/filt, где нужен аккуратный возврат). */
   function destroyAppNav() {
-    /* ⚠️ СНАЧАЛА вернуть перенесённое (язык, счётчик), и только потом удалять
-       контейнеры: иначе узлы уедут в небытие вместе со шторкой и шапкой. */
+    /* ⚠️ СНАЧАЛА вернуть перенесённое (таблица, язык, счётчик), и только потом
+       удалять контейнеры: иначе узлы уедут в небытие вместе с оверлеями. */
+    closeTableViewer();
     restoreMoreMoved();
-    ["lk-apphdr", "lk-tabbar", "lk-launcher", "lk-more", "lk-more-bd"].forEach(
-      function (id) {
-        var el = document.getElementById(id);
-        if (el) el.remove();
-      }
-    );
+    [
+      "lk-apphdr",
+      "lk-tabbar",
+      "lk-launcher",
+      "lk-more",
+      "lk-more-bd",
+      "lk-tview"
+    ].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    });
     root.classList.remove("lk-launcher-open");
     root.classList.remove("lk-more-open");
+    root.classList.remove("lk-tview-open");
   }
 
   /* Собираем/разбираем навигацию варианта A по текущему режиму. Идемпотентно;
