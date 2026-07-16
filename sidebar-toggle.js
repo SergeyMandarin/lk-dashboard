@@ -42,6 +42,39 @@
   var STORAGE_KEY = "lk-sidebar-open";
   var root = document.documentElement;
 
+  /* ============================================================
+     ТАЙМИНГИ — все в одном месте. Раньше числа были разбросаны по файлу, и по
+     месту вызова было не понять, какую гонку каждое из них закрывает. Значения
+     подобраны эмпирически на живом ЛК; менять, только понимая, чего ждём.
+     ============================================================ */
+  /* Тумблер рельсы: контент едет 0.25s (CSS transition). Ждём конец анимации
+     плюс запас — иначе пересчёт поймает промежуточную ширину. Полоса/кнопки
+     идут чуть позже графиков: их размер зависит от уже пересчитанного контента. */
+  var RAIL_ANIM_MS = 320;
+  var RAIL_ANIM_BARS_MS = 340;
+  /* Дебаунс тяжёлого ресайз-обработчика (подробности — у самого обработчика). */
+  var RESIZE_DEBOUNCE_MS = 150;
+  /* Дебаунс MutationObserver: AJAX-контент приезжает пачкой мутаций — гоняем
+     enhanceReports один раз на пачку, а не на каждую. */
+  var ENHANCE_DEBOUNCE_MS = 150;
+  /* Отчёты и графики платформа подтягивает по AJAX БЕЗ события готовности —
+     точного момента нет. Поэтому повторяем проходы несколько раз с нарастающей
+     задержкой (страховка на медленный ответ), а поздние догрузки ловит
+     MutationObserver. Всё внутри идемпотентно, лишний проход безвреден. */
+  var CHART_RETRY_MS = [500, 1500];
+  var REPORTS_RETRY_MS = [800, 1800];
+  /* После window.load ширина уже посчитана с учётом viewport-меты (телефон
+     перевёрстан из 980 в device-width) — повторяем режимные пересчёты. */
+  var POST_LOAD_MS = 300;
+  /* Сколько сообщение об ошибке висит на кнопке экспорта до возврата исходной
+     надписи. Короткое — для «таблица не найдена» (всё ясно сразу), длинное —
+     когда юзеру стоит успеть заметить отсылку к консоли. */
+  var BTN_MSG_SHORT_MS = 2000;
+  var BTN_MSG_LONG_MS = 3000;
+  /* Blob-ссылка на готовый файл: Chrome стартует скачивание синхронно по click,
+     но освобождаем с запасом — отзыв раньше времени убил бы загрузку. */
+  var BLOB_TTL_MS = 10000;
+
   function isSaved() {
     try {
       return localStorage.getItem(STORAGE_KEY) === "1";
@@ -88,12 +121,12 @@
     try {
       localStorage.setItem(STORAGE_KEY, open ? "1" : "0");
     } catch (e) {}
-    /* после анимации сдвига контента (0.25s) перерисовываем графики и полосу */
-    setTimeout(reflowCharts, 320);
+    /* после анимации сдвига контента перерисовываем графики и полосу */
+    setTimeout(reflowCharts, RAIL_ANIM_MS);
     setTimeout(function () {
       updateHBar();
       sizeExportBars();
-    }, 340);
+    }, RAIL_ANIM_BARS_MS);
   }
 
   function toggle() {
@@ -579,6 +612,14 @@
      ============================================================ */
   var EXCELJS_CDN_URL =
     "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";
+  /* SRI-хэш содержимого библиотеки. Версия запинена (4.4.0), значит байты
+     неизменны и хэш вечный. Браузер сверит скачанное с хэшем и ОТКАЖЕТСЯ
+     исполнять подменённый файл: без этого компрометация jsDelivr дала бы
+     чужому коду полные права внутри авторизованной сессии ЛК.
+     Пересчитать при смене версии (URL библиотеки подставить свой):
+     curl -s URL | openssl dgst -sha384 -binary | openssl base64 -A */
+  var EXCELJS_SRI =
+    "sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz";
   var exceljsLoadPromise = null;
 
   function loadExcelJS() {
@@ -587,6 +628,13 @@
     exceljsLoadPromise = new Promise(function (resolve, reject) {
       var s = document.createElement("script");
       s.src = EXCELJS_CDN_URL;
+      /* crossOrigin обязателен вместе с integrity: без CORS-запроса браузер
+         не имеет права читать тело ответа для сверки хэша и просто не
+         выполнит скрипт. referrerPolicy — гигиена, CDN незачем знать, с
+         какой страницы ЛК пришёл запрос. */
+      s.integrity = EXCELJS_SRI;
+      s.crossOrigin = "anonymous";
+      s.referrerPolicy = "no-referrer";
       s.onload = function () {
         resolve();
       };
@@ -778,7 +826,7 @@
       a.remove();
       setTimeout(function () {
         URL.revokeObjectURL(url);
-      }, 10000);
+      }, BLOB_TTL_MS);
     });
   }
 
@@ -810,16 +858,19 @@
   }
 
   function handleColoredExportClick(dialogContent, submitBtn) {
+    /* Исходную надпись запоминаем ДО любых подмен и восстанавливаем только из
+       неё: надпись локализована платформой (в ЛК есть переключатель языка), а
+       зашитая строка сделала бы кнопку русской на любой другой локали. */
+    var original = submitBtn.value;
     var table = findTableForDialog(dialogContent);
     if (!table) {
       console.error("lk colored export: таблица с данными не найдена для этого диалога");
       submitBtn.value = "Таблица не найдена";
       setTimeout(function () {
-        submitBtn.value = "Экспортировать эту таблицу";
-      }, 2000);
+        submitBtn.value = original;
+      }, BTN_MSG_SHORT_MS);
       return;
     }
-    var original = submitBtn.value;
     submitBtn.setAttribute("disabled", "disabled");
     submitBtn.value = "Готовим файл...";
     var failed = false;
@@ -841,7 +892,7 @@
         } else {
           setTimeout(function () {
             submitBtn.value = original;
-          }, 3000);
+          }, BTN_MSG_LONG_MS);
         }
       });
   }
@@ -905,7 +956,7 @@
     setTimeout(function () {
       enhanceScheduled = false;
       enhanceReports();
-    }, 150);
+    }, ENHANCE_DEBOUNCE_MS);
   }
 
   function mutationTouchesReport(records) {
@@ -1020,7 +1071,13 @@
         } else {
           o.parent.appendChild(o.el);
         }
-      } catch (e) {}
+      } catch (e) {
+        /* сюда попадаем, если платформа успела перерисовать исходного
+           родителя — тогда кусок меню остаётся в оверлее и пропадает с
+           глаз. Молчать нельзя: это ровно тот случай, который потом
+           выглядит как "иногда мистически ломается меню". */
+        console.warn("lk: не удалось вернуть узел меню на место", o.el, e);
+      }
     });
     mnavMoved = [];
     if (mnav) mnav.style.display = "none";
@@ -1136,7 +1193,11 @@
         } else {
           o.parent.appendChild(o.el);
         }
-      } catch (e) {}
+      } catch (e) {
+        /* см. такой же catch в exitMnav: потеря формы фильтров молча —
+           худший исход, лучше след в консоли. */
+        console.warn("lk: не удалось вернуть форму фильтров на место", o.el, e);
+      }
     });
     filtMoved = [];
     if (filtBtn && filtBtn.parentNode) filtBtn.parentNode.removeChild(filtBtn);
@@ -1203,14 +1264,18 @@
     document.body.appendChild(box);
   }
 
-  /* Активный пункт рельсы («Общий результат») платформа отдаёт как font-тег БЕЗ
-     ссылки (на десктопе он кликабелен) — оборачиваем содержимое в ссылку (a) на
-     общий вид. Сессия у платформы кука-based (соседние ссылки тоже без chk_key). */
+  /* Активный пункт рельсы платформа отдаёт как font-тег БЕЗ ссылки (на десктопе
+     он кликабелен) — оборачиваем содержимое в ссылку (a). Сессия у платформы
+     кука-based (соседние ссылки тоже без chk_key).
+     ⚠️ href с location.search, а НЕ голый main-menu.php: голый адрес открывает
+     дефолтную категорию, т.е. тап по активному пункту «Филиалы» уводил на
+     «Общий результат» — переход туда, куда пользователь не просил. Сохраняем
+     текущий cat_id: тап по активному пункту = остаться в своём разделе. */
   function linkActiveRailItem() {
     var li = document.querySelector("#reports_categories li.topTabActive");
     if (!li || li.querySelector("a")) return;
     var a = document.createElement("a");
-    a.href = "main-menu.php";
+    a.href = "main-menu.php" + location.search;
     while (li.firstChild) a.appendChild(li.firstChild);
     li.appendChild(a);
   }
@@ -1303,13 +1368,15 @@
     linkActiveRailItem();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
-    setTimeout(reflowCharts, 500);
-    setTimeout(reflowCharts, 1500);
+    CHART_RETRY_MS.forEach(function (ms) {
+      setTimeout(reflowCharts, ms);
+    });
     /* широкие отчёты: липкая полоса + drag-to-pan + обёртка кнопок экспорта
        (данные/кнопки могут подгружаться по ajax — повторяем с задержками) */
     enhanceReports();
-    setTimeout(enhanceReports, 800);
-    setTimeout(enhanceReports, 1800);
+    REPORTS_RETRY_MS.forEach(function (ms) {
+      setTimeout(enhanceReports, ms);
+    });
     /* и наблюдаем за поздней AJAX-загрузкой данных отчёта */
     observeReports();
   }
@@ -1320,18 +1387,32 @@
     onReady();
   }
   window.addEventListener("load", reflowCharts);
-  window.addEventListener("resize", reflowCharts);
 
-  /* Липкая гориз. полоса: следим за скроллом/ресайзом страницы. */
+  /* Липкая гориз. полоса: следим за скроллом страницы. */
   window.addEventListener("scroll", scheduleHBar, { passive: true });
+
+  /* Ресайз ОДНИМ задебаунсенным обработчиком. Событие стреляет десятки раз в
+     секунду, пока тянут край окна, а работа тут тяжёлая: refreshScrollers()
+     читает scrollWidth/getComputedStyle у всех кандидатов (принудительный
+     пересчёт layout на каждый вызов), reflowCharts() дёргает setSize у каждого
+     графика. Раньше это шло на КАЖДОЕ событие (и двумя отдельными
+     обработчиками) — окно дёргалось рывками. Теперь один проход после того,
+     как пользователь отпустил край. Дебаунс, а НЕ throttle: важно финальное
+     состояние, промежуточные ширины никому не нужны. */
+  var resizeTimer = null;
   window.addEventListener("resize", function () {
-    refreshScrollers();
-    sizeExportBars();
-    scheduleHBar();
-    syncModeClasses();
-    syncMnav();
-    syncFilt();
-    unifyDesktopRail();
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      resizeTimer = null;
+      refreshScrollers();
+      sizeExportBars();
+      scheduleHBar();
+      syncModeClasses();
+      syncMnav();
+      syncFilt();
+      unifyDesktopRail();
+      reflowCharts();
+    }, RESIZE_DEBOUNCE_MS);
   });
   window.addEventListener("load", function () {
     /* после load ширина уже с учётом viewport-меты (телефон перевёрстан из 980
@@ -1348,6 +1429,6 @@
       unifyDesktopRail();
       enhanceReports();
       mnavDebug();
-    }, 300);
+    }, POST_LOAD_MS);
   });
 })();
