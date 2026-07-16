@@ -23,6 +23,10 @@ html {
      здесь — ДЕСКТОП (было max клампа); mobile/tablet переопределяют ниже. */
   --fs-report-title: 1.9rem;
   --fs-report-body: 1.5rem;
+  /* Шрифт ЯЧЕЕК таблиц отчёта (.report) — отдельно от --fs-report-body: у тела
+     блока текст читают абзацами, а в таблице на 41 колонку каждый лишний пиксель
+     умножается на ширину. Десктоп = прежние 1.4rem, ничего не меняется. */
+  --fs-report-table: 1.4rem;
   /* Боковой инсет контента (шапка + блоки отчётов) — фикс rem, десктоп (был
      max клампа); mobile/tablet переопределяют ниже. */
   --lk-inset: 4.4rem;
@@ -36,11 +40,13 @@ html {
 html.lk-m:not(.lk-wide) {
   --fs-report-title: 1.65rem; /* было min клампа 16.5px */
   --fs-report-body: 1.35rem; /* было min клампа 13.5px */
+  --fs-report-table: 1.1rem; /* таблицы на телефоне — мельче тела блока */
   --lk-inset: 2rem; /* было min клампа 20px */
 }
 html.lk-m.lk-wide {
   --fs-report-title: 1.775rem; /* было середина клампа (16.5+19)/2 */
   --fs-report-body: 1.425rem; /* было середина клампа (13.5+15)/2 */
+  --fs-report-table: 1.25rem; /* планшет — между телефоном и десктопом */
   --lk-inset: 3.2rem; /* было середина клампа (20+44)/2 */
 }
 @font-face {
@@ -563,7 +569,7 @@ thead.report tr.filters td {
   border: none;
   color: #2c2c2c;
   font-weight: normal !important;
-  font-size: 1.4rem;
+  font-size: var(--fs-report-table);
 }
 .simplegraph_value {
   border: none;
@@ -585,10 +591,29 @@ thead.report td,
 thead.report a:hover {
   background-color: transparent;
   border: none;
-  font-size: 1.4rem;
+  font-size: var(--fs-report-table);
   line-height: 1;
   text-align: center;
   color: #000;
+}
+/* ⚠️ Отдельный мобильный блок с !important — вынужденно, и намеренно НЕ на
+   базовых правилах выше. В device-media платформы (~стр. 5090) висит легаси
+   `body, th, td, select, input, button {font-size:3rem !important}`: она бьёт по
+   ячейкам ЛЮБОЙ таблицы, и обычной специфичностью её не перебить. Выпилить из
+   неё `th, td` целиком нельзя, не перепроверив все экраны телефона (фильтры,
+   шапка, меню держатся на своих переопределениях).
+   Почему не !important прямо в базовых правилах: он подействовал бы и на
+   ДЕСКТОП, где инфляции нет, и перебил бы наше же правило для вложенных гридов
+   (`td.grid_report_td p table *` = 1.3rem) — те молча выросли бы до 1.4rem.
+   Скоуп html.lk-m держит правку ровно там, где проблема. */
+html.lk-m .report,
+html.lk-m .report tr,
+html.lk-m .report td,
+html.lk-m .report th,
+html.lk-m thead.report a,
+html.lk-m thead.report td,
+html.lk-m thead.report a:hover {
+  font-size: var(--fs-report-table) !important;
 }
 tr.db th,
 .report-dir {
@@ -5016,23 +5041,17 @@ body[data-layout*="horizontal_rtl"] .menu-bg {
     text {
     font-size: 2rem !important;
   }
-  .report th,
-  thead.report a,
-  thead.report td,
-  thead.report a:hover,
-  .report,
-  .report tr,
-  .report td {
-    font-size: 3rem !important;
-  }
+  /* Инфляция .report (3rem) выпилена 2026-07-17 — см. комментарий у блока 3.5rem
+     ниже; размер задаётся через --fs-report-table. */
   .simplegraph_percentage_bar span {
     height: 3rem !important;
     line-height: 3rem !important;
   }
+  /* height:8rem у ячеек тоже убран: он держал строку под шрифт 30px и на мелком
+     шрифте оставлял бы полупустые строки в 80px. Высоту теперь диктует контент
+     и padding. text-align:center сохраняем — это оформление, а не инфляция. */
   .report td,
   .report th {
-    font-size: 3rem;
-    height: 8rem;
     text-align: center;
   }
   .btn-input,
@@ -5324,25 +5343,11 @@ body[data-layout*="horizontal_rtl"] .menu-bg {
   #questions_in_reviews_3180999 {
     width: 100% !important;
   }
-  .report th,
-  thead.report a,
-  thead.report td,
-  thead.report a:hover,
-  .report,
-  .report tr,
-  .report td {
-    font-size: 3.5rem !important;
-  }
+  /* Инфляция .report (два одинаковых блока по 3.5rem) выпилена 2026-07-17:
+     давала 35px в ячейках отчёта — колонки по 191-240px, шапка высотой 335px,
+     таблица шире 10500px. Размер теперь один на все режимы через
+     --fs-report-table (см. блок «Шрифт таблиц отчёта» ниже по файлу). */
   .btn-input {
-    font-size: 3.5rem !important;
-  }
-  .report th,
-  thead.report a,
-  thead.report td,
-  thead.report a:hover,
-  .report,
-  .report tr,
-  .report td {
     font-size: 3.5rem !important;
   }
   img[src*="pdf_icon"],
@@ -7848,23 +7853,27 @@ html.lk-app .highcharts-solidgauge-series .highcharts-data-label span {
    Логика — sidebar-toggle.js (openTableViewer/addTableViewerButtons).
    --------------------------------------------------------------------------- */
 
-/* Первая колонка липнет при горизонтальной прокрутке: без неё на 41-колоночной
-   таблице теряется контекст — видишь ответы, но не понимаешь, чья это строка.
-   ⚠️ Клеим НАПРЯМУЮ ячейки внутри скроллера — это единственный рабочий кейс
-   (проверено замером: позиция ячейки до/после прокрутки совпадает). Через
-   вложенные таблицы и float sticky не работает — см. MOBILE-PLAN.
-   Фон обязателен: иначе уезжающие колонки просвечивают сквозь липкую. */
-html.lk-app .lk-pannable table.report:not(#red_border) tr > *:first-child {
+/* Липнет ШАПКА таблицы (решение клиента 2026-07-17: раньше липла первая колонка —
+   названия колонок информативнее, чем номер строки).
+   Работает ТОЛЬКО в развёрнутом виде: в карточке вертикаль прокручивает страница,
+   а скроллер вертикальным скроллпортом не является — прилипать там не к чему.
+   ⚠️ Клеим ЯЧЕЙКИ, а не <tr>: sticky на строке таблицы Chrome игнорирует.
+   Берём первую строку thead — вторая (строка фильтров) уезжает под неё.
+   :not(#red_border) отсекает внешнюю декоративную рамку-table, внутри которой
+   лежит настоящая таблица.
+   Фон обязателен: иначе строки просвечивают сквозь липкую шапку. */
+html.lk-tview-open
+  #lk-tview-body
+  .lk-pannable
+  table.report:not(#red_border)
+  thead
+  tr:first-child
+  > * {
   position: sticky !important;
-  left: 0 !important;
-  z-index: 3;
+  top: 0 !important;
+  z-index: 4;
   background-color: #ffffff;
-  box-shadow: 0.2rem 0 0.4rem rgba(60, 20, 80, 0.12);
-}
-/* у строк с заливкой (цветные ячейки-оценки) фон липкой колонки не перебиваем:
-   там платформа красит саму ячейку, и белый фон затёр бы смысл */
-html.lk-app .lk-pannable table.report:not(#red_border) tr > *:first-child[style*="background"] {
-  background-color: inherit;
+  box-shadow: 0 0.2rem 0.4rem rgba(60, 20, 80, 0.12);
 }
 
 /* Кнопка «Развернуть» — в общей панели кнопок отчёта */
@@ -7947,23 +7956,26 @@ html.lk-tview-open #lk-hbar {
 }
 #lk-tview-body {
   flex: 1 1 auto;
-  overflow-y: auto;
-  /* Строго hidden, а не visible: при overflow-y:auto браузер сам поднимает
-     visible до auto — тогда вбок едет САМ оверлей, скроллер внутри стоит,
-     и липкая первая колонка уезжает вместе с таблицей. Горизонталь — задача
-     скроллера ниже. */
-  overflow-x: hidden;
+  /* Обе оси прокручивает СКРОЛЛЕР внутри (правило ниже), а не этот контейнер:
+     иначе вбок ехал бы сам оверлей, а липкой шапке не от чего было бы отсчитывать
+     top:0. Здесь — только жёсткая рамка по высоте оверлея. */
+  overflow: hidden;
+  min-height: 0;
   -webkit-overflow-scrolling: touch;
-  /* место под полосу горизонтального скролла у нижнего края */
-  padding-bottom: 1.6rem;
 }
 /* Прокрутку вбок скроллеру давало правило платформы, привязанное к предку
    .grid_report_td — в оверлее этого предка нет, и overflow-x схлопывался в
    visible. Возвращаем явно, иначе разворачивать таблицу бессмысленно: видна
-   только первая пара колонок. */
+   только первая пара колонок.
+   ⚠️ И height:100% + overflow по ОБЕИМ осям — это не косметика, а условие
+   работы липкой шапки: sticky top:0 отсчитывается от ближайшего предка, который
+   реально прокручивается по вертикали. Если вертикаль тянет #lk-tview-body, а
+   скроллер лишь «умеет» скроллиться (overflow-y:auto браузер поднимает сам из-за
+   overflow-x), то шапка прилипнет к контейнеру, который стоит на месте — то есть
+   не прилипнет вовсе. Поэтому обе оси отдаём одному узлу. */
 html.lk-tview-open #lk-tview-body .lk-pannable {
-  overflow-x: auto !important;
-  overflow-y: visible !important;
+  overflow: auto !important;
+  height: 100% !important;
   width: 100% !important;
   max-width: 100% !important;
 }
