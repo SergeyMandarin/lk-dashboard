@@ -6669,9 +6669,16 @@ html.lk-m {
   #lk-filt-close { height: 6rem !important; box-sizing: border-box !important; padding: 0 !important; line-height: 6rem !important; overflow: hidden; }
   #lk-filt-close:hover { background: rgba(255,255,255,.14) !important; }
 
-  /* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями */
+  /* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями.
+     ⚠️ sb-open — ТОЛЬКО не в варианте A. Замок нужен, пока открыт оверлей меню
+     #lk-mnav, а в lk-app его нет вообще (бургер скрыт, разделы — в лаунчере).
+     При этом класс sb-open остаётся в localStorage от десктопной рельсы и
+     переживает переход на телефон — то есть замок срабатывал на пустом месте и
+     намертво убивал прокрутку страницы во всём ЛК. Свои замки у оверлеев
+     варианта A есть отдельно (lk-launcher-open / lk-more-open / lk-app.filt-open
+     / lk-tview-open). */
   &.filt-open, &.filt-open body,
-  &.sb-open, &.sb-open body { overflow: hidden !important; }
+  &.sb-open:not(.lk-app), &.sb-open:not(.lk-app) body { overflow: hidden !important; }
 
   /* меньший левый отступ: margin формы 0 + зануляем вложенные */
   #lk-filt #general_filters_form { margin: 0 !important; padding: 1.4rem 1.2rem 2.8rem !important; }
