@@ -1194,12 +1194,50 @@
     root.classList.toggle("lk-launcher-open", name === "launcher");
     root.classList.toggle("filt-open", name === "filters");
     root.classList.toggle("lk-more-open", name === "more");
+    /* заодно пересчитает бейдж фильтров — страховка на случай, если виджет
+       изменил выбор способом, который мы не отследили (событий он не шлёт) */
     syncTabbarState();
+  }
+
+  /* Сколько фильтров реально применено — для бейджа на табе.
+     Правило без хардкода значений (проверено на живой форме):
+     — одиночный select: дефолт это ПЕРВАЯ опция («По умолчанию», «Нет», …),
+       значит выбран не первый = фильтр задан;
+     — мультиселект: дефолт это «ничего не выбрано».
+     Так работает для любого клиента: состав и подписи фильтров у всех разные,
+     а «первая опция = ничего не выбрано» — общее соглашение платформы. */
+  function countActiveFilters() {
+    var form = document.getElementById("general_filters_form");
+    if (!form) return 0;
+    var n = 0;
+    [].forEach.call(form.querySelectorAll("select"), function (s) {
+      var opts = [].slice.call(s.options);
+      if (!opts.length) return;
+      if (s.multiple) {
+        if (
+          opts.some(function (o) {
+            return o.selected;
+          })
+        ) {
+          n++;
+        }
+      } else if (!opts[0].selected) {
+        n++;
+      }
+    });
+    return n;
+  }
+
+  function syncFilterBadge() {
+    var tab = document.querySelector("#lk-tabbar .lk-tab-filters");
+    if (!tab) return;
+    tab.setAttribute("data-lk-count", String(countActiveFilters()));
   }
 
   function syncTabbarState() {
     var bar = document.getElementById("lk-tabbar");
     if (!bar) return;
+    syncFilterBadge();
     var launcherOpen = root.classList.contains("lk-launcher-open");
     var filtersOpen = root.classList.contains("filt-open");
     var moreOpen = root.classList.contains("lk-more-open");
@@ -1507,7 +1545,35 @@
     /* переносы — после сборки контейнеров: им нужны готовые слоты */
     moveCounterToHeader();
     moveLangToMore();
+    watchFilterChanges();
     syncTabbarState();
+  }
+
+  /* Бейдж должен реагировать, пока пользователь ковыряет фильтры (до
+     «Подтвердить», которое перезагружает страницу).
+     ⚠️ Проверено вживую: jQuery-UI мультиселект НЕ шлёт НИКАКИХ событий —
+     ни нативного change, ни jQuery-триггера. Он молча правит исходный select.
+     Поэтому одного слушателя change мало: он покроет только нативные селекты.
+     Ловим ещё и клик по меню виджета — оно живёт в body (вне формы), поэтому
+     слушаем на document. Пересчёт откладываем на следующий тик: на момент
+     клика виджет ещё не успел синхронизировать select. */
+  var filtWatched = false;
+
+  function watchFilterChanges() {
+    if (filtWatched) return;
+    filtWatched = true;
+
+    document.addEventListener("change", function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest("#general_filters_form")) syncFilterBadge();
+    });
+
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest(".ui-multiselect-menu")) {
+        setTimeout(syncFilterBadge, 0);
+      }
+    });
   }
 
   /* ============================================================

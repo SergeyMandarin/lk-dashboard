@@ -7723,3 +7723,80 @@ html.lk-app body {
 html.lk-app #lk-launcher {
   top: calc(var(--lk-apphdr-h) + env(safe-area-inset-top, 0px));
 }
+
+/* ---------------------------------------------------------------------------
+   ФАЗА 5: фильтры — шторка снизу вместо полноэкранного оверлея.
+   Переиспользуем готовый #lk-filt (перенос форм делает sidebar-toggle.js,
+   внутренности формы вылизаны выше по файлу) — здесь только оформление.
+   ⚠️ Специфичность html.lk-app #lk-filt равна html.lk-m #lk-filt, поэтому
+   побеждаем ТОЛЬКО за счёт положения ниже по файлу. Не переносить этот блок
+   выше мобильных правил!
+   --------------------------------------------------------------------------- */
+
+/* Старая кнопка «Фильтры» дублирует таб — на телефоне она больше не нужна. */
+html.lk-app #lk-filt-btn {
+  display: none !important;
+}
+
+/* Подложка: под шторкой, но НАД контентом. Таб-бар (900) оставляем поверх —
+   им же шторка и закрывается, как в «Ещё». */
+html.lk-app #lk-filt-bd {
+  z-index: 890 !important;
+}
+
+html.lk-app #lk-filt {
+  /* из полноэкранного оверлея → в шторку над таб-баром */
+  top: auto !important;
+  bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px)) !important;
+  max-height: 72vh;
+  box-sizing: border-box;
+  border-radius: 1.8rem 1.8rem 0 0;
+  box-shadow: 0 -0.8rem 3rem rgba(0, 0, 0, 0.3);
+  z-index: 895 !important;
+  /* выезд СНИЗУ вместо «справа»: шторка, а не боковая панель */
+  transform: translateY(100%) !important;
+  transition: transform 0.25s ease !important;
+}
+html.lk-app.filt-open #lk-filt {
+  transform: translateY(0) !important;
+}
+/* Фон под шторкой не скроллим — иначе страница «протекает» под пальцем. */
+html.lk-app.filt-open body {
+  overflow: hidden !important;
+}
+
+/* Шапка шторки: скругляем вместе с контейнером, иначе фиолетовый угол
+   торчит из-под радиуса. */
+html.lk-app #lk-filt-hdr {
+  border-radius: 1.8rem 1.8rem 0 0;
+  height: 5rem !important;
+}
+html.lk-app #lk-filt-close {
+  width: 5rem !important;
+  height: 5rem !important;
+  line-height: 5rem !important;
+}
+
+/* Бейдж активных фильтров на табе: число ставит JS в data-атрибут, показываем
+   только когда есть что показать (пустой/нулевой — не рисуем). */
+#lk-tabbar .lk-tab-filters {
+  position: relative;
+}
+#lk-tabbar .lk-tab-filters[data-lk-count]:not([data-lk-count="0"])::after {
+  content: attr(data-lk-count);
+  position: absolute;
+  top: 0.4rem;
+  right: 50%;
+  margin-right: -2rem;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  box-sizing: border-box;
+  border-radius: 0.8rem;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.6rem;
+  text-align: center;
+}
