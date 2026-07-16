@@ -1036,16 +1036,31 @@
      ============================================================ */
   var APP_CLASS = "lk-app";
   var APP_OFF_KEY = "lkAppOff";
+  var APP_FORCE_KEY = "lkAppForce";
+
+  function lsGet(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      /* localStorage может быть недоступен (приватный режим, политики) —
+         это не повод менять поведение интерфейса */
+      return null;
+    }
+  }
 
   function isAppMode() {
-    if (!isPhone()) return false;
-    try {
-      return localStorage.getItem(APP_OFF_KEY) !== "1";
-    } catch (e) {
-      /* localStorage может быть недоступен (приватный режим/политики) —
-         это не повод отключать интерфейс, просто считаем что не выключено. */
-      return true;
-    }
+    /* Выключатель сильнее всего: это аварийный откат на старую мобилку. */
+    if (lsGet(APP_OFF_KEY) === "1") return false;
+    /* Принудительное включение: lkAppForce="1". Нужно там, где screen врёт про
+       размер устройства, а раскладка обязана быть телефонной:
+       — эмуляция DevTools в режиме Responsive (вьюпорт мобильный, а screen от
+         монитора) — иначе телефонную вёрстку не проверить;
+       — разделённый экран на планшете (см. REFACTOR-TODO): screen показывает
+         весь экран, окно узкое.
+       Требуем мобильный HTML: без него нет рельсы, а из неё строится вся
+       навигация варианта A — включать было бы нечего. */
+    if (lsGet(APP_FORCE_KEY) === "1" && isMobileHTML()) return true;
+    return isPhone();
   }
 
   function syncModeClasses() {
@@ -1173,11 +1188,12 @@
     return m ? m[0] : "";
   }
 
-  /* Единственный открытый оверлей за раз: иначе лаунчер и шторка фильтров
-     наложатся друг на друга. Пустая строка — закрыть всё. */
+  /* Единственный открытый оверлей за раз: иначе лаунчер, шторка «Ещё» и
+     фильтры наложатся друг на друга. Пустая строка — закрыть всё. */
   function setAppOverlay(name) {
     root.classList.toggle("lk-launcher-open", name === "launcher");
     root.classList.toggle("filt-open", name === "filters");
+    root.classList.toggle("lk-more-open", name === "more");
     syncTabbarState();
   }
 
@@ -1186,6 +1202,8 @@
     if (!bar) return;
     var launcherOpen = root.classList.contains("lk-launcher-open");
     var filtersOpen = root.classList.contains("filt-open");
+    var moreOpen = root.classList.contains("lk-more-open");
+    var anyOverlay = launcherOpen || filtersOpen || moreOpen;
     var items = getRailItems();
     var firstLink = items[0] && items[0].querySelector("a");
     var firstHref = firstLink ? firstLink.getAttribute("href") || "" : "";
@@ -1196,10 +1214,10 @@
 
     bar.querySelectorAll(".lk-tab").forEach(function (t) {
       var isOn =
-        (t.classList.contains("lk-tab-home") &&
-          onHome && !launcherOpen && !filtersOpen) ||
+        (t.classList.contains("lk-tab-home") && onHome && !anyOverlay) ||
         (t.classList.contains("lk-tab-sections") && launcherOpen) ||
-        (t.classList.contains("lk-tab-filters") && filtersOpen);
+        (t.classList.contains("lk-tab-filters") && filtersOpen) ||
+        (t.classList.contains("lk-tab-more") && moreOpen);
       t.classList.toggle("lk-on", isOn);
     });
   }
@@ -1240,6 +1258,86 @@
 
     box.appendChild(list);
     document.body.appendChild(box);
+  }
+
+  /* Шторка «Ещё»: нижнее меню платформы (Главная/Управление/Отчеты/Выход) плюс
+     переключатель языка.
+     Пункты меню — КЛОНЫ: проверено вживую, все четыре суть обычные ссылки с
+     href и без onclick, так что клон ведёт себя как оригинал. Иконки берутся
+     общими правилами по href (селекторы расширены на .lk-more-item).
+     ⚠️ Кнопка языка — НЕ клон, а ПЕРЕНОС с возвратом: это тег a с href="#",
+     обработчик ей вешает jQuery, и клон остался бы мёртвой кнопкой. */
+  var moreMoved = [];
+
+  function buildMoreSheet() {
+    if (document.getElementById("lk-more")) return;
+
+    var bd = document.createElement("div");
+    bd.id = "lk-more-bd";
+    bd.addEventListener("click", function () {
+      setAppOverlay("");
+    });
+
+    var sheet = document.createElement("div");
+    sheet.id = "lk-more";
+
+    var grab = document.createElement("div");
+    grab.id = "lk-more-grab";
+    sheet.appendChild(grab);
+
+    var hdr = document.createElement("div");
+    hdr.id = "lk-more-hdr";
+    hdr.textContent = "Ещё";
+    sheet.appendChild(hdr);
+
+    var list = document.createElement("div");
+    list.id = "lk-more-list";
+    var menu = document.getElementById("menu_top_level_wrapper");
+    var links = menu ? [].slice.call(menu.querySelectorAll("a")) : [];
+    links.forEach(function (a) {
+      var href = a.getAttribute("href");
+      if (!href) return;
+      var item = document.createElement("a");
+      item.className = "lk-more-item";
+      item.href = href;
+      item.textContent = a.textContent.trim();
+      list.appendChild(item);
+    });
+    sheet.appendChild(list);
+
+    /* Пустой слот под перенесённую кнопку языка: сам перенос — в moveLangToMore,
+       он должен пережить пересборку шторки и уметь вернуть кнопку назад. */
+    var langSlot = document.createElement("div");
+    langSlot.id = "lk-more-lang";
+    sheet.appendChild(langSlot);
+
+    document.body.appendChild(bd);
+    document.body.appendChild(sheet);
+  }
+
+  function moveLangToMore() {
+    var lang = document.getElementById("set-language");
+    var slot = document.getElementById("lk-more-lang");
+    if (!lang || !slot || slot.contains(lang)) return;
+    moreMoved.push({ el: lang, parent: lang.parentNode, next: lang.nextSibling });
+    slot.appendChild(lang);
+  }
+
+  /* Возврат языка на штатное место — обязателен при уходе с телефона (поворот
+     планшета, kill-switch): иначе кнопка исчезнет вместе со шторкой. */
+  function restoreMoreMoved() {
+    moreMoved.forEach(function (o) {
+      try {
+        if (o.next && o.next.parentNode === o.parent) {
+          o.parent.insertBefore(o.el, o.next);
+        } else {
+          o.parent.appendChild(o.el);
+        }
+      } catch (e) {
+        console.warn("lk: не удалось вернуть кнопку языка на место", o.el, e);
+      }
+    });
+    moreMoved = [];
   }
 
   function makeTab(cls, label, isLink) {
@@ -1293,11 +1391,9 @@
     });
     bar.appendChild(filters);
 
-    /* «Ещё» (Управление/Отчеты/Выход/язык) — фаза 3. Пока просто закрывает
-       открытое, чтобы таб не выглядел сломанным. */
     var more = makeTab("lk-tab-more", "Ещё", false);
     more.addEventListener("click", function () {
-      setAppOverlay("");
+      setAppOverlay(root.classList.contains("lk-more-open") ? "" : "more");
     });
     bar.appendChild(more);
 
@@ -1311,11 +1407,15 @@
      Всё наше — клоны и свои узлы, поэтому просто удаляем: платформенный DOM не
      затронут (в отличие от mnav/filt, где нужен аккуратный возврат). */
   function destroyAppNav() {
-    ["lk-tabbar", "lk-launcher"].forEach(function (id) {
+    /* ⚠️ СНАЧАЛА вернуть перенесённое (язык), и только потом удалять шторку:
+       иначе кнопка уедет в небытие вместе с контейнером. */
+    restoreMoreMoved();
+    ["lk-tabbar", "lk-launcher", "lk-more", "lk-more-bd"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.remove();
     });
     root.classList.remove("lk-launcher-open");
+    root.classList.remove("lk-more-open");
   }
 
   /* Собираем/разбираем навигацию варианта A по текущему режиму. Идемпотентно;
@@ -1328,6 +1428,8 @@
     }
     buildTabbar();
     buildLauncher();
+    buildMoreSheet();
+    moveLangToMore();
     syncTabbarState();
   }
 
