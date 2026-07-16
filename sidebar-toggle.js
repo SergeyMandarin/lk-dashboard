@@ -160,6 +160,58 @@
     if (upd.title || upd.subtitle) c.update(upd, false);
   }
 
+  /* Полукруглый гейдж («Общий результат») на телефоне.
+     Платформа задаёт pane под десктоп: center ['50%','90%'], size '85%',
+     дуга -90..90 (верхняя половина). Беда в том, что Highcharts считает size в
+     процентах от МЕНЬШЕЙ стороны области построения — на телефоне это высота
+     (166 против ширины 321), поэтому дуга выходила диаметром 141 при доступной
+     ширине 321: половина карточки пустовала, а «Оценка» с числом жались друг
+     к другу в центре крошки.
+     Считаем размер в ПИКСЕЛЯХ (Highcharts это принимает) — так не зависим от
+     того, от какой стороны берётся процент:
+       радиус = min(ширина/2, центр_по_вертикали)
+     второе ограничение обязательно: дуга рисуется ВВЕРХ от центра, и при
+     слишком большом радиусе её макушку срезает верхний край. */
+  var GAUGE_CENTER_Y = 0.96;
+
+  function fitPhoneGauge(c) {
+    if (!c.pane || !c.pane[0] || !c.plotWidth || !c.plotHeight) return;
+    var centerY = c.plotHeight * GAUGE_CENTER_Y;
+    var radius = Math.floor(Math.min(c.plotWidth / 2, centerY));
+    if (radius <= 0) return;
+    var diameter = radius * 2;
+    /* уже подогнан под этот размер — не гоняем update лишний раз */
+    if (c.__lkGaugeDiameter === diameter) return;
+    c.__lkGaugeDiameter = diameter;
+    c.update(
+      {
+        pane: {
+          size: diameter,
+          center: ["50%", GAUGE_CENTER_Y * 100 + "%"]
+        },
+        /* «Оценка» — это yAxis.title, Highcharts кладёт её В ЦЕНТР полукруга,
+           ровно туда же, где значение: на узком экране надпись налезала на дугу
+           и толкалась с числом. Смысла не теряем — карточка и так называется
+           «Общий результат», а число под дугой читается как оценка. */
+        yAxis: { title: { text: null } },
+        plotOptions: {
+          solidgauge: {
+            dataLabels: {
+              /* рамка вокруг числа на телефоне выглядит артефактом */
+              borderWidth: 0,
+              backgroundColor: "transparent",
+              /* платформа ставит color:"contrast" — Highcharts считает его от
+                 фона ТОЧКИ (оранжевая дуга) и мог выдать белый текст на белом
+                 фоне карточки: число то видно, то нет. Задаём цвет явно. */
+              style: { color: "#3c3c3b", textOutline: "none" }
+            }
+          }
+        }
+      },
+      false
+    );
+  }
+
   function reflowCharts() {
     if (window.Highcharts && Highcharts.charts) {
       Highcharts.charts.forEach(function (c) {
@@ -171,12 +223,18 @@
             /* На телефоне правим и высоту, на остальных режимах — только
                ширину (undefined = не трогать), чтобы не задеть вылизанные
                десктоп и планшет. */
+            var phone = isAppMode();
             var h = 0;
-            if (isAppMode()) {
+            if (phone) {
               dropBlankChartTitles(c);
               h = phoneChartHeight(c, w);
             }
             c.setSize(w, h || undefined, false);
+            /* Гейдж подгоняем СТРОГО ПОСЛЕ setSize: размер дуги считаем от
+               plotWidth/plotHeight, а они пересчитываются только там. */
+            if (phone && c.options.chart.type === "solidgauge") {
+              fitPhoneGauge(c);
+            }
           } else {
             c.reflow();
           }
@@ -1147,9 +1205,16 @@
 
   function syncModeClasses() {
     var m = isMobileHTML();
+    var app = isAppMode();
     root.classList.toggle("lk-m", m);
-    root.classList.toggle("lk-wide", m && isTabletWide());
-    root.classList.toggle(APP_CLASS, isAppMode());
+    /* ⚠️ lk-wide и lk-app ВЗАИМОИСКЛЮЧАЮЩИЕ: первый включает планшетную
+       раскладку, второй — телефонную, и вместе они дают кашу из двух наборов
+       правил (ловили вживую: рельса открыта по-планшетному поверх таб-бара,
+       вёрстка поехала). Обычно конфликта нет — isPhone() и isTabletWide()
+       противоположны. Но lkAppForce="1" включает телефонный режим в обход
+       проверки размера, и тогда lk-wide обязан уступить. */
+    root.classList.toggle("lk-wide", m && isTabletWide() && !app);
+    root.classList.toggle(APP_CLASS, app);
   }
 
   var mnav = null;

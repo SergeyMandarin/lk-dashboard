@@ -7827,3 +7827,18 @@ html.lk-app .legend > table > tbody {
 html.lk-app .legend td {
   white-space: nowrap !important;
 }
+
+/* Значение внутри полукруглого гейджа («Общий результат») — это ГЛАВНОЕ число
+   карточки, а не подпись: общее правило выше сажает все метки Highcharts на
+   1.4rem, и на дуге шириной в весь экран число терялось.
+   ⚠️ Правило обязано идти НИЖЕ общего .highcharts-data-label: специфичность у
+   них сопоставима, и побеждает последнее. Целимся классом, который Highcharts
+   ставит сам по типу серии (.highcharts-solidgauge-series) — задать свой
+   className через опции dataLabels не выходит, Highcharts его игнорирует
+   (проверено). */
+html.lk-app .highcharts-solidgauge-series .highcharts-data-label text,
+html.lk-app .highcharts-solidgauge-series .highcharts-data-label tspan,
+html.lk-app .highcharts-solidgauge-series .highcharts-data-label span {
+  font-size: 2.6rem !important;
+  font-weight: 800 !important;
+}
