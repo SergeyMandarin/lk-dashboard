@@ -5966,33 +5966,33 @@ body #general_filters_form select.list-select {
    папки проекта tags (Figma), перекрашены в #3C3C3B. !important — базовая
    иконка задаётся без !important, поэтому перебивается легко.
    ============================================================ */
-.upper_tabs_nav li.tab_menu_item.lk-sec-branches, #lk-mnav .lk-sec-branches {
+.upper_tabs_nav li.tab_menu_item.lk-sec-branches, #lk-mnav .lk-sec-branches, #lk-launcher .lk-sec-branches {
   /* department-structure.svg (реальная иконка из макета Figma, tags(1), 2026-07-15) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm11%2C6h2c1.379%2C0%2C2.5-1.121%2C2.5-2.5v-1c0-1.379-1.121-2.5-2.5-2.5h-2c-1.378%2C0-2.5%2C1.121-2.5%2C2.5v1c0%2C1.379%2C1.122%2C2.5%2C2.5%2C2.5Zm2%2C12h-2c-1.378%2C0-2.5%2C1.121-2.5%2C2.5v1c0%2C1.379%2C1.122%2C2.5%2C2.5%2C2.5h2c1.379%2C0%2C2.5-1.121%2C2.5-2.5v-1c0-1.379-1.121-2.5-2.5-2.5Zm8.5%2C0h-2c-1.379%2C0-2.5%2C1.121-2.5%2C2.5v1c0%2C1.379%2C1.121%2C2.5%2C2.5%2C2.5h2c1.379%2C0%2C2.5-1.121%2C2.5-2.5v-1c0-1.379-1.121-2.5-2.5-2.5Zm-17%2C0h-2c-1.378%2C0-2.5%2C1.121-2.5%2C2.5v1c0%2C1.379%2C1.122%2C2.5%2C2.5%2C2.5h2c1.378%2C0%2C2.5-1.121%2C2.5-2.5v-1c0-1.379-1.122-2.5-2.5-2.5Zm-2-2.5v-1c0-1.93%2C1.57-3.5%2C3.5-3.5h5v-2.5c0-.553.448-1%2C1-1s1%2C.447%2C1%2C1v2.5h5c1.93%2C0%2C3.5%2C1.57%2C3.5%2C3.5v1c0%2C.553-.447%2C1-1%2C1s-1-.447-1-1v-1c0-.827-.673-1.5-1.5-1.5h-5v2.5c0%2C.553-.448%2C1-1%2C1s-1-.447-1-1v-2.5h-5c-.827%2C0-1.5.673-1.5%2C1.5v1c0%2C.553-.448%2C1-1%2C1s-1-.447-1-1Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-sections, #lk-mnav .lk-sec-sections {
+.upper_tabs_nav li.tab_menu_item.lk-sec-sections, #lk-mnav .lk-sec-sections, #lk-launcher .lk-sec-sections {
   /* chart-simple-horizontal.svg (реальная иконка из макета Figma, tags(1), 2026-07-15) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24' width%3D'512' height%3D'512'%3E%3Cpath d%3D'M21%2C15H3c-1.65%2C0-3-1.35-3-3s1.35-3%2C3-3H21c1.65%2C0%2C3%2C1.35%2C3%2C3s-1.35%2C3-3%2C3ZM15%2C6H3c-1.65%2C0-3-1.35-3-3S1.35%2C0%2C3%2C0H15c1.65%2C0%2C3%2C1.35%2C3%2C3s-1.35%2C3-3%2C3Zm-6%2C18H3c-1.65%2C0-3-1.35-3-3s1.35-3%2C3-3h6c1.65%2C0%2C3%2C1.35%2C3%2C3s-1.35%2C3-3%2C3Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-questions, #lk-mnav .lk-sec-questions {
+.upper_tabs_nav li.tab_menu_item.lk-sec-questions, #lk-mnav .lk-sec-questions, #lk-launcher .lk-sec-questions {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm18%2C11.996v-7C18%2C2.239%2C15.757-.004%2C13-.004H5C2.243-.004%2C0%2C2.239%2C0%2C4.996v12.854c0%2C.793.435%2C1.519%2C1.134%2C1.894.318.171.667.255%2C1.015.255.416%2C0%2C.831-.121%2C1.191-.36l3.963-2.643h5.697c2.757%2C0%2C5-2.243%2C5-5Zm-9%2C2.004c-.552%2C0-1-.448-1-1s.448-1%2C1-1%2C1%2C.448%2C1%2C1-.448%2C1-1%2C1Zm1.447-4.371c-.447.246-.447.318-.447.371%2C0%2C.553-.448%2C1-1%2C1s-1-.447-1-1c0-1.308%2C1.038-1.879%2C1.481-2.123.29-.159.595-.535.502-1.066-.069-.392-.402-.725-.793-.793-.306-.056-.602.022-.832.216-.228.19-.358.47-.358.767%2C0%2C.553-.448%2C1-1%2C1s-1-.447-1-1c0-.889.391-1.727%2C1.072-2.299.681-.572%2C1.577-.814%2C2.463-.653%2C1.209.211%2C2.204%2C1.205%2C2.417%2C2.417.223%2C1.272-.382%2C2.543-1.506%2C3.164Zm13.553-.633v12.854c0%2C.793-.435%2C1.519-1.134%2C1.894-.318.171-.667.255-1.015.256-.416%2C0-.831-.121-1.19-.36l-3.964-2.644h-5.697c-1.45%2C0-2.747-.631-3.661-1.62l.569-.38h5.092c3.859%2C0%2C7-3.141%2C7-7v-7c0-.308-.027-.608-.065-.906%2C2.311.44%2C4.065%2C2.469%2C4.065%2C4.906Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-summary, #lk-mnav .lk-sec-summary {
+.upper_tabs_nav li.tab_menu_item.lk-sec-summary, #lk-mnav .lk-sec-summary, #lk-launcher .lk-sec-summary {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' id%3D'Layer_1' viewBox%3D'0 0 24 24' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' data-name%3D'Layer 1'%3E%3Cpath d%3D'm0 10v8c0 2.757 2.243 5 5 5h14c2.757 0 5-2.243 5-5v-8zm9 9c0 .553-.448 1-1 1s-1-.447-1-1v-2c0-.553.448-1 1-1s1 .447 1 1zm4 0c0 .553-.448 1-1 1s-1-.447-1-1v-6c0-.553.448-1 1-1s1 .447 1 1zm4 0c0 .553-.448 1-1 1s-1-.447-1-1v-4c0-.553.448-1 1-1s1 .447 1 1zm2-18h-14c-2.757 0-5 2.243-5 5v2h24v-2c0-2.757-2.243-5-5-5zm-14.5 5c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5zm4 0c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-pdf, #lk-mnav .lk-sec-pdf {
+.upper_tabs_nav li.tab_menu_item.lk-sec-pdf, #lk-mnav .lk-sec-pdf, #lk-launcher .lk-sec-pdf {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M7.98%2C16.11c0%2C.47-.41%2C.86-.89%2C.86h-.83s0-1.72%2C0-1.72h.84c.48%2C0%2C.89%2C.39%2C.89%2C.86Zm7.02-8.11h6.54c-.35-.91-.88-1.75-1.59-2.46l-3.48-3.49c-.71-.71-1.55-1.24-2.46-1.59V7c0%2C.55%2C.45%2C1%2C1%2C1Zm-2.91%2C7.25h-.84v3.5s.84%2C0%2C.84%2C0c.48%2C0%2C.89-.39%2C.89-.86v-1.78c0-.47-.41-.86-.89-.86Zm9.91-4.76v8.51c0%2C2.76-2.24%2C5-5%2C5H7c-2.76%2C0-5-2.24-5-5V5C2%2C2.24%2C4.24%2C0%2C7%2C0h4.51c.16%2C0%2C.32%2C.01%2C.49%2C.02V7c0%2C1.65%2C1.35%2C3%2C3%2C3h6.98c.01%2C.16%2C.02%2C.32%2C.02%2C.49Zm-12.77%2C5.62c0-1.16-.96-2.11-2.14-2.11h-1.09c-.55%2C0-1%2C.45-1%2C1v4.44c0%2C.35%2C.28%2C.62%2C.62%2C.62s.62-.28%2C.62-.62v-1.22h.84c1.18%2C0%2C2.14-.95%2C2.14-2.11Zm5%2C0c0-1.16-.96-2.11-2.14-2.11h-1.09c-.55%2C0-1%2C.45-1%2C1v4.44c0%2C.35%2C.28%2C.56%2C.62%2C.56s1.46%2C0%2C1.46%2C0c1.18%2C0%2C2.14-.95%2C2.14-2.11v-1.78Zm4.79-1.48c0-.35-.28-.62-.62-.62h-2.31c-.35%2C0-.62%2C.28-.62%2C.62v4.81c0%2C.35%2C.28%2C.62%2C.62%2C.62s.62-.28%2C.62-.62v-1.8h1.24c.35%2C0%2C.62-.28%2C.62-.62s-.28-.62-.62-.62h-1.24v-1.14h1.69c.35%2C0%2C.62-.28%2C.62-.62Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-artifacts, #lk-mnav .lk-sec-artifacts {
+.upper_tabs_nav li.tab_menu_item.lk-sec-artifacts, #lk-mnav .lk-sec-artifacts, #lk-launcher .lk-sec-artifacts {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M24%2C15v6.5c0%2C1.381-1.119%2C2.5-2.5%2C2.5s-2.5-1.119-2.5-2.5%2C1.119-2.5%2C2.5-2.5c.171%2C0%2C.338%2C.018%2C.5%2C.05v-4.05c0-.551-.448-1-1-1h-3c-.552%2C0-1%2C.449-1%2C1v6.5c0%2C1.381-1.119%2C2.5-2.5%2C2.5s-2.5-1.119-2.5-2.5%2C1.119-2.5%2C2.5-2.5c.171%2C0%2C.338%2C.018%2C.5%2C.05v-4.05c0-1.654%2C1.346-3%2C3-3h3c1.654%2C0%2C3%2C1.346%2C3%2C3Zm-15.104-3.157c-.562-.808-.896-1.786-.896-2.843V5c0-2.757%2C2.243-5%2C5-5h6c1.709%2C0%2C3.217%2C.864%2C4.119%2C2.175l-4.962%2C4.994-.475-.479c-.736-.738-1.894-.792-2.711-.111l-6.075%2C5.265Zm1.091-8.228c0%2C.828%2C.672%2C1.5%2C1.5%2C1.5s1.5-.672%2C1.5-1.5-.672-1.5-1.5-1.5-1.5%2C.672-1.5%2C1.5Zm.013%2C17.885c0%2C.925%2C.281%2C1.785%2C.76%2C2.5H4.5c-2.485%2C0-4.5-2.015-4.5-4.5v-5c0-2.485%2C2.015-4.5%2C4.5-4.5h.766c.448%2C0%2C.848%2C.296%2C.958%2C.73%2C.769%2C3.024%2C3.501%2C5.264%2C6.764%2C5.27l.012%2C.002v1.291c-1.743%2C.616-3%2C2.252-3%2C4.207Zm-6-1.5h-1.945c.2%2C.977%2C.968%2C1.75%2C1.945%2C1.95v-1.95Zm0-4H2v2h2v-2Zm0-3.95c-.978%2C.199-1.745%2C.972-1.945%2C1.95h1.945v-1.95ZM23.919%2C4.203l-4.351%2C4.374c-.781%2C.781-2.051%2C.781-2.83%2C.002l-.476-.48-5.909%2C5.126c.77%2C.484%2C1.672%2C.775%2C2.646%2C.775h.101c.465-2.279%2C2.484-4%2C4.899-4h3c.979%2C0%2C1.885%2C.293%2C2.657%2C.781%2C.213-.555%2C.343-1.152%2C.343-1.781V5c0-.273-.038-.536-.081-.797Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-status, #lk-mnav .lk-sec-status {
+.upper_tabs_nav li.tab_menu_item.lk-sec-status, #lk-mnav .lk-sec-status, #lk-launcher .lk-sec-status {
   /* tags (1).svg (реальная иконка из макета Figma — там пункт называется
      «Апелляции», у клиента «Статус анкет», смысл тот же; tags(1), 2026-07-15) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24' width%3D'512' height%3D'512'%3E%3Cpath d%3D'M21.526%2C8.284L13.937%2C.879C13.278%2C.219%2C12.33-.104%2C11.409%2C.028L4.521%2C.97c-.547%2C.075-.93%2C.579-.855%2C1.126%2C.075%2C.547%2C.578%2C.929%2C1.127%2C.855l6.889-.942c.306-.042%2C.622%2C.063%2C.851%2C.292l7.59%2C7.405c1.045%2C1.045%2C1.147%2C2.68%2C.323%2C3.847-.234-.467-.523-.912-.911-1.3l-7.475-7.412c-.658-.658-1.597-.975-2.528-.851l-6.889%2C.942c-.454%2C.062-.808%2C.425-.858%2C.881l-.765%2C6.916c-.1%2C.911%2C.214%2C1.804%2C.864%2C2.453l7.416%2C7.353c.944%2C.945%2C2.199%2C1.464%2C3.534%2C1.464h.017c1.342-.004%2C2.6-.532%2C3.543-1.487l3.167-3.208c.927-.939%2C1.393-2.159%2C1.423-3.388l.577-.576c1.925-1.95%2C1.914-5.112-.032-7.057Zm-15.526%2C1.716c-.552%2C0-1-.448-1-1%2C.006-1.308%2C1.994-1.307%2C2%2C0%2C0%2C.552-.448%2C1-1%2C1Z'%2F%3E%3C%2Fsvg%3E") !important;
@@ -6000,27 +6000,27 @@ body #general_filters_form select.list-select {
 }
 /* Ниже — 5 пунктов, у которых иконки раньше не было вообще (фолбэк), теперь
    взяты из реального макета Figma (папка tags(1), 2026-07-15). */
-.upper_tabs_nav li.tab_menu_item.lk-sec-overall, #lk-mnav .lk-sec-overall {
+.upper_tabs_nav li.tab_menu_item.lk-sec-overall, #lk-mnav .lk-sec-overall, #lk-launcher .lk-sec-overall {
   /* chart-pie.svg — «Общий результат» */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24' width%3D'512' height%3D'512'%3E%3Cpath d%3D'M12.3%2C10.178a4.989%2C4.989%2C0%2C0%2C0%2C.363.671L23.525%2C8.688A11.962%2C11.962%2C0%2C0%2C0%2C8.216.621Z'%2F%3E%3Cpath d%3D'M12.631%2C13.742a7.008%2C7.008%2C0%2C0%2C1-2.169-2.773L6.377%2C1.406A11.991%2C11.991%2C0%2C1%2C0%2C20.889%2C20.032Z'%2F%3E%3Cpath d%3D'M14.365%2C12.549l7.741%2C5.9A11.916%2C11.916%2C0%2C0%2C0%2C24%2C12a12.055%2C12.055%2C0%2C0%2C0-.081-1.351Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-impressions, #lk-mnav .lk-sec-impressions {
+.upper_tabs_nav li.tab_menu_item.lk-sec-impressions, #lk-mnav .lk-sec-impressions, #lk-launcher .lk-sec-impressions {
   /* star-comment-alt.svg — «Впечатления» (уже была в tags, теперь подключена) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24' width%3D'512' height%3D'512'%3E%3Cpath d%3D'M20%2C0H4C1.79%2C0%2C0%2C1.79%2C0%2C4v12c0%2C2.21%2C1.79%2C4%2C4%2C4h2.92l3.75%2C3.16c.38%2C.34%2C.86%2C.51%2C1.34%2C.51s.93-.16%2C1.29-.49l3.85-3.18h2.85c2.21%2C0%2C4-1.79%2C4-4V4c0-2.21-1.79-4-4-4Zm-2.83%2C9.62l-2.17%2C1.77%2C.9%2C2.73c.12%2C.37%2C0%2C.78-.31%2C1.01-.31%2C.24-.73%2C.25-1.06%2C.04l-2.52-1.64-2.48%2C1.66c-.15%2C.1-.33%2C.15-.51%2C.15-.19%2C0-.39-.06-.55-.18-.31-.23-.44-.64-.32-1.01l.86-2.76-2.18-1.77c-.29-.25-.4-.65-.27-1.01%2C.13-.36%2C.48-.6%2C.86-.6h2.75l.97-2.61c.13-.36%2C.48-.6%2C.86-.6s.73%2C.24%2C.86%2C.6l.97%2C2.61h2.75c.38%2C0%2C.73%2C.24%2C.86%2C.6%2C.13%2C.36%2C.02%2C.77-.27%2C1.02Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-map, #lk-mnav .lk-sec-map {
+.upper_tabs_nav li.tab_menu_item.lk-sec-map, #lk-mnav .lk-sec-map, #lk-launcher .lk-sec-map {
   /* map-marker.svg — «Карта» (уже была в tags, теперь подключена) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24' width%3D'512' height%3D'512'%3E%3Cpath d%3D'M14%2C7a2%2C2%2C0%2C1%2C1-2-2A2%2C2%2C0%2C0%2C1%2C14%2C7Zm2.95%2C4.957L12%2C16.8%2C7.058%2C11.964a7%2C7%2C0%2C1%2C1%2C9.892-.008ZM16%2C7a4%2C4%2C0%2C1%2C0-4%2C4A4%2C4%2C0%2C0%2C0%2C16%2C7Zm5.867%2C3.613-1.435-.48a8.948%2C8.948%2C0%2C0%2C1-2.068%2C3.239L12%2C19.6l-6.34-6.2A8.989%2C8.989%2C0%2C0%2C1%2C3.24%2C9.029%2C2.968%2C2.968%2C0%2C0%2C0%2C0%2C12v9.752l7.983%2C2.281%2C8.02-2%2C8%2C1.948V13.483A3%2C3%2C0%2C0%2C0%2C21.867%2C10.612Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-satisfaction, #lk-mnav .lk-sec-satisfaction {
+.upper_tabs_nav li.tab_menu_item.lk-sec-satisfaction, #lk-mnav .lk-sec-satisfaction, #lk-launcher .lk-sec-satisfaction {
   /* satisfaction-bar.svg — «СХ-метрики»/«CX-метрики» */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'M16%2C17.5v4c0%2C.828-.672%2C1.5-1.5%2C1.5s-1.5-.672-1.5-1.5v-.5H1.5c-.829%2C0-1.5-.672-1.5-1.5s.671-1.5%2C1.5-1.5H13v-.5c0-.828%2C.672-1.5%2C1.5-1.5s1.5%2C.672%2C1.5%2C1.5Zm6.5%2C.5h-3c-.828%2C0-1.5%2C.672-1.5%2C1.5s.672%2C1.5%2C1.5%2C1.5h3c.828%2C0%2C1.5-.672%2C1.5-1.5s-.672-1.5-1.5-1.5ZM18%2C2c-3.314%2C0-6%2C2.686-6%2C6s2.686%2C6%2C6%2C6%2C6-2.686%2C6-6-2.686-6-6-6Zm-4%2C4.5c0-.828%2C.672-1.5%2C1.5-1.5s1.5%2C.672%2C1.5%2C1.5-.672%2C1.5-1.5%2C1.5-1.5-.672-1.5-1.5Zm6.475%2C4.475c-.661%2C.661-1.54%2C1.025-2.475%2C1.025s-1.813-.364-2.475-1.025c-.391-.391-.391-1.023%2C0-1.414s1.023-.391%2C1.414%2C0c.566%2C.566%2C1.555%2C.566%2C2.121%2C0%2C.391-.391%2C1.023-.391%2C1.414%2C0s.391%2C1.023%2C0%2C1.414Zm.025-2.975c-.828%2C0-1.5-.672-1.5-1.5s.672-1.5%2C1.5-1.5%2C1.5%2C.672%2C1.5%2C1.5-.672%2C1.5-1.5%2C1.5ZM6%2C2C2.686%2C2%2C0%2C4.686%2C0%2C8s2.686%2C6%2C6%2C6%2C6-2.686%2C6-6S9.314%2C2%2C6%2C2ZM2%2C6.5c0-.828%2C.672-1.5%2C1.5-1.5s1.5%2C.672%2C1.5%2C1.5-.672%2C1.5-1.5%2C1.5-1.5-.672-1.5-1.5Zm6.475%2C4.939c-.391%2C.391-1.023%2C.391-1.414%2C0-.566-.566-1.555-.566-2.121%2C0-.391%2C.391-1.023%2C.391-1.414%2C0s-.391-1.023%2C0-1.414c.661-.661%2C1.54-1.025%2C2.475-1.025s1.813%2C.364%2C2.475%2C1.025c.391%2C.391%2C.391%2C1.023%2C0%2C1.414Zm.025-3.439c-.828%2C0-1.5-.672-1.5-1.5s.672-1.5%2C1.5-1.5%2C1.5%2C.672%2C1.5%2C1.5-.672%2C1.5-1.5%2C1.5Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
 }
-.upper_tabs_nav li.tab_menu_item.lk-sec-guide, #lk-mnav .lk-sec-guide {
+.upper_tabs_nav li.tab_menu_item.lk-sec-guide, #lk-mnav .lk-sec-guide, #lk-launcher .lk-sec-guide {
   /* guide-alt.svg — «Инструкция» (уже была в tags, теперь подключена) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23541261' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm18%2C12c-3.314%2C0-6%2C2.686-6%2C6s2.686%2C6%2C6%2C6%2C6-2.686%2C6-6-2.686-6-6-6Zm1%2C2v2h-2v-2h2Zm0%2C8h-2v-5h2v5ZM2%2C18c-.738-.001-1.451.271-2%2C.765V3C0%2C1.343%2C1.343%2C0%2C3%2C0h1v18h-2Zm8%2C0h-4V0h12c1.105%2C0%2C2%2C.895%2C2%2C2v8.252c-.639-.165-1.309-.252-2-.252-4.418%2C0-8%2C3.582-8%2C8Zm2.709%2C6H2c-1.105%2C0-2-.895-2-2s.895-2%2C2-2h8.252c.405%2C1.573%2C1.276%2C2.958%2C2.457%2C4Z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: auto 1.6rem !important;
@@ -7311,4 +7311,193 @@ html.lk-app {
   /* Единый источник правды по высоте таб-бара: от него пляшут нижний отступ
      контента и позиция липкой полосы hbar. В JS есть справочный TABBAR_H_PX. */
   --lk-tabbar-h: 5.6rem;
+}
+
+/* ---------------------------------------------------------------------------
+   ФАЗЫ 1-2: нижний таб-бар + лаунчер разделов.
+   Строятся в sidebar-toggle.js (buildTabbar/buildLauncher), только на lk-app.
+   --------------------------------------------------------------------------- */
+
+/* Прячем навигацию старой мобилки: её роль забрали таб-бар и лаунчер.
+   ⚠️ Именно visibility/display у КОНТЕЙНЕРОВ, а не удаление из DOM: рельса
+   (.mobile_categories_list) остаётся источником правды — из неё лаунчер берёт
+   пункты, а isMobileHTML() по ней определяет мобильный режим. */
+html.lk-app #lk-burger,
+html.lk-app .mobile_categories_list,
+html.lk-app #menu_top_level_wrapper {
+  display: none !important;
+}
+
+/* Контенту — место под таб-баром, иначе он перекроет последние строки отчёта.
+   safe-area — под «шторку» жестов на айфонах и Android-навбар. */
+html.lk-app body {
+  padding-bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Липкая полоса гориз. скролла обязана всплывать НАД баром, а не под ним
+   (её bottom:0 задан в общем правиле выше по файлу). */
+html.lk-app #lk-hbar {
+  bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+/* ...но пока открыт оверлей — прячем. Полоса относится к таблице, которая
+   сейчас скрыта под лаунчером/фильтрами, и всплывала поверх них: у неё
+   z-index 9000 (нужен против платформенных слоёв), у оверлеев — меньше.
+   Поднимать оверлеи выше нельзя: перекроют диалоги jQuery-UI. */
+html.lk-launcher-open #lk-hbar,
+html.lk-app.filt-open #lk-hbar {
+  display: none !important;
+}
+
+/* ---- таб-бар ---- */
+#lk-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  background: #ffffff;
+  border-top: 0.1rem solid #e2dde6;
+  box-shadow: 0 -0.2rem 1rem rgba(84, 18, 97, 0.10);
+  /* ниже jQuery-UI диалогов (у них ~1000+): диалог экспорта должен
+     перекрывать бар, а не наоборот */
+  z-index: 900;
+}
+#lk-tabbar .lk-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  /* высота строго по бару: без этого таб-кнопки переполняли контейнер и
+     подписи обрезались. Табы — это и ссылка (a), и кнопки (button); у button
+     платформа держит свои размеры/паддинги, поэтому глушим их явно, иначе
+     соседние табы разной высоты. */
+  height: 100%;
+  box-sizing: border-box !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0.4rem 0.2rem !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  line-height: 1.2 !important;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 600;
+  color: #948d9b;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none !important;
+  /* убираем синюю подсветку тапа на Android/iOS */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#lk-tabbar .lk-tab-ic {
+  width: 2.2rem;
+  height: 2.2rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  /* иконки одноцветные (fill серый в data-URI); активный таб перекрашиваем
+     фильтром — так не держим по два SVG на состояние */
+  opacity: 0.55;
+}
+#lk-tabbar .lk-tab-tx {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+#lk-tabbar .lk-tab.lk-on {
+  color: var(--main-brand-color);
+  font-weight: 800;
+}
+#lk-tabbar .lk-tab.lk-on .lk-tab-ic {
+  opacity: 1;
+}
+
+/* иконки табов (fill = #541261, гасится opacity в неактивном состоянии) */
+#lk-tabbar .lk-tab-home .lk-tab-ic {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23541261'%3E%3Cpath d='M23.121 9.069 15.536 1.483a5.008 5.008 0 0 0-7.072 0L.879 9.069A2.978 2.978 0 0 0 0 11.19v9.817A3 3 0 0 0 3 24h18a3 3 0 0 0 3-2.993V11.19a2.978 2.978 0 0 0-.879-2.121ZM15 22H9v-5.5a3 3 0 0 1 6 0Zm7-.993A1 1 0 0 1 21 22h-4v-5.5a5 5 0 0 0-10 0V22H3a1 1 0 0 1-1-.993V11.19a1 1 0 0 1 .293-.707l7.586-7.586a3.007 3.007 0 0 1 4.242 0l7.586 7.586a1 1 0 0 1 .293.707Z'/%3E%3C/svg%3E");
+}
+/* «Разделы» — сетка 2x2 (лаунчер-плитка). Прошлый вариант (три вертикальные
+   колонки) на 22px сливался в сплошной блок — на глаз читалось как ошибка. */
+#lk-tabbar .lk-tab-sections .lk-tab-ic {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23541261'%3E%3Cpath d='M7 0H3a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3Zm1 7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1Z'/%3E%3Cpath d='M21 0h-4a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3Zm1 7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1Z'/%3E%3Cpath d='M7 14H3a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-4a3 3 0 0 0-3-3Zm1 7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1Z'/%3E%3Cpath d='M21 14h-4a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3v-4a3 3 0 0 0-3-3Zm1 7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1Z'/%3E%3C/svg%3E");
+}
+#lk-tabbar .lk-tab-filters .lk-tab-ic {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23541261'%3E%3Cpath d='M6 3a3 3 0 0 0-2.816 2H1a1 1 0 0 0 0 2h2.184A3 3 0 0 0 6 9a3 3 0 0 0 2.816-2H23a1 1 0 0 0 0-2H8.816A3 3 0 0 0 6 3Zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm12 3a3 3 0 0 0-2.816 2H1a1 1 0 0 0 0 2h14.184A3 3 0 0 0 18 16a3 3 0 0 0 2.816-2H23a1 1 0 0 0 0-2h-2.184A3 3 0 0 0 18 10Zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM9 17a3 3 0 0 0-2.816 2H1a1 1 0 0 0 0 2h5.184A3 3 0 0 0 9 23a3 3 0 0 0 2.816-2H23a1 1 0 0 0 0-2H11.816A3 3 0 0 0 9 17Zm0 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z'/%3E%3C/svg%3E");
+}
+#lk-tabbar .lk-tab-more .lk-tab-ic {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23541261'%3E%3Ccircle cx='2.5' cy='12' r='2.5'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3Ccircle cx='21.5' cy='12' r='2.5'/%3E%3C/svg%3E");
+}
+
+/* ---- лаунчер «Разделы» ---- */
+#lk-launcher {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  /* до таб-бара: бар остаётся доступен, чтобы закрыть лаунчер тем же тапом */
+  bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-color, #f3f2f4);
+  z-index: 880;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* скрыт по умолчанию; показываем классом на html */
+  display: none;
+}
+html.lk-launcher-open #lk-launcher {
+  display: block;
+}
+/* фон страницы под лаунчером не скроллим, иначе «протекает» под оверлеем */
+html.lk-launcher-open body {
+  overflow: hidden !important;
+}
+#lk-launcher-hdr {
+  position: sticky;
+  top: 0;
+  background: var(--main-brand-color);
+  color: #ffffff;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  padding: 1.4rem 1.6rem;
+}
+#lk-launcher-list {
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+#lk-launcher .lk-launcher-item {
+  display: flex;
+  align-items: center;
+  min-height: 5.2rem;
+  padding: 0 1.4rem 0 5.4rem;
+  background-color: #ffffff;
+  border-radius: 1.2rem;
+  box-shadow: 0 0.1rem 0.4rem rgba(84, 18, 97, 0.10);
+  font-family: "Montserrat", "Roboto", Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink-color, #3c3c3b);
+  text-decoration: none;
+  /* иконку даёт правило .lk-sec-* (background-image), общее с рельсой —
+     здесь только позиция и размер */
+  background-repeat: no-repeat;
+  background-position: left 1.6rem center;
+  background-size: auto 2rem;
+  -webkit-tap-highlight-color: transparent;
+}
+#lk-launcher .lk-launcher-item.lk-on {
+  background-color: #f2e9f5;
+  color: var(--main-brand-color);
+  font-weight: 800;
+  box-shadow: inset 0 0 0 0.2rem var(--main-brand-color);
 }

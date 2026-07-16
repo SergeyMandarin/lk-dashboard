@@ -1128,8 +1128,207 @@
   }
 
   function syncMnav() {
+    /* Вариант A (телефон): навигация живёт в таб-баре и лаунчере, боковая
+       шторка не нужна. exitMnav вернёт рельсу на исходное место, если её
+       успел утащить прошлый режим (например, после поворота планшет→телефон);
+       саму рельсу потом прячет CSS — из DOM НЕ убираем, она источник правды
+       для лаунчера, заголовка раздела и признака isMobileHTML(). */
+    if (isAppMode()) {
+      exitMnav();
+      return;
+    }
     if (isMobileHTML()) enterMnav();
     else exitMnav();
+  }
+
+  /* ============================================================
+     ВАРИАНТ A: нижний таб-бар + лаунчер разделов (MOBILE-PLAN, фазы 1-2).
+     Строятся вместе: по отдельности бессмысленны — таб-бар без лаунчера
+     оставил бы телефон без доступа к 11 из 12 разделов.
+     ============================================================ */
+
+  /* Разделы берём строго из UL#reports_categories: там ровно 12 пунктов, все
+     со ссылками и уже размеченные иконками (tagRailIcons проставил lk-sec-*).
+     ⚠️ НЕ брать li из всего .mobile_categories_list — там есть ЛИШНИЙ li в
+     SPAN.current_tab_title: «висячий» заголовок текущего раздела БЕЗ ссылки
+     (его оборачивает в ссылку linkActiveRailItem). Иначе получим 13 пунктов
+     с дублем активного. */
+  function getRailItems() {
+    var ul = document.getElementById("reports_categories");
+    return ul ? [].slice.call(ul.querySelectorAll("li")) : [];
+  }
+
+  /* Активный раздел — по cat_id из адреса, а НЕ по классу topTabActive: этот
+     класс висит СРАЗУ НА ДВУХ элементах (заголовок + пункт списка), а cat_id
+     однозначен. */
+  function currentCatId() {
+    var m = /[?&]cat_id=(\d+)/.exec(location.search);
+    return m ? m[1] : null;
+  }
+
+  /* Из класса пункта рельсы («topTabInactive lk-sec-overall») оставляем только
+     lk-sec-*, чтобы клон получил иконку, но не платформенные состояния. */
+  function railIconClass(li) {
+    var m = /lk-sec-[a-z]+/.exec(li.className || "");
+    return m ? m[0] : "";
+  }
+
+  /* Единственный открытый оверлей за раз: иначе лаунчер и шторка фильтров
+     наложатся друг на друга. Пустая строка — закрыть всё. */
+  function setAppOverlay(name) {
+    root.classList.toggle("lk-launcher-open", name === "launcher");
+    root.classList.toggle("filt-open", name === "filters");
+    syncTabbarState();
+  }
+
+  function syncTabbarState() {
+    var bar = document.getElementById("lk-tabbar");
+    if (!bar) return;
+    var launcherOpen = root.classList.contains("lk-launcher-open");
+    var filtersOpen = root.classList.contains("filt-open");
+    var items = getRailItems();
+    var firstLink = items[0] && items[0].querySelector("a");
+    var firstHref = firstLink ? firstLink.getAttribute("href") || "" : "";
+    var cat = currentCatId();
+    /* «Главная» активна, только когда мы физически на первом разделе и ничего
+       не открыто поверх. */
+    var onHome = !!(cat && firstHref.indexOf("cat_id=" + cat) !== -1);
+
+    bar.querySelectorAll(".lk-tab").forEach(function (t) {
+      var isOn =
+        (t.classList.contains("lk-tab-home") &&
+          onHome && !launcherOpen && !filtersOpen) ||
+        (t.classList.contains("lk-tab-sections") && launcherOpen) ||
+        (t.classList.contains("lk-tab-filters") && filtersOpen);
+      t.classList.toggle("lk-on", isOn);
+    });
+  }
+
+  function buildLauncher() {
+    if (document.getElementById("lk-launcher")) return;
+    var items = getRailItems();
+    if (!items.length) return;
+
+    var box = document.createElement("div");
+    box.id = "lk-launcher";
+
+    var hdr = document.createElement("div");
+    hdr.id = "lk-launcher-hdr";
+    hdr.textContent = "Разделы";
+    box.appendChild(hdr);
+
+    var list = document.createElement("div");
+    list.id = "lk-launcher-list";
+    var cat = currentCatId();
+
+    items.forEach(function (li) {
+      var a = li.querySelector("a");
+      if (!a) return;
+      var href = a.getAttribute("href") || "";
+      /* КЛОНИРУЕМ ссылку, а не переносим: рельса обязана остаться на месте
+         (источник правды). Клон ссылки безопасен — она несёт href, а не
+         платформенный обработчик (в отличие от кнопок/инпутов платформы). */
+      var item = document.createElement("a");
+      item.className = "lk-launcher-item " + railIconClass(li);
+      item.href = href;
+      item.textContent = a.textContent.trim();
+      if (cat && href.indexOf("cat_id=" + cat) !== -1) {
+        item.classList.add("lk-on");
+      }
+      list.appendChild(item);
+    });
+
+    box.appendChild(list);
+    document.body.appendChild(box);
+  }
+
+  function makeTab(cls, label, isLink) {
+    var el = document.createElement(isLink ? "a" : "button");
+    if (!isLink) el.type = "button";
+    el.className = "lk-tab " + cls;
+    /* иконка — отдельный span (фон в CSS), текст — свой: так подпись не
+       наезжает на иконку при длинных словах */
+    var ic = document.createElement("span");
+    ic.className = "lk-tab-ic";
+    el.appendChild(ic);
+    var tx = document.createElement("span");
+    tx.className = "lk-tab-tx";
+    tx.textContent = label;
+    el.appendChild(tx);
+    return el;
+  }
+
+  function buildTabbar() {
+    if (document.getElementById("lk-tabbar")) return;
+    var items = getRailItems();
+    if (!items.length) return;
+
+    var bar = document.createElement("nav");
+    bar.id = "lk-tabbar";
+
+    /* «Главная» — первый раздел рельсы («Общий результат»): именно он
+       открывается по умолчанию и служит сводным экраном. Обычная ссылка —
+       работает средним кликом/долгим тапом как любая другая. */
+    var firstLink = items[0].querySelector("a");
+    var home = makeTab("lk-tab-home", "Главная", true);
+    home.href = firstLink ? firstLink.getAttribute("href") : "main-menu.php";
+    home.addEventListener("click", function () {
+      setAppOverlay("");
+    });
+    bar.appendChild(home);
+
+    var sections = makeTab("lk-tab-sections", "Разделы", false);
+    sections.addEventListener("click", function () {
+      setAppOverlay(
+        root.classList.contains("lk-launcher-open") ? "" : "launcher"
+      );
+    });
+    bar.appendChild(sections);
+
+    /* Фильтры: класс filt-open уже умеет показывать оверлей (старая мобилка) —
+       переиспользуем как есть, в фазе 5 оверлей станет шторкой снизу. */
+    var filters = makeTab("lk-tab-filters", "Фильтры", false);
+    filters.addEventListener("click", function () {
+      setAppOverlay(root.classList.contains("filt-open") ? "" : "filters");
+    });
+    bar.appendChild(filters);
+
+    /* «Ещё» (Управление/Отчеты/Выход/язык) — фаза 3. Пока просто закрывает
+       открытое, чтобы таб не выглядел сломанным. */
+    var more = makeTab("lk-tab-more", "Ещё", false);
+    more.addEventListener("click", function () {
+      setAppOverlay("");
+    });
+    bar.appendChild(more);
+
+    document.body.appendChild(bar);
+    syncTabbarState();
+  }
+
+  /* Разбираем навигацию варианта A обратно. Нужен, когда режим перестал быть
+     телефонным: поворот планшета, смена ширины, kill-switch. Без этого таб-бар
+     остался бы висеть поверх планшетной раскладки, которую мы не трогаем.
+     Всё наше — клоны и свои узлы, поэтому просто удаляем: платформенный DOM не
+     затронут (в отличие от mnav/filt, где нужен аккуратный возврат). */
+  function destroyAppNav() {
+    ["lk-tabbar", "lk-launcher"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    });
+    root.classList.remove("lk-launcher-open");
+  }
+
+  /* Собираем/разбираем навигацию варианта A по текущему режиму. Идемпотентно;
+     ВАЖНО звать ПОСЛЕ tagRailIcons() — иначе клоны в лаунчере останутся без
+     иконок. */
+  function buildAppNav() {
+    if (!isAppMode()) {
+      destroyAppNav();
+      return;
+    }
+    buildTabbar();
+    buildLauncher();
+    syncTabbarState();
   }
 
   /* ============================================================
@@ -1406,6 +1605,14 @@
     trimRailText();
     trimHeaderGreeting();
     linkActiveRailItem();
+    /* ⚠️ СТРОГО ПОСЛЕ всех правок рельсы: лаунчер клонирует её пункты, поэтому
+       к этому моменту они должны быть уже полностью готовы —
+       tagRailIcons() проставил классы иконок (иначе клоны без иконок),
+       trimRailText() срезал ведущие nbsp,
+       linkActiveRailItem() обернул АКТИВНЫЙ пункт в ссылку (иначе он выпадает
+       из лаунчера: берём только пункты со ссылкой — было 11 из 12, пропадал
+       ровно тот раздел, на котором стоит пользователь). */
+    buildAppNav();
     /* графики могут подтягиваться по ajax — перерисовываем с несколькими попытками */
     reflowCharts();
     CHART_RETRY_MS.forEach(function (ms) {
@@ -1450,6 +1657,9 @@
       syncModeClasses();
       syncMnav();
       syncFilt();
+      /* режим мог смениться (поворот планшета) — навигация варианта A должна
+         появиться или исчезнуть вместе с ним, не оставляя сирот */
+      buildAppNav();
       unifyDesktopRail();
       reflowCharts();
     }, RESIZE_DEBOUNCE_MS);
@@ -1461,11 +1671,13 @@
     syncModeClasses();
     syncMnav();
     syncFilt();
+    buildAppNav();
     unifyDesktopRail();
     setTimeout(function () {
       syncModeClasses();
       syncMnav();
       syncFilt();
+      buildAppNav();
       unifyDesktopRail();
       enhanceReports();
       mnavDebug();
