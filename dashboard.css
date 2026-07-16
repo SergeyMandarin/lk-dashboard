@@ -7354,6 +7354,9 @@ html.lk-app.filt-open #lk-hbar {
   left: 0;
   right: 0;
   bottom: 0;
+  /* см. пояснение у #lk-apphdr: глобального reset нет, а safe-area на айфонах
+     добавит боковой padding — без border-box бар вылезет за край */
+  box-sizing: border-box;
   height: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
   display: flex;
@@ -7611,4 +7614,112 @@ html.lk-more-open body {
   border-radius: 1.2rem !important;
   font-size: 1.4rem !important;
   font-weight: 700 !important;
+}
+
+/* ---------------------------------------------------------------------------
+   ФАЗА 4: компактная шапка (#lk-apphdr) вместо платформенной плашки.
+   Строится в sidebar-toggle.js (buildAppHeader).
+   --------------------------------------------------------------------------- */
+html.lk-app {
+  --lk-apphdr-h: 4.8rem;
+}
+
+/* Плашка приветствия съедала ~99px ради одной строки текста — прячем.
+   ⚠️ Именно display:none, БЕЗ удаления из DOM: внутри неё живут тег script со
+   сменой языка и скрытый список языков, из которого платформа строит диалог.
+   Скрытый узел скриптам не мешает, а вот удалённый сломал бы смену языка.
+   ⚠️ Правило скоупим на lk-app: когда режим выключат (kill-switch, планшет),
+   плашка обязана вернуться — вместе с домом счётчика и языка. */
+html.lk-app #main_menu_title_text {
+  display: none !important;
+}
+
+#lk-apphdr {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* ⚠️ Платформенный style.css держит на ТЕГЕ header правило
+     `float:left; width:96%; padding:20px 2%` — наш header молча его подхватывал
+     и получался уже экрана (396px вместо 412). Глушим явно: float не нужен
+     фиксированному элементу, ширину задаёт растяжка left:0/right:0.
+     border-box — потому что глобального reset у платформы нет, и боковой
+     padding иначе прибавляется к растяжке (шапка вылезала до 420px). */
+  float: none !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  height: calc(var(--lk-apphdr-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 1.2rem 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--main-brand-color);
+  box-shadow: 0 0.2rem 0.8rem rgba(84, 18, 97, 0.25);
+  /* вровень с таб-баром: ниже диалогов jQuery-UI, выше контента */
+  z-index: 900;
+}
+#lk-apphdr-logo {
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: #ffffff;
+  background-repeat: no-repeat;
+  background-position: center;
+  /* contain, а не cover: лого клиента бывает любых пропорций (у демо
+     2344x1474) — важно показать целиком, а не обрезать по кругу */
+  background-size: 78% auto;
+}
+#lk-apphdr-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #ffffff;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Счётчик непросмотренных — перенесённая ссылка платформы (report-property.php).
+   Гасим её платформенные стили и подаём как бейдж. */
+#lk-apphdr-counter {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+#lk-apphdr-counter a {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 0.7rem !important;
+  margin: 0 !important;
+  position: static !important;
+  border-radius: 1.2rem !important;
+  background: #16a34a !important;
+  color: #ffffff !important;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  transition: none !important;
+}
+/* Ноль непросмотренных — не новость: бейдж приглушаем, но не убираем
+   (пользователь привык, что счётчик всегда на месте). */
+#lk-apphdr-counter.lk-zero a {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-weight: 600 !important;
+}
+
+/* Контенту — место под фикс-шапкой (низ уже занят таб-баром). */
+html.lk-app body {
+  padding-top: calc(var(--lk-apphdr-h) + env(safe-area-inset-top, 0px)) !important;
+}
+/* Оверлеи начинаются ПОД шапкой: она остаётся видна, чтобы пользователь не
+   терял контекст (какой раздел открыт). */
+html.lk-app #lk-launcher {
+  top: calc(var(--lk-apphdr-h) + env(safe-area-inset-top, 0px));
 }

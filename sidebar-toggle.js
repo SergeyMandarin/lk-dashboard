@@ -1260,6 +1260,78 @@
     document.body.appendChild(box);
   }
 
+  /* ---- Компактная шапка (фаза 4) ----
+     Платформенная плашка приветствия съедает ~99px высоты на телефоне ради
+     одной строки текста. Заменяем её на узкую шапку: мини-лого + название
+     текущего раздела + счётчик непросмотренных.
+     ⚠️ Плашку прячем ТОЛЬКО через CSS (display:none), из DOM не трогаем: внутри
+     неё живут тег script со сменой языка и скрытый список языков, из которого
+     платформа строит свой диалог. */
+
+  /* Название текущего раздела. Основной источник — заголовок платформы
+     (.current_tab_title), он скрыт вместе с рельсой, но textContent читается.
+     Фолбэк — активный пункт рельсы (на случай, если заголовка нет). */
+  function currentSectionTitle() {
+    var t = document.querySelector(".current_tab_title");
+    var txt = t ? t.textContent.trim() : "";
+    if (txt) return txt;
+    var cat = currentCatId();
+    var hit = getRailItems().filter(function (li) {
+      var a = li.querySelector("a");
+      return a && (a.getAttribute("href") || "").indexOf("cat_id=" + cat) !== -1;
+    })[0];
+    return hit ? hit.textContent.trim() : "Основное меню";
+  }
+
+  function buildAppHeader() {
+    if (document.getElementById("lk-apphdr")) return;
+    var hdr = document.createElement("header");
+    hdr.id = "lk-apphdr";
+
+    /* Лого берём ИЗ DOM, а не из CSS: файл у каждого клиента свой
+       (219-Logo-83.png — 219 это id клиента), хардкод сломался бы у остальных. */
+    var srcImg = document.querySelector("#top_title_graphics img");
+    var logo = document.createElement("span");
+    logo.id = "lk-apphdr-logo";
+    var src = srcImg && srcImg.getAttribute("src");
+    if (src) logo.style.backgroundImage = 'url("' + src + '")';
+    hdr.appendChild(logo);
+
+    var title = document.createElement("span");
+    title.id = "lk-apphdr-title";
+    title.textContent = currentSectionTitle();
+    hdr.appendChild(title);
+
+    /* Слот под счётчик непросмотренных: сам перенос — в moveCounterToHeader. */
+    var slot = document.createElement("span");
+    slot.id = "lk-apphdr-counter";
+    hdr.appendChild(slot);
+
+    document.body.appendChild(hdr);
+  }
+
+  /* Счётчик непросмотренных — ссылка на report-property.php с числом. Обработчиков
+     на ней нет (проверено), но переносим, а не клонируем: если платформа обновит
+     число, пользователь увидит актуальное, а не слепок на момент загрузки.
+     Возврат — общий с языком (moreMoved/restoreMoreMoved). */
+  function moveCounterToHeader() {
+    var slot = document.getElementById("lk-apphdr-counter");
+    var greet = document.getElementById("main_menu_title_text");
+    if (!slot || !greet) return;
+    var counter = [].slice.call(greet.querySelectorAll("a")).filter(function (a) {
+      return (a.getAttribute("href") || "").indexOf("report-property") !== -1;
+    })[0];
+    if (!counter || slot.contains(counter)) return;
+    moreMoved.push({
+      el: counter,
+      parent: counter.parentNode,
+      next: counter.nextSibling
+    });
+    slot.appendChild(counter);
+    /* Ноль непросмотренных — не новость: гасим бейдж, чтобы не мозолил. */
+    slot.classList.toggle("lk-zero", counter.textContent.trim() === "0");
+  }
+
   /* Шторка «Ещё»: нижнее меню платформы (Главная/Управление/Отчеты/Выход) плюс
      переключатель языка.
      Пункты меню — КЛОНЫ: проверено вживую, все четыре суть обычные ссылки с
@@ -1407,13 +1479,15 @@
      Всё наше — клоны и свои узлы, поэтому просто удаляем: платформенный DOM не
      затронут (в отличие от mnav/filt, где нужен аккуратный возврат). */
   function destroyAppNav() {
-    /* ⚠️ СНАЧАЛА вернуть перенесённое (язык), и только потом удалять шторку:
-       иначе кнопка уедет в небытие вместе с контейнером. */
+    /* ⚠️ СНАЧАЛА вернуть перенесённое (язык, счётчик), и только потом удалять
+       контейнеры: иначе узлы уедут в небытие вместе со шторкой и шапкой. */
     restoreMoreMoved();
-    ["lk-tabbar", "lk-launcher", "lk-more", "lk-more-bd"].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.remove();
-    });
+    ["lk-apphdr", "lk-tabbar", "lk-launcher", "lk-more", "lk-more-bd"].forEach(
+      function (id) {
+        var el = document.getElementById(id);
+        if (el) el.remove();
+      }
+    );
     root.classList.remove("lk-launcher-open");
     root.classList.remove("lk-more-open");
   }
@@ -1426,9 +1500,12 @@
       destroyAppNav();
       return;
     }
+    buildAppHeader();
     buildTabbar();
     buildLauncher();
     buildMoreSheet();
+    /* переносы — после сборки контейнеров: им нужны готовые слоты */
+    moveCounterToHeader();
     moveLangToMore();
     syncTabbarState();
   }
