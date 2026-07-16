@@ -6743,6 +6743,39 @@ html.lk-m {
 html.lk-m {
   .bottom-tr { position: static !important; }
   td.font-style { position: static !important; }
+
+  /* Подвал на телефоне: оставляем только логотип компании, текст «Control
+     Service» убираем (решение клиента 2026-07-17).
+     ⚠️ Логотип — это background-image САМОЙ ячейки, а текст — её же текстовый
+     узел. Поэтому ни display:none, ни visibility:hidden на td нельзя: вместе с
+     текстом исчезнет и логотип. Убираем текст через font-size:0 — узел
+     схлопывается, фон остаётся. color:transparent не годится: текст пропал бы
+     из виду, но продолжал занимать место (162px высоты подвала).
+     Логотип на 15% мельче: было auto 80px → 68px (клиент: «процентов на 15»).
+     padding-top держит место ровно под картинку (68 + 10 зазор), height:auto —
+     платформенные 52px были высотой под текст, без него это пустота. */
+  tr.bottom-tr td.font-style {
+    font-size: 0 !important;
+    background-size: auto 6.8rem !important;
+    height: auto !important;
+    padding: 6.8rem 1rem 1rem !important;
+  }
+
+  /* Чекбоксы и радио в таблицах отчётов были сплющены (20×10): наш
+     `input[type=checkbox]{width:2rem;height:2rem}` из базовой части файла
+     перебивался легаси-правилом `input{height:auto !important}` из device-media
+     платформы — ширина применялась, высота нет, отсюда несоразмерность.
+     Бьём точечно по чекбоксам\радио: правило `input{height:auto}` трогать нельзя,
+     на нём висят кнопки и текстовые поля. Радио сюда же — в двухшаговом диалоге
+     экспорта «Клиентских комментариев» они были нулевой высоты по той же причине. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.8rem !important;
+    height: 1.8rem !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle;
+  }
 }
 
 /* ============================================================
@@ -7883,7 +7916,8 @@ html.lk-tview-open
   box-shadow: 0 0.2rem 0.4rem rgba(60, 20, 80, 0.12);
 }
 
-/* Кнопка «Развернуть» — в общей панели кнопок отчёта */
+/* Кнопка «Развернуть». На телефоне живёт ИКОНКОЙ в шапке карточки (правило
+   ниже), в остальных режимах — обычной кнопкой в панели кнопок отчёта. */
 .lk-tview-btn {
   display: inline-flex;
   align-items: center;
@@ -7902,6 +7936,44 @@ html.lk-tview-open
 /* внутри оверлея разворачивать уже нечего — там крестик */
 html.lk-tview-open .lk-tview-btn {
   display: none;
+}
+
+/* ---- телефон: иконки шапки карточки ----
+   Решение клиента 2026-07-17: шестерёнка («Редактирование отчёта») и
+   «редактировать» с телефона убираются совсем — настройку отчёта клиент делает
+   с десктопа. На их место встаёт «Развернуть»: раньше это была текстовая кнопка
+   в панели кнопок отчёта. */
+html.lk-app table.grid_reports_table td.grid_report_td h1 > a {
+  display: none !important;
+}
+/* Иконка разворота в правом верхнем углу шапки — там же, где стояли иконки
+   платформы (тот же top/right/размер, чтобы не ломать зарезервированный
+   padding-top заголовка).
+   Позиционируется от h1: он sticky, то есть уже является containing-block для
+   absolute-детей. Текст кнопки оставляем в DOM для скринридеров, а визуально
+   гасим font-size:0 — иконка рисуется фоном. */
+html.lk-app .lk-tview-btn {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  /* ⚠️ !important вынужденный: device-media платформы держит
+     `button:not(.ui-multiselect){padding:2rem 3rem !important}` и
+     `body, th, td, select, input, button{font-size:3rem !important}` — без него
+     кнопка раздувалась до 60×60 со шрифтом 30px и вылезала из шапки. */
+  width: 3.2rem !important;
+  height: 3.2rem !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border-radius: 0.8rem;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23541261' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cpolyline points='9 21 3 21 3 15'/%3E%3Cline x1='21' y1='3' x2='14' y2='10'/%3E%3Cline x1='3' y1='21' x2='10' y2='14'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 1.9rem auto;
+  font-size: 0 !important; /* см. про !important выше: гасим текст кнопки */
+  line-height: 0 !important;
+  color: transparent;
+  z-index: 4;
 }
 
 /* ---- полноэкранный просмотр ---- */

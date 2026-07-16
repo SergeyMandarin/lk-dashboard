@@ -1518,13 +1518,26 @@
     var hdr = document.createElement("header");
     hdr.id = "lk-apphdr";
 
-    /* Лого берём ИЗ DOM, а не из CSS: файл у каждого клиента свой
-       (219-Logo-83.png — 219 это id клиента), хардкод сломался бы у остальных. */
-    var srcImg = document.querySelector("#top_title_graphics img");
+    /* Лого: сначала переменная --logo-img-main, потом картинка из DOM.
+       Хардкодить нельзя ни то ни другое — файлы у каждого клиента свои (219 в
+       219-Logo-83.png это id клиента), поэтому оба источника читаем на месте.
+       Порядок именно такой (решение клиента 2026-07-17): в #top_title_graphics
+       лежит логотип КОМПАНИИ (тот же, что в подвале), а в шапке нужен логотип
+       КЛИЕНТА — он только в переменной. Платформа объявляет её инлайном на
+       body.page-main-menu, то есть на других страницах её может не быть —
+       поэтому картинка из DOM остаётся фолбэком, а не удаляется. */
     var logo = document.createElement("span");
     logo.id = "lk-apphdr-logo";
+    var cssLogo = "";
+    try {
+      cssLogo = getComputedStyle(document.body)
+        .getPropertyValue("--logo-img-main")
+        .trim();
+    } catch (e) {}
+    var srcImg = document.querySelector("#top_title_graphics img");
     var src = srcImg && srcImg.getAttribute("src");
-    if (src) logo.style.backgroundImage = 'url("' + src + '")';
+    if (cssLogo && cssLogo !== "none") logo.style.backgroundImage = cssLogo;
+    else if (src) logo.style.backgroundImage = 'url("' + src + '")';
     hdr.appendChild(logo);
 
     var title = document.createElement("span");
@@ -1772,6 +1785,25 @@
     });
   }
 
+  /* Текст заголовка БЕЗ служебных детей. С тех пор как кнопка «Развернуть»
+     переехала внутрь H1, простой h1.textContent давал «Клиентские комментарии
+     Развернуть» — имя кнопки уезжало в шапку оверлея. Ссылки (иконки платформы)
+     тоже исключаем: текста в них нет, но пробелы\переводы строк они приносят. */
+  function headingText(h1) {
+    if (!h1) return "";
+    var out = "";
+    [].forEach.call(h1.childNodes, function (n) {
+      if (n.nodeType === 3) out += n.nodeValue;
+      else if (
+        n.nodeType === 1 &&
+        n.tagName !== "A" &&
+        !(n.classList && n.classList.contains("lk-tview-btn"))
+      )
+        out += n.textContent;
+    });
+    return out.replace(/\s+/g, " ").trim();
+  }
+
   function openTableViewer(scroller, name) {
     if (tviewMoved) return;
     buildTableViewer();
@@ -1781,7 +1813,7 @@
        слота, а первым center b нередко оказывается врезка («Примечание») —
        на «Разделах анкеты» именно она и уезжала в шапку вместо названия. */
     var h1 = scroller.querySelector("h1");
-    var title = (h1 ? h1.textContent.trim() : "") || name || "";
+    var title = headingText(h1) || name || "";
     document.getElementById("lk-tview-title").textContent =
       title || "Таблица отчёта";
     tviewMoved = {
@@ -1818,28 +1850,35 @@
     reflowCharts();
   }
 
-  /* Кнопку «Развернуть» кладём в панель кнопок отчёта — она уже собрана
-     wrapExportBars() и лежит рядом с данными. В самом оверлее кнопку прячет
-     CSS: там для выхода есть крестик. */
+  /* «Развернуть»: на телефоне — иконкой в ШАПКЕ карточки (решение клиента
+     2026-07-17, там же где были убранные шестерёнка\редактирование), в прочих
+     режимах — кнопкой в панели кнопок отчёта.
+     Ставим на сам скроллер, а не на панель: у отчётов без панели (её собирает
+     wrapExportBars только там, где есть контролы) кнопки иначе не было бы вовсе.
+     В оверлее кнопку прячет CSS — там для выхода крестик. */
   function addTableViewerButtons() {
-    var bars = document.querySelectorAll(".lk-export-bar");
-    [].forEach.call(bars, function (bar) {
-      if (bar.getAttribute("data-lk-tview-added")) return;
-      var sc = bar.closest(".lk-pannable");
-      if (!sc) return;
-      /* только для реально широких: у обычных отчётов разворачивать нечего */
+    var scrollers = document.querySelectorAll(".lk-pannable");
+    [].forEach.call(scrollers, function (sc) {
+      if (sc.getAttribute("data-lk-tview-added")) return;
+      /* только для реально широких: у обычных отчётов разворачивать нечего.
+         После уменьшения шрифта таблиц таких стало меньше — и это правильно. */
       if (!(sc.scrollWidth - sc.clientWidth > 20)) return;
-      bar.setAttribute("data-lk-tview-added", "1");
+      var h1 = sc.querySelector("h1");
+      var bar = sc.querySelector(".lk-export-bar");
+      var host = isAppMode() ? h1 || bar : bar || h1;
+      if (!host) return;
+      sc.setAttribute("data-lk-tview-added", "1");
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "lk-tview-btn";
+      /* Текст держим в DOM всегда: на телефоне его гасит font-size:0, но он
+         остаётся именем кнопки для скринридера и подписью в других режимах. */
       btn.textContent = "Развернуть";
+      btn.title = "Развернуть таблицу";
       btn.addEventListener("click", function () {
-        var slot = bar.closest(".dashboard-report-slot");
-        var h = slot && slot.querySelector("h1, center b");
-        openTableViewer(sc, h ? h.textContent.trim() : "");
+        openTableViewer(sc, headingText(h1));
       });
-      bar.appendChild(btn);
+      host.appendChild(btn);
     });
   }
 
