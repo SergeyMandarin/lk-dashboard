@@ -8246,11 +8246,14 @@ html.lk-pc body.page-main-menu td.lk-rail-scroll {
   height: auto !important;
   max-height: calc(100vh - 11.8rem) !important;
 }
-/* Подвал (лого компании внизу). device-media даёт td.font-style position:fixed —
-   лого прилипает к низу ЭКРАНА и обрезается по ширине рельсы (123px). Клиент:
-   «затолкать в низ СТРАНИЦЫ, не привязывая к экрану». Снимаем fixed → td снова
-   обычная ячейка своей строки; сама строка .bottom-tr на десктопе absolute
-   bottom:0 (низ #width_limiter = низ страницы), это и есть «низ страницы». */
+/* Подвал (лого компании внизу). Две правки, обе снимают позиционирование:
+   1) device-media даёт td.font-style position:fixed — лого прилипало к низу
+      ЭКРАНА и обрезалось по ширине рельсы (123px);
+   2) строка .bottom-tr на десктопе absolute bottom:0 — она вне потока и
+      НАЕЗЖАЛА на последнюю карточку (карточка до 1938, подвал прижат к 1977).
+   Клиент: «обычный подвал в самом конце страницы, без наложения». Делаем ОБА
+   static → подвал встаёт в поток ПОСЛЕ всего контента, полной ширины, целиком. */
+html.lk-pc tr.bottom-tr,
 html.lk-pc tr.bottom-tr td.font-style {
   position: static !important;
 }
