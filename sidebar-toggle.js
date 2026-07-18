@@ -92,11 +92,9 @@
      но освобождаем с запасом — отзыв раньше времени убил бы загрузку. */
   var BLOB_TTL_MS = 10000;
 
-  /* Высота нижнего таб-бара варианта A. Держим ЗДЕСЬ только как справочное
-     значение для JS-расчётов; источник правды для вёрстки — CSS-переменная
-     --lk-tabbar-h (её же читают отступы контента и позиция полосы hbar),
-     чтобы значение не разъехалось между файлами. */
-  var TABBAR_H_PX = 56;
+  /* Высота таб-бара живёт в CSS-переменной --lk-tabbar-h (её читают отступы
+     контента и позиция полосы hbar). В JS справочная константа не нужна —
+     ни один расчёт к высоте бара не обращается. */
 
   function isSaved() {
     try {
@@ -126,15 +124,22 @@
      341x1165) — донат теряется в пустоте на пол-экрана. Пропорции подобраны
      живьём: круговой гейдж почти квадратный, линия — приземистее.
      Возвращаем 0, если тип не знаком: значит высоту не трогаем вовсе. */
+  /* Высота графика от ширины карточки. Коэффициенты подобраны на телефоне
+     (~340px). ⚠️ Потолок GAUGE_MAX_H: планшет тоже вариант A, но карточка там
+     ~1000px, и без потолка гейдж раздувался бы на ~720px высоты (0.72×1000) —
+     несоразмерная колонна. 520 держит телефон нетронутым (340×0.72≈245) и
+     ограничивает только широкие планшетные карточки. */
+  var CHART_MAX_H = 520;
+
   function phoneChartHeight(chart, w) {
     var type =
       (chart.options && chart.options.chart && chart.options.chart.type) || "";
-    if (type === "solidgauge" || type === "pie") return Math.round(w * 0.72);
-    if (type === "spline" || type === "line" || type === "area") {
-      return Math.round(w * 0.62);
-    }
-    if (type === "column" || type === "bar") return Math.round(w * 0.75);
-    return 0;
+    var h = 0;
+    if (type === "solidgauge" || type === "pie") h = Math.round(w * 0.72);
+    else if (type === "spline" || type === "line" || type === "area") {
+      h = Math.round(w * 0.62);
+    } else if (type === "column" || type === "bar") h = Math.round(w * 0.75);
+    return h ? Math.min(h, CHART_MAX_H) : 0;
   }
 
   /* Заголовок/подзаголовок считаем ПУСТЫМ, если после вычистки тегов переноса
@@ -219,8 +224,13 @@
             }
           }
         }
-      },
-      false
+      }
+      /* redraw:true (по умолчанию): fitPhoneGauge вызывается ПОСЛЕ setSize, и в
+         этом проходе других перерисовок уже не будет. С redraw:false новый pane
+         оставался бы только в опциях и применился бы лишь при следующем
+         reflowCharts — гейдж отставал на один проход (заметно при повороте и на
+         AJAX-графике после ретраев). Гард __lkGaugeDiameter не даёт этому redraw
+         срабатывать вхолостую при том же диаметре. */
     );
   }
 
@@ -238,11 +248,13 @@
 
   function fitPhoneAxisLabels(c) {
     if (c.__lkAxisFont === PHONE_AXIS_FONT) return;
-    c.__lkAxisFont = PHONE_AXIS_FONT;
     var opt = { labels: { style: { fontSize: PHONE_AXIS_FONT } } };
     [].concat(c.xAxis || [], c.yAxis || []).forEach(function (ax) {
       if (ax && ax.update) ax.update(opt, false);
     });
+    /* флаг ПОСЛЕ обновления: если ax.update кинет, повторная попытка на
+       следующем проходе ещё возможна (иначе флаг «съел» бы её навсегда) */
+    c.__lkAxisFont = PHONE_AXIS_FONT;
   }
 
   function reflowCharts() {
@@ -1511,6 +1523,16 @@
     var bar = document.getElementById("lk-tabbar");
     if (!bar) return;
     syncFilterBadge();
+    /* Таб «Фильтры» прячем на страницах без формы фильтров (напр. «Инструкция»,
+       «Карта»): иначе тап подсвечивал бы таб и ставил filt-open, а открываться
+       нечему — пустой оверлей. Форма приходит в HTML сразу, не по AJAX, а
+       syncTabbarState зовётся из buildAppNav при загрузке — момент подходящий. */
+    var filtTab = bar.querySelector(".lk-tab-filters");
+    if (filtTab) {
+      filtTab.style.display = document.getElementById("general_filters_form")
+        ? ""
+        : "none";
+    }
     var launcherOpen = root.classList.contains("lk-launcher-open");
     var filtersOpen = root.classList.contains("filt-open");
     var moreOpen = root.classList.contains("lk-more-open");
@@ -1923,14 +1945,26 @@
     tviewMoved = null;
     /* снимаем пометки: вне оверлея прятать соседние блоки незачем */
     markTableBranch(o.el, false);
-    try {
-      if (o.next && o.next.parentNode === o.parent) {
-        o.parent.insertBefore(o.el, o.next);
-      } else {
-        o.parent.appendChild(o.el);
+    /* ⚠️ Если пока таблица была в оверлее платформа перерисовала слот по AJAX,
+       старый parent мог отсоединиться от DOM. appendChild в detached-узел НЕ
+       кинет исключение — таблица тихо уехала бы в никуда (и catch бы промолчал),
+       а на месте уже свежий контент. Проверяем isConnected: parent жив — вернуть
+       как было; parent мёртв — не трогаем, свежий скроллер уже отрисован. */
+    if (o.parent && o.parent.isConnected) {
+      try {
+        if (o.next && o.next.parentNode === o.parent) {
+          o.parent.insertBefore(o.el, o.next);
+        } else {
+          o.parent.appendChild(o.el);
+        }
+      } catch (e) {
+        console.warn("lk: не удалось вернуть таблицу на место", o.el, e);
       }
-    } catch (e) {
-      console.warn("lk: не удалось вернуть таблицу на место", o.el, e);
+    } else {
+      console.warn(
+        "lk: слот перерисован, пока таблица была в оверлее — не возвращаю",
+        o.el
+      );
     }
     root.classList.remove("lk-tview-open");
     refreshScrollers();
@@ -1938,9 +1972,10 @@
     reflowCharts();
   }
 
-  /* «Развернуть»: на телефоне — иконкой в ШАПКЕ карточки (решение клиента
-     2026-07-17, там же где были убранные шестерёнка\редактирование), в прочих
-     режимах — кнопкой в панели кнопок отчёта.
+  /* «Развернуть» — иконкой в ШАПКЕ карточки (решение клиента 2026-07-17, там же
+     где были убранные шестерёнка\редактирование). Функция вызывается только в
+     app-режиме (гейт isAppMode() у вызова в enhanceReports), поэтому host = h1
+     (с фолбэком на панель кнопок, если у отчёта нет h1).
      Ставим на сам скроллер, а не на панель: у отчётов без панели (её собирает
      wrapExportBars только там, где есть контролы) кнопки иначе не было бы вовсе.
      В оверлее кнопку прячет CSS — там для выхода крестик. */
@@ -1953,7 +1988,7 @@
       if (!(sc.scrollWidth - sc.clientWidth > 20)) return;
       var h1 = sc.querySelector("h1");
       var bar = sc.querySelector(".lk-export-bar");
-      var host = isAppMode() ? h1 || bar : bar || h1;
+      var host = h1 || bar;
       if (!host) return;
       sc.setAttribute("data-lk-tview-added", "1");
       var btn = document.createElement("button");
@@ -1980,6 +2015,21 @@
        удалять контейнеры: иначе узлы уедут в небытие вместе с оверлеями. */
     closeTableViewer();
     restoreMoreMoved();
+    /* Кнопки «Развернуть» живут в платформенном h1 (не в наших контейнерах), а
+       флаг data-lk-tview-added — на скроллере. Если не убрать, при runtime-откате
+       режима (kill-switch без перезагрузки → resize) кнопка осталась бы висеть в
+       планшетной/десктопной раскладке и по клику открыла бы оверлей с CSS под
+       lk-app. Снимаем флаг и удаляем кнопки — при возврате в app-режим
+       addTableViewerButtons их пересоздаст. */
+    [].forEach.call(
+      document.querySelectorAll("[data-lk-tview-added]"),
+      function (sc) {
+        sc.removeAttribute("data-lk-tview-added");
+      }
+    );
+    [].forEach.call(document.querySelectorAll(".lk-tview-btn"), function (b) {
+      b.remove();
+    });
     [
       "lk-apphdr",
       "lk-tabbar",
