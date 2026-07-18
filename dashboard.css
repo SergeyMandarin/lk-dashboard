@@ -8228,10 +8228,7 @@ html.lk-pc #top_title_graphics {
   display: none !important;
 }
 html.lk-pc .top_tabs_row {
-  background-image: var(--logo-img-sec) !important;
-  background-repeat: no-repeat !important;
-  background-position: center 1rem !important;
-  background-size: auto 4rem !important;
+  background-image: var(--logo-img-main) !important;
 }
 /* Нижнее меню рельсы («Главная», «Отчёты», «Выход»). unifyDesktopRail ставит ему
    inline `margin:auto 0 0 0 !important` — на десктопе это красиво прижимает меню
@@ -8248,4 +8245,12 @@ html.lk-pc .top_tabs_row {
 html.lk-pc body.page-main-menu td.lk-rail-scroll {
   height: auto !important;
   max-height: calc(100vh - 11.8rem) !important;
+}
+/* Подвал (лого компании внизу). device-media даёт td.font-style position:fixed —
+   лого прилипает к низу ЭКРАНА и обрезается по ширине рельсы (123px). Клиент:
+   «затолкать в низ СТРАНИЦЫ, не привязывая к экрану». Снимаем fixed → td снова
+   обычная ячейка своей строки; сама строка .bottom-tr на десктопе absolute
+   bottom:0 (низ #width_limiter = низ страницы), это и есть «низ страницы». */
+html.lk-pc tr.bottom-tr td.font-style {
+  position: static !important;
 }
