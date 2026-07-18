@@ -6262,6 +6262,23 @@ td.report-dir:has(> a img[src*="review-report"]) > a {
 .ui-dialog:has(#do_export) .ui-dialog-titlebar-close {
   right: 0.8rem !important;
 }
+/* Модалки (экспорт, смена языка) на мобилке/планшете — по ЦЕНТРУ экрана и
+   ЗАФИКСИРОВАНЫ (клиент 2026-07-18). jQuery-UI ставит их position:absolute с
+   top/left под кнопкой — в ЛАНДШАФТЕ (низкий экран) уходили вниз и налезали на
+   контент; у ДВУХШАГОВОГО диалога экспорта («Клиентские комментарии») первый шаг
+   (радио) вообще без #do_export, поэтому центрируем ВСЕ .ui-dialog, а не только
+   тот шаг, где есть кнопка. fixed + центр держит их в экране и не перекрытыми. */
+html.lk-m .ui-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  max-width: calc(100vw - 2.4rem) !important;
+  max-height: 92vh !important;
+  z-index: 100004 !important;
+}
 
 /* Ссылка «Скачать экспортируемый файл» → зелёная пилюля как «Подтвердить».
    ⚠️ ИКОНКА — плейсхолдер (стрелка-вниз-в-лоток); заменить на иконку клиента,
