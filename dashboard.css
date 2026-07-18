@@ -8217,3 +8217,35 @@ html.lk-pc .begin-report-area {
   max-width: calc(100vw - 6rem) !important;
   margin-left: auto !important;
 }
+/* Лого. device-media платформы раздувает #top_title_graphics до height:16rem с
+   фоновым лого 14rem и position:static → баннер 980×160 стоит блоком вверху и
+   толкает шапку-приветствие на 160px вниз (клиент: «лого не меняет размер,
+   шапка сдвинута»). На десктопе этот баннер fixed и пустой, а лого живёт фоном
+   свёрнутой рельсы. Возвращаем ровно это: баннер убираем из потока, лого —
+   на рельсу маленьким кружком сверху (резерв под него уже держит lk-rail-scroll
+   margin-top). */
+html.lk-pc #top_title_graphics {
+  display: none !important;
+}
+html.lk-pc .top_tabs_row {
+  background-image: var(--logo-img-sec) !important;
+  background-repeat: no-repeat !important;
+  background-position: center 1rem !important;
+  background-size: auto 4rem !important;
+}
+/* Нижнее меню рельсы («Главная», «Отчёты», «Выход»). unifyDesktopRail ставит ему
+   inline `margin:auto 0 0 0 !important` — на десктопе это красиво прижимает меню
+   к низу рельсы (экран невысокий). Но в «Версии для ПК» вьюпорт по CSS ОГРОМНЫЙ
+   (~2177px: 980px-ширина масштабирована в узкий телефон → высота растянута), и
+   меню улетало на самое дно 100vh — за нижний край реального экрана (клиент:
+   «кнопки Домой уехали ниже конца экрана»).
+   Перебить inline `margin:auto !important` из CSS нельзя. Поэтому убираем ПРИЧИНУ
+   пустоты: контейнер-скроллер держит height:calc(100vh - …) и растягивается на
+   весь экран, а `margin:auto` расталкивает свободное место. Даём ему height:auto
+   (по контенту) с потолком max-height — тогда свободного места нет, `margin:auto`
+   схлопывается в 0, меню встаёт сразу под категориями. На низком экране потолок
+   + overflow:auto включат прокрутку, как и было. */
+html.lk-pc body.page-main-menu td.lk-rail-scroll {
+  height: auto !important;
+  max-height: calc(100vh - 11.8rem) !important;
+}
