@@ -2093,6 +2093,32 @@
         setTimeout(syncFilterBadge, 0);
       }
     });
+
+    /* Одно открытое меню за раз. jQuery-UI multiselect НЕ закрывает предыдущее
+       меню при открытии следующего, а в варианте A все меню — фиксированные
+       шторки на одной позиции снизу, поэтому они накапливались стопкой (клиент
+       ловил наложение). При нажатии на любой мультиселект-триггер прячем все
+       УЖЕ открытые меню в capture-фазе (до того как jQuery откроет целевое);
+       jQuery потом сам покажет нужное. display не трогает внутренний open-флаг
+       виджета, так что toggle по повторному тапу продолжает работать.
+       Только на телефоне\планшете (isAppMode) — на десктопе меню не фиксированы. */
+    function closeOtherMultiselects(e) {
+      if (!isAppMode()) return;
+      var t = e.target;
+      if (!(t && t.closest && t.closest(".ui-multiselect"))) return;
+      /* прячем все УЖЕ открытые меню; jQuery следом покажет целевое */
+      [].forEach.call(
+        document.querySelectorAll(".ui-multiselect-menu"),
+        function (menu) {
+          if (menu.style.display !== "none") menu.style.display = "none";
+        }
+      );
+    }
+    /* и mousedown, и click в capture-фазе: разные сборки jQuery-UI открывают
+       меню по разным событиям — покрываем оба, чтобы чужие меню гарантированно
+       закрылись ДО открытия целевого. */
+    document.addEventListener("mousedown", closeOtherMultiselects, true);
+    document.addEventListener("click", closeOtherMultiselects, true);
   }
 
   /* ============================================================

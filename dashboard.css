@@ -6683,14 +6683,37 @@ html.lk-m {
   &.filt-open, &.filt-open body,
   &.sb-open:not(.lk-app), &.sb-open:not(.lk-app) body { overflow: hidden !important; }
 
-  /* меньший левый отступ: margin формы 0 + зануляем вложенные */
-  #lk-filt #general_filters_form { margin: 0 !important; padding: 1.4rem 1.2rem 2.8rem !important; }
+  /* меньший левый отступ: margin формы 0 + зануляем вложенные.
+     padding-top держит контент НИЖЕ sticky-шапки «Фильтры»: без него первая
+     строка фильтров пряталась под шапкой (заметно в ЛАНДШАФТЕ, где шторка
+     низкая). Высота шапки — 6rem, берём её же. */
+  #lk-filt #general_filters_form { margin: 0 !important; padding: 6.4rem 1.2rem 2.8rem !important; }
+  /* ⚠️ ЛАНДШАФТ: платформа раскладывает группы фильтров через float:left, и на
+     широком экране (915px) они встают В РЯД — кнопки Подтвердить\Очистить
+     уезжают в узкую float-колонку справа (147px), текст обрезается. Форсируем
+     ВЕРТИКАЛЬНЫЙ стек: каждая группа-div на всю ширину, float снят. В портрете
+     стек и так был (группы не влезали в ряд) — правило его лишь закрепляет. */
+  #lk-filt #general_filters_form > div {
+    float: none !important;
+    width: 100% !important;
+    clear: both !important;
+  }
   #lk-filt #general_filters_form table,
   #lk-filt #general_filters_form tbody,
   #lk-filt #general_filters_form tr,
   #lk-filt #general_filters_form td,
   #lk-filt #general_filters_form div { padding-left: 0 !important; margin-left: 0 !important; }
   #lk-filt #general_filters_form td { padding: 0.5rem 0 !important; }
+  /* ⚠️ Фоновые иконки подписей фильтров («Фильтрация по датам» и т.п. — bg на
+     td:nth-child(2)) убираем, как это делает device-media платформы (≤480px).
+     Иначе в ЛАНДШАФТЕ (device-width 915 > 480 → device-media OFF) иконки вылезали
+     с обнулённым padding-left и текст налезал на них (клиент: «иконки
+     посъёжились»). В ПОРТРЕТЕ их и так нет — распространяем на весь вариант A для
+     единообразия. Иконки-img[id^=img_apl] это НЕ трогает (другой механизм). */
+  #lk-filt #general_filters_form > div > table > tbody > tr > td:nth-child(2) {
+    background-image: none !important;
+    padding-left: 0 !important;
+  }
 
   /* единый шрифт в дропдаунах-виджетах */
   #lk-filt #general_filters_form .ui-multiselect,
@@ -6707,7 +6730,7 @@ html.lk-m {
   #lk-filt-actions > * {
     flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
     box-sizing: border-box !important; margin: 0 !important;
-    padding-left: 0.8rem !important; padding-right: 0.8rem !important; white-space: nowrap;
+    white-space: nowrap;
   }
 }
 
@@ -6717,14 +6740,60 @@ html.lk-m {
    в экран, поднимаем над оверлеем, нормализуем шрифт. Только ≤767.
    ============================================================ */
 html.lk-m {
+  /* Меню jQuery-UI multiselect висит на body с inline position:absolute + top под
+     кнопкой. На телефоне это ломалось: в ЛАНДШАФТЕ (низкий экран) список уходил
+     за нижний край, при листании страницы оставался на месте (absolute), и
+     все варианты было не посмотреть; плюс left не совпадал с кнопкой.
+     Делаем меню ФИКСИРОВАННОЙ шторкой снизу (как нативный мобильный select):
+     position:fixed прижимает к низу над таб-баром, список скроллится ВНУТРИ —
+     меню всегда в экране целиком и держится при листании фона. */
+  /* ⚠️ display НЕ трогаем: jQuery-UI сам ставит открытому меню display:block, а
+     закрытым display:none. Наш !important на display показал бы ВСЕ меню разом
+     (их по одному на каждый фильтр). Раскладку скролла делаем без flex —
+     max-height на самом списке, чтобы не потребовался display:flex. */
   .ui-multiselect-menu {
+    position: fixed !important;
+    top: auto !important;
+    bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px) + 1rem) !important;
     left: 1.2rem !important; right: 1.2rem !important; width: auto !important;
-    max-width: calc(100vw - 2.4rem) !important; z-index: 100002 !important;
+    max-width: calc(100vw - 2.4rem) !important;
+    max-height: 60vh !important;
+    height: auto !important;
+    z-index: 100002 !important;
     box-sizing: border-box !important;
+    border-radius: 1.2rem !important; overflow: hidden !important;
+    box-shadow: 0 -0.6rem 2.4rem rgba(0, 0, 0, 0.28) !important;
+  }
+  /* Список вариантов — прокручиваемая часть; над ним шапка (поиск + «Выбрать/
+     Отменить всё»). ⚠️ Потолок = 60vh (потолок меню) МИНУС высота шапки (~10rem),
+     иначе список 46vh + шапка вылезал за меню, а overflow:hidden меню обрезал
+     последние пункты, и скролла не было (список влезал в свой 46vh, но не в
+     меню). calc держит список ровно в остатке под шапкой — длинный список
+     скроллится, короткий помещается целиком. */
+  .ui-multiselect-menu .ui-multiselect-checkboxes {
+    max-height: calc(60vh - 10rem) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
   .ui-multiselect-menu, .ui-multiselect-menu * { font-size: 1.5rem !important; }
   .ui-multiselect-menu .ui-multiselect-checkboxes li { padding: 0.2rem 0 !important; }
   .ui-multiselect-menu input.ui-multiselect-filter { font-size: 1.5rem !important; }
+
+  /* Календарь выбора дат (jQuery-UI datepicker при «Задать диапазон дат»).
+     Платформа позиционирует его под полем, а в ЛАНДШАФТЕ (низкий экран) поле
+     внизу → календарь уходил за нижний край, конец месяца не виден (клиент).
+     Центрируем в экране — всегда влезает целиком; выше меню мультиселекта. */
+  #ui-datepicker-div {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+    z-index: 100003 !important;
+    box-shadow: 0 0.4rem 2.4rem rgba(0, 0, 0, 0.35) !important;
+  }
 }
 
 /* ============================================================
@@ -7322,13 +7391,20 @@ html.lk-m #general_filters_form #lk-filt-actions {
    переносилась); текст по центру, не обрезается. Обнуляем платформенный
    position:relative+top (submit 12, ссылка 27 → разъезд); padding-left под иконку. */
 html.lk-m #general_filters_form #lk-filt-actions > * {
-  flex: 1 1 0 !important; min-width: 0 !important; max-width: 20rem !important; margin: 0 !important;
+  /* max-width: none — иначе «Очистить» упиралась в 20rem и делила строку неравно
+     с «Подтвердить» (у той платформа даёт max-width:100%). flex 1 1 0 без потолка
+     = ровно 50/50 (клиент). */
+  flex: 1 1 0 !important; min-width: 0 !important; max-width: none !important; margin: 0 !important;
   position: relative !important; top: 0 !important; transition: none !important;
   min-height: 0 !important; height: auto !important; box-sizing: border-box !important;
   font-size: 1.4rem !important; line-height: 1.2 !important; white-space: nowrap !important;
-  /* симметричный горизонтальный padding 26 → текст по центру и не доходит до края
-     закраски; иконка (bg на 12px) остаётся в левом padding'е */
-  text-align: center !important; padding: 1rem 2.6rem !important;
+  /* Текст по ЦЕНТРУ кнопки (клиент). ⚠️ «Очистить» — это <a display:flex> с
+     текстом во вложенном span, поэтому одного text-align:center мало (при flex
+     он не действует) — нужен justify-content:center. Подтвердить (input) центрит
+     text-align'ом. Задаём оба, чтобы центрировались обе кнопки. Кнопки равные и
+     широкие (50/50, ~440px), иконка слева до центр-текста далеко — не подъезжает. */
+  text-align: center !important; justify-content: center !important;
+  padding: 1rem 1.4rem !important;
   overflow: hidden !important; text-overflow: ellipsis !important;
 }
 /* формы выбора — ниже по высоте (глушим device-media button padding 20/30, min-h 60) */
