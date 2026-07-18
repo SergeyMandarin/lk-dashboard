@@ -8197,3 +8197,23 @@ html.lk-pc img[src*="review-report"],
 html.lk-pc img[src*="excel_page"] {
   width: 1.9rem !important;
 }
+
+/* Рельса и раскладка. Это чинит «рельса ниже, чем должна, карточка под ней»:
+   device-media платформы сбрасывает рельсе `position: unset` (→ static) и
+   `height: auto`, поэтому вертикальная полоса ПАДАЕТ В ПОТОК и оказывается ниже
+   шапки-приветствия и блока фильтров, а контент заезжает под неё (z-index 1000).
+   На десктопе рельса fixed слева на 100vh, а контент зарезервировал 60px слева.
+   Возвращаем ровно это. body в селекторе — перебить device-media important
+   `.page-main-menu .top_tabs_row` (равная специфичность, у нас должно быть выше). */
+html.lk-pc body .top_tabs_row {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+}
+/* Контент — снова резерв 60px слева под рельсу (device-media занулил до 100vw).
+   calc(-6rem + 100vw) + margin-left:auto = ровно как базовое десктопное правило. */
+html.lk-pc .begin-report-area {
+  max-width: calc(100vw - 6rem) !important;
+  margin-left: auto !important;
+}
