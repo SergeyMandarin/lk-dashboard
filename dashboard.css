@@ -6262,6 +6262,26 @@ td.report-dir:has(> a img[src*="review-report"]) > a {
 .ui-dialog:has(#do_export) .ui-dialog-titlebar-close {
   right: 0.8rem !important;
 }
+/* Кнопка экспорта на ДВУХШАГОВОМ диалоге («Клиентские комментарии») — это
+   jQuery-UI input.ui-button БЕЗ id, тогда как на «Сводном» это submit#do_export.
+   Мои стили #do_export её не покрывали → padding обнулялся, кнопка схлопывалась в
+   тонкую полоску (клиент: «цвет сбросился, боковые паддинги обнулились»). Приводим
+   к тому же виду — фиолетовая пилюля. Берём кнопки В ТЕЛЕ диалога
+   (.ui-dialog-content): крестик Close живёт в titlebar и сюда не попадает. */
+html.lk-m .ui-dialog-content input.ui-button {
+  background: var(--main-brand-color) !important;
+  color: #ffffff !important;
+  padding: 0.8rem 1.5rem !important;
+  border-radius: 1rem !important;
+  font-weight: 700 !important;
+  font-size: 1.4rem !important;
+  border: 0 !important;
+  width: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin-top: 0.8rem !important;
+}
+
 /* Модалки (экспорт, смена языка) на мобилке/планшете — по ЦЕНТРУ экрана и
    ЗАФИКСИРОВАНЫ (клиент 2026-07-18). jQuery-UI ставит их position:absolute с
    top/left под кнопкой — в ЛАНДШАФТЕ (низкий экран) уходили вниз и налезали на
