@@ -6175,6 +6175,64 @@ input.btn-input[onclick*="open_exportall_operation"]{background-color:#541261 !i
 input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#40104a !important;}
 
 /* ============================================================
+   СТРАНИЦА ОТЧЁТА (show-entire-crit.php) — кнопки под макет.
+   База совпадает с «Экспорт всех данных» (open_exportall_operation, см. выше):
+   фиолетовая пилюля #541261, Montserrat ExtraBold 1.3rem, белый текст, высота
+   3rem, radius 1rem — но БЕЗ иконки (клиент: «им она не нужна»).
+   • Статус-кнопки формы #quick_change («2. Апелляция подана», «4. Период
+     закрыт», «5. Отчёт принят») + «Сохранить комментарии» (#save_comments).
+   • «Выбрать все»/«Скачать» вложений (#selectAll / #downloadAll) — это
+     СВОИ кнопки этой страницы (не путать с одноимёнными на «Статус анкет»
+     = checkUncheckAllComments и на report-property.php = a.export_download,
+     их не трогаем). Раньше их красил наш основной JS — закрепляем чистым CSS,
+     чтобы вид держался и после замены JS.
+   • «Добавление замечания» (#thenote, это <a>) — красная (приглушённая, не
+     ядовитая) пилюля с «!» по краям для акцента внимания.
+   ============================================================ */
+#quick_change input.btn-input,
+input#save_comments,
+input#selectAll,
+input#downloadAll,
+a#thenote {
+  display: inline-block !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+  border-radius: 1rem !important;
+  color: #ffffff !important;
+  font-family: "Montserrat", "Roboto", Arial, sans-serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  height: 3rem !important;
+  line-height: 3rem !important;   /* для <a>#thenote — вертикальное центрирование текста */
+  padding: 0 1.6rem !important;   /* без левого места под иконку */
+  margin: 0.4rem 0.8rem 0.4rem 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.15) !important;
+  background: #541261 !important;   /* как «Экспорт всех данных» */
+  background-image: none !important;
+}
+#quick_change input.btn-input:hover,
+input#save_comments:hover,
+input#selectAll:hover,
+input#downloadAll:hover {
+  background: #40104a !important;
+}
+/* «Добавление замечания» — красный (приглушённый) + «!» в начале и в конце */
+a#thenote {
+  background: #c0392b !important;
+}
+a#thenote:hover {
+  background: #a02d20 !important;
+}
+a#thenote::before { content: "! "; }
+a#thenote::after  { content: " !"; }
+
+/* ============================================================
    ИКОНКИ СТРОК ОТЧЁТА (колонка «Отобразить отчёт по проверке» и подобные):
    report / pdf / print. Это платформенные <img> где ВИДИМАЯ иконка = собственный
    `background-image` самого img (data-URI), а `src` — невидимый 16px-спейсер.
