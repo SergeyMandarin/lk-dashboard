@@ -8211,10 +8211,17 @@ html.lk-pc body .top_tabs_row {
   left: 0 !important;
   height: 100vh !important;
 }
-/* Контент — снова резерв 60px слева под рельсу (device-media занулил до 100vw).
-   calc(-6rem + 100vw) + margin-left:auto = ровно как базовое десктопное правило. */
-html.lk-pc .begin-report-area {
+/* Контент — снова резерв слева под рельсу (device-media занулил до 100vw).
+   ⚠️ Резерв ЗАВИСИТ от состояния рельсы, иначе при раскрытии рельса (220px)
+   надвигается на контент, а не двигает его (клиент). Повторяем десктопную пару:
+   свёрнуто — 6rem (60px), раскрыто (sb-open) — 22rem (220px). margin-left:auto
+   прижимает контент вправо, освобождая слева ровно ширину рельсы. */
+html.lk-pc:not(.sb-open) .begin-report-area {
   max-width: calc(100vw - 6rem) !important;
+  margin-left: auto !important;
+}
+html.lk-pc.sb-open .begin-report-area {
+  max-width: calc(100vw - 22rem) !important;
   margin-left: auto !important;
 }
 /* Лого. device-media платформы раздувает #top_title_graphics до height:16rem с
