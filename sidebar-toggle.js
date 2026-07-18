@@ -1410,9 +1410,66 @@
     root.classList.toggle("lk-launcher-open", name === "launcher");
     root.classList.toggle("filt-open", name === "filters");
     root.classList.toggle("lk-more-open", name === "more");
+    /* при любом оверлее таб-бар обязан быть на виду (из него открывают/закрывают
+       разделы и шторки) — сбрасываем возможное скрытие от hide-on-scroll */
+    if (name) showTabbar();
     /* заодно пересчитает бейдж фильтров — страховка на случай, если виджет
        изменил выбор способом, который мы не отследили (событий он не шлёт) */
     syncTabbarState();
+  }
+
+  /* ---- Hide-on-scroll таб-бара (решение клиента 2026-07-18) ----
+     Стандартный мобильный паттерн (Material / iOS): листаешь ВНИЗ (читаешь
+     дальше) — таб-бар прячется, освобождая место; листаешь ВВЕРХ — возвращается.
+     Прячем классом на root (CSS сдвигает бар за нижний край transition'ом).
+     Порог TABBAR_SCROLL_MIN гасит дрожание от микродвижений и тачпад-инерции. */
+  var TABBAR_SCROLL_MIN = 8;
+  var TABBAR_TOP_ZONE = 60;
+  var lastScrollY = 0;
+  var tabbarScrollScheduled = false;
+
+  function showTabbar() {
+    root.classList.remove("lk-tabbar-hidden");
+  }
+  function hideTabbar() {
+    root.classList.add("lk-tabbar-hidden");
+  }
+
+  function evalTabbarScroll() {
+    tabbarScrollScheduled = false;
+    /* только вариант A; при открытых оверлеях бар всегда виден (см. setAppOverlay) */
+    if (
+      !isAppMode() ||
+      root.classList.contains("lk-launcher-open") ||
+      root.classList.contains("lk-more-open") ||
+      root.classList.contains("filt-open") ||
+      root.classList.contains("lk-tview-open")
+    ) {
+      lastScrollY = window.pageYOffset || 0;
+      return;
+    }
+    var y = window.pageYOffset || 0;
+    var maxY = document.documentElement.scrollHeight - window.innerHeight;
+    /* у самого верха и у самого низа держим бар видимым: вверху прятать нечего,
+       внизу — чтобы навигация была под рукой в конце отчёта */
+    if (y <= TABBAR_TOP_ZONE || y >= maxY - 4) {
+      showTabbar();
+      lastScrollY = y;
+      return;
+    }
+    var dy = y - lastScrollY;
+    if (Math.abs(dy) < TABBAR_SCROLL_MIN) return; /* микродвижение — игнор */
+    if (dy > 0) hideTabbar();
+    else showTabbar();
+    lastScrollY = y;
+  }
+
+  function onTabbarScroll() {
+    if (tabbarScrollScheduled) return;
+    tabbarScrollScheduled = true;
+    /* пересчёт в rAF: событие scroll стреляет десятки раз в кадр, а нам нужен
+       один замер на кадр — иначе лишний layout-трэшинг */
+    window.requestAnimationFrame(evalTabbarScroll);
   }
 
   /* Сколько фильтров реально применено — для бейджа на табе.
@@ -1937,6 +1994,9 @@
     root.classList.remove("lk-launcher-open");
     root.classList.remove("lk-more-open");
     root.classList.remove("lk-tview-open");
+    /* режим больше не телефонный — снять возможное скрытие таб-бара от
+       hide-on-scroll, чтобы класс не «прилип» к десктопу/планшету-откату */
+    root.classList.remove("lk-tabbar-hidden");
   }
 
   /* Собираем/разбираем навигацию варианта A по текущему режиму. Идемпотентно;
@@ -2292,6 +2352,9 @@
 
   /* Липкая гориз. полоса: следим за скроллом страницы. */
   window.addEventListener("scroll", scheduleHBar, { passive: true });
+
+  /* Hide-on-scroll таб-бара: тот же поток скролла, отдельный обработчик. */
+  window.addEventListener("scroll", onTabbarScroll, { passive: true });
 
   /* Ресайз ОДНИМ задебаунсенным обработчиком. Событие стреляет десятки раз в
      секунду, пока тянут край окна, а работа тут тяжёлая: refreshScrollers()

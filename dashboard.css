@@ -7461,6 +7461,19 @@ html.lk-app.filt-open #lk-hbar {
   /* ниже jQuery-UI диалогов (у них ~1000+): диалог экспорта должен
      перекрывать бар, а не наоборот */
   z-index: 900;
+  /* hide-on-scroll: плавный уезд за нижний край (класс ставит JS) */
+  transition: transform 0.28s ease;
+}
+/* Скрытый таб-бар (листают вниз — освобождаем место под контент). translateY на
+   всю высоту бара уводит его целиком за край; при листании вверх класс снимается
+   и бар возвращается тем же transition. */
+html.lk-tabbar-hidden #lk-tabbar {
+  transform: translateY(100%);
+}
+/* Раз бар уехал — полосу гориз. скролла опускаем к самому низу, чтобы не висела
+   в воздухе на высоте отсутствующего бара. */
+html.lk-app.lk-tabbar-hidden #lk-hbar {
+  bottom: 0 !important;
 }
 #lk-tabbar .lk-tab {
   flex: 1 1 0;
@@ -7867,8 +7880,15 @@ html.lk-app #lk-filt {
   border-radius: 1.8rem 1.8rem 0 0;
   box-shadow: 0 -0.8rem 3rem rgba(0, 0, 0, 0.3);
   z-index: 895 !important;
-  /* выезд СНИЗУ вместо «справа»: шторка, а не боковая панель */
-  transform: translateY(100%) !important;
+  /* Выезд СНИЗУ вместо «справа»: шторка, а не боковая панель.
+     ⚠️ Прячем на высоту шторки ПЛЮС отступ снизу (bottom = высота таб-бара):
+     translateY(100%) один уводит только на высоту, а из-за bottom:56px верхние
+     56px шторки оставались торчать над краем. Раньше их прикрывал таб-бар, но с
+     hide-on-scroll он уезжает — и в ландшафте (низкая шторка) торчащая шапка
+     «Фильтры» становилась видна. Добавляем tabbar-h — уходит за край целиком. */
+  transform: translateY(
+    calc(100% + var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px))
+  ) !important;
   transition: transform 0.25s ease !important;
 }
 html.lk-app.filt-open #lk-filt {
