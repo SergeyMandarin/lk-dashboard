@@ -8137,3 +8137,63 @@ html.lk-tview-open #lk-tview-body .lk-pannable {
 html.lk-tview-open #lk-tview-body .lk-pannable > *:not([data-lk-tview-keep]) {
   display: none !important;
 }
+
+/* ============================================================================
+   «ВЕРСИЯ ДЛЯ ПК» на телефоне/планшете — html.lk-pc (ставит syncModeClasses).
+   Состояние: пользователь включил галку «Версия для ПК» в мобильном браузере →
+   UA десктопный → сервер отдал ДЕСКТОПНЫЙ HTML, но device-media платформы
+   смотрит на физический экран и продолжает применять мобильную инфляцию
+   (шрифты 3-4rem, кнопки с padding 2rem/3rem, бургер раздувается до 60×60 и
+   наезжает на лого). Мету viewport мы в этом состоянии больше не ставим
+   (см. ensureViewport) — страница рендерится в фолбэке 980px, а этот блок
+   возвращает раздутым правилам их десктопные значения.
+   ⚠️ Все правила должны бить device-media той же важностью: там !important,
+   поэтому и здесь !important, а html.lk-pc даёт перевес специфичности.
+   ⚠️ На страницах БЕЗ нашего JS (report-property.php) класса нет — там
+   «Версия для ПК» остаётся как есть (платформенное поведение).
+   ============================================================================ */
+
+/* Шрифтовая база — десктопные 1.2rem вместо инфляционных 3rem */
+html.lk-pc body,
+html.lk-pc th,
+html.lk-pc td,
+html.lk-pc select,
+html.lk-pc input,
+html.lk-pc button {
+  font-size: 1.2rem !important;
+}
+/* Кнопки — десктопные размеры (инфляция даёт padding 2rem 3rem + min-height) */
+html.lk-pc .btn-input,
+html.lk-pc .btn-input input,
+html.lk-pc input[type="button"],
+html.lk-pc input[type="submit"],
+html.lk-pc button:not(.ui-multiselect),
+html.lk-pc input[type="file"] {
+  font-size: 1.4rem !important;
+  padding: 0.6rem 1.5rem !important;
+  min-height: 0 !important;
+}
+/* Бургер — 26×26 как на десктопе (кнопка = <button>, ловит инфляцию кнопок) */
+html.lk-pc #lk-burger {
+  width: 2.6rem !important;
+  height: 2.6rem !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+/* «Очистить» в фильтрах — device-media задирает до 4rem с padding-left 6rem */
+html.lk-pc a#link_to_clear_general_filters {
+  font-size: 1.3rem !important;
+  padding-left: 3.6rem !important;
+}
+/* Заголовки карточек — master.css в device-media даёт 3em */
+html.lk-pc .grid_report_td h1,
+html.lk-pc .dragableBoxHeader {
+  font-size: var(--fs-report-title) !important;
+}
+/* Иконки строк отчёта (report/pdf/print) — инфляция растит до 4rem */
+html.lk-pc img[src*="pdf_icon"],
+html.lk-pc img[src*="printer"],
+html.lk-pc img[src*="review-report"],
+html.lk-pc img[src*="excel_page"] {
+  width: 1.9rem !important;
+}
