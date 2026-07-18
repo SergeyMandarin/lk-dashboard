@@ -1105,12 +1105,20 @@
     [].forEach.call(selects, function (select) {
       if (select.getAttribute("data-lk-colored-added")) return;
       select.setAttribute("data-lk-colored-added", "1");
+      var dialogContent = select.closest(".ui-dialog-content");
+      /* «Красивенько» добавляем ТОЛЬКО там, где умеем собрать раскрашенный
+         .xlsx — то есть где findTableForDialog находит таблицу «вопрос-ответ»
+         (table[id^="questions_in_reviews_"]). На прочих типах (спарклайны
+         «Разделов анкеты», «Клиентские комментарии» и т.п.) пункта не будет —
+         останутся штатные форматы платформы, а не молчаливый уход в серверный
+         экспорт под видом «Красивенько». Решение клиента 2026-07-18. */
+      var table = dialogContent ? findTableForDialog(dialogContent) : null;
+      if (!table) return;
       var opt = document.createElement("option");
       opt.value = "lk_colored";
       opt.textContent = "Красивенько";
       select.insertBefore(opt, select.firstChild);
       select.value = "lk_colored";
-      var dialogContent = select.closest(".ui-dialog-content");
       var submitBtn = dialogContent
         ? dialogContent.querySelector("#do_export")
         : null;
