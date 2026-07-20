@@ -934,25 +934,26 @@
     return exceljsLoadPromise;
   }
 
-  /* Имя файла — Colored-ЧЧ-ММ_ДД-ММ-ГГГГ.xlsx (текущее время), чтобы разные
-     выгрузки не затирали друг друга в загрузках. Двоеточия в имени файла
-     Windows не разрешает — используем дефис вместо ":". */
+  /* Имя файла — «Сводный отчёт ДД.ММ.ГГГГ_ЧЧ.ММ.xlsx» (текущие дата и время),
+     чтобы разные выгрузки не затирали друг друга в загрузках.
+     ⚠️ Время пишем через ТОЧКУ, а не двоеточие: двоеточия Windows в именах
+     файлов не разрешает. Расширением останется последний «.xlsx». */
   function pad2(n) {
     return ("0" + n).slice(-2);
   }
   function coloredExportFilename() {
     var d = new Date();
     return (
-      "Colored-" +
-      pad2(d.getHours()) +
-      "-" +
-      pad2(d.getMinutes()) +
-      "_" +
+      "Сводный отчёт " +
       pad2(d.getDate()) +
-      "-" +
+      "." +
       pad2(d.getMonth() + 1) +
-      "-" +
+      "." +
       d.getFullYear() +
+      "_" +
+      pad2(d.getHours()) +
+      "." +
+      pad2(d.getMinutes()) +
       ".xlsx"
     );
   }
@@ -1284,7 +1285,7 @@
       });
   }
 
-  /* «Красивенько» — первый и выбранный по умолчанию пункт в выпадающем
+  /* «Excel (расширенный)» — первый и выбранный по умолчанию пункт в выпадающем
      списке формата (select#export_type) диалога экспорта. Клик по
      «Экспортировать эту таблицу» перехватываем в capture-фазе — если выбран
      наш пункт, гасим платформенный onclick (увёл бы на
@@ -1297,17 +1298,17 @@
       if (select.getAttribute("data-lk-colored-added")) return;
       select.setAttribute("data-lk-colored-added", "1");
       var dialogContent = select.closest(".ui-dialog-content");
-      /* «Красивенько» добавляем ТОЛЬКО там, где умеем собрать раскрашенный
+      /* «Excel (расширенный)» добавляем ТОЛЬКО там, где умеем собрать раскрашенный
          .xlsx — то есть где findTableForDialog находит таблицу «вопрос-ответ»
          (table[id^="questions_in_reviews_"]). На прочих типах (спарклайны
          «Разделов анкеты», «Клиентские комментарии» и т.п.) пункта не будет —
          останутся штатные форматы платформы, а не молчаливый уход в серверный
-         экспорт под видом «Красивенько». Решение клиента 2026-07-18. */
+         экспорт под видом «Excel (расширенный)». Решение клиента 2026-07-18. */
       var table = dialogContent ? findTableForDialog(dialogContent) : null;
       if (!table) return;
       var opt = document.createElement("option");
       opt.value = "lk_colored";
-      opt.textContent = "Красивенько";
+      opt.textContent = "Excel (расширенный)";
       select.insertBefore(opt, select.firstChild);
       select.value = "lk_colored";
       var submitBtn = dialogContent
@@ -2037,7 +2038,7 @@
      таблицу на весь экран.
      ⚠️ Переносим ЦЕЛИКОМ сам скроллер (center.lk-pannable): внутри него живут
      и таблица, и панель кнопок, и формы экспорта. Если тащить только таблицу,
-     развалится «Красивенько» — оно ищет таблицу через форму в
+     развалится «Excel (расширенный)» — оно ищет таблицу через форму в
      .dashboard-report-slot (см. память lk-dashboard-colored-export). Проверено:
      внутри скроллера ровно один слот, так что забираем его целиком.
      Перенос — с возвратом (см. mnavMoved/filtMoved): узел платформенный. */
