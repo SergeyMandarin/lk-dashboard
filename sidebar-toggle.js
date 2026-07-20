@@ -257,11 +257,70 @@
     c.__lkAxisFont = PHONE_AXIS_FONT;
   }
 
+  /* Ось «Динамика результатов» приходит с сервера ГОТОВЫМИ строками-категориями
+     вида «Feb 26» (проверено вживую: type=linear + categories, а НЕ датовая ось).
+     Значит Highcharts здесь ни при чём — англ. зашит в данные, и переключение
+     локали библиотеки (Highcharts.lang.months) ничего бы не дало: lang влияет
+     только на СОБСТВЕННОЕ форматирование дат. Переводим сами.
+     ⚠️ ИЗОЛЯЦИЯ: ось переводится ТОЛЬКО если КАЖДАЯ её категория — месяц (с
+     необязательным годом). Смешанную ось не трогаем вовсе, поэтому осмысленный
+     текст, случайно совпавший с названием месяца, у другого клиента уцелеет. */
+  var EN_MONTHS_RU = {
+    jan: "янв", feb: "фев", mar: "мар", apr: "апр", may: "май", jun: "июн",
+    jul: "июл", aug: "авг", sep: "сен", oct: "окт", nov: "ноя", dec: "дек",
+  };
+  var EN_MONTHS_FULL = [
+    "january", "february", "march", "april", "may", "june",
+    "july", "august", "september", "october", "november", "december",
+  ];
+  var MONTH_LABEL_RE = /^([A-Za-z]{3,9})(\s+\d{2,4})?$/;
+
+  function monthLabelToRu(text) {
+    var m = MONTH_LABEL_RE.exec(String(text == null ? "" : text).trim());
+    if (!m) return null;
+    var word = m[1].toLowerCase();
+    var ru = EN_MONTHS_RU[word.slice(0, 3)];
+    if (!ru) return null;
+    /* длиннее сокращения — принимаем только настоящее полное название, иначе
+       «Marketing» (mar…) или «Августина» мимо не проскочат */
+    if (word.length > 3 && EN_MONTHS_FULL.indexOf(word) === -1) return null;
+    return ru + (m[2] || "");
+  }
+
+  function localizeChartMonths(c) {
+    if (c.__lkMonthsRu) return;
+    var axes = c.xAxis || [];
+    var changed = false;
+    for (var i = 0; i < axes.length; i++) {
+      var cats = axes[i].categories;
+      if (!cats || !cats.length) continue;
+      var ru = [];
+      var all = true;
+      for (var j = 0; j < cats.length; j++) {
+        var t = monthLabelToRu(cats[j]);
+        if (!t) {
+          all = false;
+          break;
+        }
+        ru.push(t);
+      }
+      /* redraw:false — перерисует идущий следом setSize/reflow, лишнего кадра нет */
+      if (all) {
+        axes[i].update({ categories: ru }, false);
+        changed = true;
+      }
+    }
+    /* флаг ставим только если реально перевели: ось с уже русскими подписями
+       под шаблон не подойдёт, и её дешёвая перепроверка ничего не стоит */
+    if (changed) c.__lkMonthsRu = true;
+  }
+
   function reflowCharts() {
     if (window.Highcharts && Highcharts.charts) {
       Highcharts.charts.forEach(function (c) {
         if (!c) return;
         try {
+          localizeChartMonths(c);
           var parent = c.container && c.container.parentElement;
           var w = parent ? parent.clientWidth : 0;
           if (w) {
