@@ -894,9 +894,17 @@
   var EXPORT_SKIP_COLS = 2;
   var EXPORT_HEADER_HEIGHT_PX = 50;
   var EXPORT_MAX_COL_WIDTH_PX = 300;
-  var EXPORT_MIN_COL_WIDTH_PX = 40;
-  var EXPORT_HEADER_BG_ARGB = "FF365D8D";
+  /* Минимум ширины — в «символьных» единицах Excel (НЕ px): значение подобрано
+     клиентом вручную в самом Excel, поэтому храним как есть, без конвертации. */
+  var EXPORT_MIN_COL_WIDTH = 12;
+  var EXPORT_HEADER_BG_ARGB = "FF95B3D7";
+  /* Шапка светлая (#95b3d7) — текст тёмный, белый на ней нечитаем. */
+  var EXPORT_HEADER_FONT_ARGB = "FF000000";
+  var EXPORT_BORDER_ARGB = "FF808080";
   var EXPORT_BOLD_DATA_COL = 2; /* 2-й столбец файла = «Оценка» */
+  /* Столбцы, у которых в заголовке есть эта пометка, — данные жирным. */
+  var EXPORT_BOLD_HEADER_MARK = "(Подраздел)";
+  var EXPORT_DATE_NUMFMT = "dd.mm.yyyy";
 
   /* px → пункты (высота строки Excel — в pt, не px; 96dpi: 1px=0.75pt). */
   function pxToPt(px) {
@@ -905,6 +913,52 @@
   /* px → «символьные» единицы ширины столбца Excel (Calibri 11 дефолт). */
   function pxToExcelWidth(px) {
     return (px - 5) / 7;
+  }
+
+  /* Тонкая рамка #808080 на все 4 стороны. Новый объект на каждую ячейку —
+     ExcelJS переиспользованный объект стилей может склеить между ячейками. */
+  function exportBorder() {
+    var side = { style: "thin", color: { argb: EXPORT_BORDER_ARGB } };
+    return { top: side, left: side, bottom: side, right: side };
+  }
+
+  /* «дд.мм.гггг» с необязательным временем → Date (время отбрасываем, формат
+     вывода всё равно дд.мм.гггг). Не дата — вернёт null, ячейка останется текстом.
+     ⚠️ Date.UTC обязателен: ExcelJS считает серийный номер через getTime() (UTC).
+     Локальная полночь в UTC+3 ушла бы в предыдущий день — классический сдвиг. */
+  function parseReportDate(text) {
+    var d, mo, y;
+    /* формат 1 — «31.12.2026» (страница отчёта, «Клиентские комментарии») */
+    var m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:[ T]\d{1,2}:\d{2}(?::\d{2})?)?$/.exec(
+      text
+    );
+    if (m) {
+      d = +m[1];
+      mo = +m[2];
+      y = +m[3];
+    } else {
+      /* формат 2 — ISO «2026-12-31» (Сводный отчёт отдаёт именно так) */
+      m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T]\d{1,2}:\d{2}(?::\d{2})?)?$/.exec(
+        text
+      );
+      if (!m) return null;
+      y = +m[1];
+      mo = +m[2];
+      d = +m[3];
+    }
+    /* ⚠️ «11:06:00» (Время визита) под оба шаблона не подходит и остаётся
+       текстом — время датой не подменяем */
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    var dt = new Date(Date.UTC(y, mo - 1, d));
+    /* отсекает несуществующие даты вроде 31.02.2026 (Date их «перекатывает») */
+    if (
+      dt.getUTCFullYear() !== y ||
+      dt.getUTCMonth() !== mo - 1 ||
+      dt.getUTCDate() !== d
+    ) {
+      return null;
+    }
+    return dt;
   }
 
   function buildColoredWorkbook(table) {
@@ -922,6 +976,9 @@
         var text = cell.textContent.trim();
         return {
           text: isHeaderRow ? cleanHeaderText(text) : text,
+          /* исходный текст заголовка — по нему ищем «(Подраздел)»: пометка
+             может стоять до слэша, который срезает cleanHeaderText */
+          raw: text,
           argb: cssColorToArgb(cs.backgroundColor),
         };
       });
@@ -943,6 +1000,16 @@
       });
     });
 
+    /* столбцы с «(Подраздел)» в заголовке — их данные выводим жирным */
+    var boldCols = {};
+    if (headerCells) {
+      headerCells.forEach(function (c, i) {
+        if ((c.raw || "").indexOf(EXPORT_BOLD_HEADER_MARK) !== -1) {
+          boldCols[i] = true;
+        }
+      });
+    }
+
     var wb = new window.ExcelJS.Workbook();
     var ws = wb.addWorksheet("Экспорт");
 
@@ -954,10 +1021,26 @@
         return c.text;
       });
       var row = ws.addRow(rowValues);
-      cells.forEach(function (cell, i) {
+      /* идём по colCount, а не по cells: рамка нужна на ВСЮ матрицу, включая
+         ячейки коротких строк, которых в DOM нет */
+      for (var i = 0; i < colCount; i++) {
         var xlCell = row.getCell(i + 1);
-        xlCell.alignment = { wrapText: true };
-        if (i + 1 === EXPORT_BOLD_DATA_COL) {
+        xlCell.border = exportBorder();
+        xlCell.alignment = {
+          wrapText: true,
+          vertical: "middle",
+          horizontal: "center",
+        };
+        var cell = cells[i];
+        if (!cell) continue;
+        /* дату кладём настоящим Date + numFmt: так она сортируется и
+           фильтруется в Excel, а не остаётся строкой */
+        var dt = parseReportDate(cell.text);
+        if (dt) {
+          xlCell.value = dt;
+          xlCell.numFmt = EXPORT_DATE_NUMFMT;
+        }
+        if (i + 1 === EXPORT_BOLD_DATA_COL || boldCols[i]) {
           xlCell.font = { bold: true };
         }
         if (cell.argb) {
@@ -967,17 +1050,23 @@
             fgColor: { argb: cell.argb },
           };
         }
-      });
+      }
       /* высоту строки НЕ трогаем — Excel сам авто-подгонит под перенос */
     });
 
     /* Ширина столбцов — фиксируем ДО вставки строки заголовка. */
     for (var i = 0; i !== colCount; i++) {
+      /* верхняя граница — в px (300), нижняя — в единицах Excel (12),
+         поэтому сначала считаем/режем в px, конвертируем и только потом
+         поднимаем до минимума */
       var widthPx = Math.min(
         EXPORT_MAX_COL_WIDTH_PX,
-        Math.max(EXPORT_MIN_COL_WIDTH_PX, (colMax[i] || 8) * 7 + 10)
+        (colMax[i] || 8) * 7 + 10
       );
-      ws.getColumn(i + 1).width = pxToExcelWidth(widthPx);
+      ws.getColumn(i + 1).width = Math.max(
+        EXPORT_MIN_COL_WIDTH,
+        pxToExcelWidth(widthPx)
+      );
     }
 
     /* Заголовок — вставляем СВЕРХУ последним, своя фиксированная высота
@@ -988,21 +1077,26 @@
       });
       var headerRow = ws.insertRow(1, headerValues);
       headerRow.height = pxToPt(EXPORT_HEADER_HEIGHT_PX);
-      headerCells.forEach(function (cell, i) {
-        var xlCell = headerRow.getCell(i + 1);
-        xlCell.alignment = {
+      for (var h = 0; h < colCount; h++) {
+        var hCell = headerRow.getCell(h + 1);
+        hCell.border = exportBorder();
+        hCell.alignment = {
           wrapText: true,
-          vertical: "middle",
+          vertical: "top",
           horizontal: "center",
         };
-        xlCell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-        xlCell.fill = {
+        hCell.font = { bold: true, color: { argb: EXPORT_HEADER_FONT_ARGB } };
+        hCell.fill = {
           type: "pattern",
           pattern: "solid",
           fgColor: { argb: EXPORT_HEADER_BG_ARGB },
         };
-      });
+      }
     }
+
+    /* закрепляем 1-ю строку и 1-й столбец (шапка и первый столбец всегда
+       на виду при прокрутке длинного отчёта) */
+    ws.views = [{ state: "frozen", xSplit: 1, ySplit: 1 }];
 
     return wb;
   }
