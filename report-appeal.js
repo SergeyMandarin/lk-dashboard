@@ -84,7 +84,15 @@
     var form = commentBtn && commentBtn.closest("form");
     if (!form || form.getAttribute("data-lk-appeal-armed")) return;
     form.setAttribute("data-lk-appeal-armed", "1");
-    form.addEventListener("submit", function () {
+    form.addEventListener("submit", function (e) {
+      /* ⚠️ Отправку мог отменить кто-то до нас — платформенный
+         onsubmit="return validate()" отменяет её, но всплытие НЕ останавливает,
+         так что мы всё равно сюда попадаем. Без этой проверки флаг остался бы
+         висеть, и любая перезагрузка в течение TTL молча подала бы апелляцию:
+         статус ушёл бы на сервер, уведомления разослались, откатить нельзя.
+         Инлайновый обработчик платформы зарегистрирован раньше нашего, значит
+         к этому моменту отмена уже видна. */
+      if (e.defaultPrevented) return;
       if (isActive(appealBtn())) {
         lsSet(
           FLAG_KEY,
@@ -130,7 +138,10 @@
       return v;
     }
     var baseline = snapshot(); /* значения на момент загрузки страницы */
-    form.addEventListener("submit", function () {
+    form.addEventListener("submit", function (e) {
+      /* та же защита, что и у модалки: отменённая отправка не должна оставлять
+         флаг — иначе апелляция подастся сама на ближайшей перезагрузке */
+      if (e.defaultPrevented) return;
       if (snapshot() !== baseline && isActive(appealBtn())) {
         lsSet(FLAG_KEY, JSON.stringify({ crit: CRIT_ID, ts: nowMs() }));
       }
@@ -138,19 +149,28 @@
   }
 
   /* ---- шаг 2: на загрузке подаём отложенную апелляцию ----
-     Флаг снимаем СРАЗУ (до клика): апелляция сама перезагрузит страницу, и без
-     раннего снятия флаг сработал бы повторно — бесконечная подача. */
+     СВОЙ флаг снимаем СРАЗУ (до клика): апелляция сама перезагрузит страницу, и
+     без раннего снятия он сработал бы повторно — бесконечная подача.
+     ⚠️ А вот ЧУЖОЙ флаг трогать нельзя. Раньше снятие стояло до проверки
+     CritID, и вкладка с другим отчётом съедала флаг, поставленный в соседней:
+     та догружалась уже без него, апелляция молча не подавалась, уведомления не
+     уходили — ровно тот отказ, который выглядит как «иногда не срабатывает».
+     Чужой ПРОСРОЧЕННЫЙ всё же подчищаем, чтобы мусор не копился. */
   function firePendingAppeal() {
     var raw = lsGet(FLAG_KEY);
     if (!raw) return;
-    lsDel(FLAG_KEY);
     var data;
     try {
       data = JSON.parse(raw);
     } catch (e) {
+      lsDel(FLAG_KEY); /* не разобрали — это мусор, убираем */
       return;
     }
-    if (!data || data.crit !== CRIT_ID) return; /* флаг от другого отчёта */
+    if (!data || data.crit !== CRIT_ID) {
+      if (!data || nowMs() - (data.ts || 0) > TTL_MS) lsDel(FLAG_KEY);
+      return; /* флаг от другого отчёта — оставляем ему */
+    }
+    lsDel(FLAG_KEY);
     if (nowMs() - data.ts > TTL_MS) return; /* просрочен — не стреляем */
     var btn = appealBtn();
     if (isActive(btn)) {
