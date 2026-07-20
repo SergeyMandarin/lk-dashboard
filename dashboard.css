@@ -6422,6 +6422,17 @@ html.lk-m .ui-multiselect-menu input.ui-multiselect-filter { font-size: 1.5rem !
      Платформа позиционирует его под полем, а в ЛАНДШАФТЕ (низкий экран) поле
      внизу → календарь уходил за нижний край, конец месяца не виден (клиент).
      Центрируем в экране — всегда влезает целиком; выше меню мультиселекта. */
+/* Календарь выбора дат — слой ДЛЯ ВСЕХ РЕЖИМОВ (раньше z-index стоял только в
+   мобильном правиле ниже, и на десктопе календарь перекрывался).
+   ⚠️ jQuery UI ставит `z-index: 1` ИНЛАЙНОМ прямо на #ui-datepicker-div, поэтому
+   без !important не перебить. С единицей календарь уезжал под липкую шапку
+   блока-отчёта (`.grid_report_td h1`, z-index 3) — фиолетовый разделитель
+   прочерчивался прямо поверх сетки дат, а нижние строки календаря скрывались.
+   100003 — выше всех наших слоёв контента (#lk-hbar 9000, оверлеи 100000-100002),
+   но ниже диалога экспорта (100004), чтобы календарь не лез поверх модалки. */
+#ui-datepicker-div {
+  z-index: 100003 !important;
+}
 html.lk-m #ui-datepicker-div {
     position: fixed !important;
     top: 50% !important;
@@ -6430,7 +6441,6 @@ html.lk-m #ui-datepicker-div {
     transform: translate(-50%, -50%) !important;
     max-height: 92vh !important;
     overflow-y: auto !important;
-    z-index: 100003 !important;
     box-shadow: 0 0.4rem 2.4rem rgba(0, 0, 0, 0.35) !important;
 }
 
