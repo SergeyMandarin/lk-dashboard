@@ -340,7 +340,15 @@
               fitPhoneAxisLabels(c);
               h = phoneChartHeight(c, w);
             }
-            c.setSize(w, h || undefined, false);
+            /* Гард по размеру: Highcharts перестраивает весь SVG даже когда
+               размер не изменился, а reflowCharts зовётся ~10-15 раз за
+               загрузку (onReady, load, два таймера, каждый enhanceReports,
+               setOpen, resize). На 8-10 графиках это под сотню лишних полных
+               перерисовок. Пропускаем только когда размер УЖЕ совпадает —
+               значит и тултип не отвяжется (см. комментарий выше). */
+            if (c.chartWidth !== w || (h && c.chartHeight !== h)) {
+              c.setSize(w, h || undefined, false);
+            }
             /* Гейдж подгоняем СТРОГО ПОСЛЕ setSize: размер дуги считаем от
                plotWidth/plotHeight, а они пересчитываются только там. */
             if (phone && c.options.chart.type === "solidgauge") {
@@ -979,6 +987,11 @@
   function cleanHeaderText(text) {
     var i = text.indexOf("/");
     if (i === -1) return text;
+    /* ⚠️ Режем ТОЛЬКО служебный префикс весов вида «0,16932,1,37181,3 / ».
+       Без этой проверки анкетный заголовок, где слэш — часть смысла
+       («Да/Нет», «шт/мес»), терял первую половину: «Да/Нет» превращалось
+       в «Нет». Пустой префикс (текст начинается со слэша) тоже не режем. */
+    if (!/^[\d.,\s]+$/.test(text.slice(0, i))) return text;
     return text.slice(i + 1).trim();
   }
 
@@ -1545,23 +1558,38 @@
     mnavBuilt = true;
   }
 
+  /* Возврат перенесённого узла на штатное место (общий для меню, фильтров и
+     шторки «Ещё»).
+     ⚠️ Проверка isConnected ОБЯЗАТЕЛЬНА: appendChild в отсоединённого родителя
+     исключения НЕ бросает — узел молча уезжает в detached-дерево, catch не
+     срабатывает, и элемент пропадает со страницы до перезагрузки. Именно так
+     теряется форма фильтров, если платформа успела перерисовать её контейнер
+     по AJAX. В closeTableViewer защита стояла, в остальных трёх местах — нет.
+     `what` — название узла для внятного сообщения в консоли: молчать нельзя,
+     это ровно тот случай, который потом выглядит как «иногда мистически
+     ломается меню». */
+  function restoreMovedNode(o, what) {
+    if (!o || !o.el) return;
+    if (!o.parent || !o.parent.isConnected) {
+      console.warn("lk: исходный родитель мёртв, не возвращаем " + what, o.el);
+      return;
+    }
+    try {
+      if (o.next && o.next.parentNode === o.parent) {
+        o.parent.insertBefore(o.el, o.next);
+      } else {
+        o.parent.appendChild(o.el);
+      }
+    } catch (e) {
+      console.warn("lk: не удалось вернуть " + what, o.el, e);
+    }
+  }
+
   /* возвращаем куски на место (десктоп) */
   function exitMnav() {
     if (!mnavBuilt) return;
     mnavMoved.forEach(function (o) {
-      try {
-        if (o.next && o.next.parentNode === o.parent) {
-          o.parent.insertBefore(o.el, o.next);
-        } else {
-          o.parent.appendChild(o.el);
-        }
-      } catch (e) {
-        /* сюда попадаем, если платформа успела перерисовать исходного
-           родителя — тогда кусок меню остаётся в оверлее и пропадает с
-           глаз. Молчать нельзя: это ровно тот случай, который потом
-           выглядит как "иногда мистически ломается меню". */
-        console.warn("lk: не удалось вернуть узел меню на место", o.el, e);
-      }
+      restoreMovedNode(o, "узел меню");
     });
     mnavMoved = [];
     if (mnav) mnav.style.display = "none";
@@ -1957,15 +1985,7 @@
      планшета, kill-switch): иначе кнопка исчезнет вместе со шторкой. */
   function restoreMoreMoved() {
     moreMoved.forEach(function (o) {
-      try {
-        if (o.next && o.next.parentNode === o.parent) {
-          o.parent.insertBefore(o.el, o.next);
-        } else {
-          o.parent.appendChild(o.el);
-        }
-      } catch (e) {
-        console.warn("lk: не удалось вернуть кнопку языка на место", o.el, e);
-      }
+      restoreMovedNode(o, "кнопку языка");
     });
     moreMoved = [];
   }
@@ -2422,17 +2442,7 @@
   function exitFilt() {
     if (!filtBuilt) return;
     filtMoved.forEach(function (o) {
-      try {
-        if (o.next && o.next.parentNode === o.parent) {
-          o.parent.insertBefore(o.el, o.next);
-        } else {
-          o.parent.appendChild(o.el);
-        }
-      } catch (e) {
-        /* см. такой же catch в exitMnav: потеря формы фильтров молча —
-           худший исход, лучше след в консоли. */
-        console.warn("lk: не удалось вернуть форму фильтров на место", o.el, e);
-      }
+      restoreMovedNode(o, "форму фильтров");
     });
     filtMoved = [];
     if (filtBtn && filtBtn.parentNode) filtBtn.parentNode.removeChild(filtBtn);
