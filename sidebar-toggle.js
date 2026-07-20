@@ -741,24 +741,53 @@
     sizeExportBars();
   }
 
-  /* Прячем служебный счётчик "N Records" в конце отчёта: это ГОЛЫЙ текст-узел —
-     прямой ребёнок .dashboard-report-slot (после кнопок экспорта, перед br),
-     CSS-ом текст-узел не скрыть → зануляем его значение. Идемпотентно (пустой
-     узел уже не матчит \d+). Прячем и хвостовые br, чтобы не оставался зазор. */
+  /* Прячем служебный счётчик записей в конце отчёта («2 Records» / «2 записей»):
+     это ГОЛЫЙ текст-узел — прямой ребёнок .dashboard-report-slot (после кнопок
+     экспорта, перед br), CSS-ом текст-узел не скрыть → зануляем его значение.
+     Идемпотентно (пустой узел уже не матчит \d+). Прячем и хвостовые br, чтобы
+     не оставался зазор. Где искать и почему так узко — см. recordCountNodes. */
+  /* Счётчик бывает и по-английски («2 Records»), и по-русски («2 записей» —
+     платформа не согласует форму, но на всякий случай принимаем все три).
+     Требуем, чтобы счётчиком был ВЕСЬ узел целиком (^…$): фраза вроде
+     «Всего 12 записей за месяц» под шаблон не подойдёт. */
+  var RECORD_COUNT_RE = /^\s*\d+\s*(?:records?|запис(?:ей|и|ь))[.\s]*$/i;
+
+  /* ⚠️ ИЗОЛЯЦИЯ. Раньше обходилось ВСЁ поддерево слота — а внутри него лежит вся
+     таблица отчёта, где ячейка с текстом «12 записей» вполне может быть
+     осмысленными данными, и мы бы её молча стёрли. Поэтому ищем только в двух
+     местах, где счётчик реально появляется:
+       1) прямой текст-ребёнок слота — основной случай (проверено вживую:
+          и «N Records», и «2 записей» лежат именно так);
+       2) служебная таблица КНОПОК (стр. «Статус анкет»), где счётчик сдвигал
+          «Сохранить» с центра. Отличаем по признакам: мало строк + внутри есть
+          submit/button. Таблицы ДАННЫХ так не выглядят и даже не проверяются.
+     Побочная выгода: больше нет обхода десятков тысяч текст-узлов на каждом
+     вызове enhanceReports. */
+  var BTN_TABLE_MAX_ROWS = 5;
+
+  function recordCountNodes(slot) {
+    var found = [];
+    [].forEach.call(slot.childNodes, function (n) {
+      if (n.nodeType === 3 && RECORD_COUNT_RE.test(n.nodeValue)) found.push(n);
+    });
+    [].forEach.call(slot.querySelectorAll("table"), function (t) {
+      /* отсекаем таблицы данных ДО тяжёлых запросов по ячейкам */
+      if (!t.rows || !t.rows.length || t.rows.length > BTN_TABLE_MAX_ROWS) return;
+      if (!t.querySelector('input[type="submit"], input[type="button"]')) return;
+      var w = document.createTreeWalker(t, NodeFilter.SHOW_TEXT, null);
+      var n;
+      while ((n = w.nextNode())) {
+        if (RECORD_COUNT_RE.test(n.nodeValue)) found.push(n);
+      }
+    });
+    return found;
+  }
+
   function hideRecordCounts() {
     var slots = document.querySelectorAll(".dashboard-report-slot");
     [].forEach.call(slots, function (slot) {
-      /* Обходим ВСЁ поддерево слота, а не только прямых детей: "N Records" бывает
-         не только голым текст-узлом слота, но и внутри TD таблицы кнопок (стр.
-         «Статус анкет»), где он сдвигал «Сохранить» с центра. Регулярка требует,
-         чтобы ВЕСЬ узел был "N Records" (^...$) → данные с этим текстом не заденем.
-         Узлы собираем заранее — не мутируем дерево во время обхода. */
-      var walker = document.createTreeWalker(slot, NodeFilter.SHOW_TEXT, null);
-      var hits = [];
-      var node;
-      while ((node = walker.nextNode())) {
-        if (/^\s*\d+\s*Records?[.\s]*$/i.test(node.nodeValue)) hits.push(node);
-      }
+      /* Узлы собираем заранее — не мутируем дерево во время обхода. */
+      var hits = recordCountNodes(slot);
       hits.forEach(function (n) {
         n.nodeValue = "";
         var sib = n.nextSibling;
