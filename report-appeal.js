@@ -110,8 +110,16 @@
     if (link && !link.getAttribute("data-lk-appeal-watch")) {
       link.setAttribute("data-lk-appeal-watch", "1");
       link.addEventListener("click", function () {
-        /* форма модалки появляется/переинициализируется — перевешиваем */
-        setTimeout(armOnCommentSubmit, 300);
+        /* Форма модалки появляется/переинициализируется — перевешиваем.
+           ⚠️ Не одна попытка через 300 мс, а несколько: модалку строит
+           jQuery/AJAX, и на медленной сети форма с #commentCrit к этому моменту
+           ещё не существует. Тогда слушатель не вешался вовсе, флаг не
+           ставился, апелляция не подавалась — внешне «срабатывает через раз».
+           armOnCommentSubmit идемпотентен (data-lk-appeal-armed), так что
+           лишние попытки безвредны. */
+        [150, 400, 900, 1800].forEach(function (ms) {
+          setTimeout(armOnCommentSubmit, ms);
+        });
       });
     }
   }

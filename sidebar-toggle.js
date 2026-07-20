@@ -1630,7 +1630,10 @@
     mnavBackdrop = document.createElement("div");
     mnavBackdrop.id = "lk-mnav-bd";
     mnavBackdrop.addEventListener("click", function () {
-      root.classList.remove(OPEN_CLASS);
+      /* именно setOpen, а не снятие класса напрямую: иначе в localStorage
+         осталось бы «открыто» (на планшете меню само распахивалось бы после
+         перезагрузки) и врал бы aria-expanded на бургере для скринридера */
+      setOpen(false);
     });
     document.body.appendChild(mnavBackdrop);
     document.body.appendChild(mnav);
@@ -2573,7 +2576,14 @@
   /* Диагностика для реального телефона: открыть URL с #lkdbg — покажет структуру
      рельсы/меню (device-правила платформы у нас на десктопе не воспроизводятся). */
   function mnavDebug() {
-    if (location.hash.indexOf("lkdbg") === -1) return;
+    /* ⚠️ Триггер — localStorage, а НЕ хэш в URL. С хэшем любую присланную
+       ссылку вида …#lkdbg хватало, чтобы у получателя поверх интерфейса лёг
+       непрозрачный чёрный блок с z-index 2147483647 — до перезагрузки без
+       хэша. XSS тут нет (весь вывод через textContent), но испортить экран
+       чужой ссылкой можно было. Включается вручную из консоли:
+           localStorage.setItem("lkdbg", "1")
+       выключается: localStorage.removeItem("lkdbg") */
+    if (lsGet("lkdbg") !== "1") return;
     var out = [];
     out.push("W=" + window.innerWidth + " selects=" + document.querySelectorAll("select").length);
     /* цепочка предков пункта рельсы "Филиалы" — покажет контейнер мобильной рельсы */
