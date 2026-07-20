@@ -892,7 +892,11 @@
 
   /* Правила форматирования — см. COLORED_EXPORT_FORMAT.md в репозитории. */
   var EXPORT_SKIP_COLS = 2;
-  var EXPORT_HEADER_HEIGHT_PX = 50;
+  /* Высота строки заголовка — сразу в ПУНКТАХ: Excel меряет высоту строк
+     именно в них, и число 33 клиент подобрал вручную в самом Excel. В отличие
+     от ширины столбца, здесь никакой поправки не нужно — что записали, то
+     Excel и показывает. */
+  var EXPORT_HEADER_HEIGHT_PT = 33;
   var EXPORT_MAX_COL_WIDTH_PX = 300;
   /* Минимум ширины — в «символьных» единицах Excel (НЕ px): значение подобрано
      клиентом вручную в самом Excel, поэтому храним как есть, без конвертации. */
@@ -906,10 +910,6 @@
   var EXPORT_BOLD_HEADER_MARK = "(Подраздел)";
   var EXPORT_DATE_NUMFMT = "dd.mm.yyyy";
 
-  /* px → пункты (высота строки Excel — в pt, не px; 96dpi: 1px=0.75pt). */
-  function pxToPt(px) {
-    return px * 0.75;
-  }
   /* px → «символьные» единицы ширины столбца Excel (Calibri 11 дефолт). */
   function pxToExcelWidth(px) {
     return (px - 5) / 7;
@@ -1082,7 +1082,7 @@
         return c.text;
       });
       var headerRow = ws.insertRow(1, headerValues);
-      headerRow.height = pxToPt(EXPORT_HEADER_HEIGHT_PX);
+      headerRow.height = EXPORT_HEADER_HEIGHT_PT;
       for (var h = 0; h < colCount; h++) {
         var hCell = headerRow.getCell(h + 1);
         hCell.border = exportBorder();
