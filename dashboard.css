@@ -1043,7 +1043,13 @@ ul.tabs_menu.upper_tabs_list {
 p.p_wrapper > table > tbody > tr > td:empty {
   display: none;
 }
-table#width_limiter > tbody > tr > td:first-child {
+/* Левая распорка платформенной layout-обёртки #width_limiter. Проверено вживую
+   на main-menu.php и menu-manage.php: ячейка ПУСТАЯ, шириной 3px — скрытие
+   сдвигает контент ровно на 3px, ничего содержательного не прячет.
+   ⚠️ Но #width_limiter — обёртка ОБЩАЯ для всей платформы, а мы видели лишь
+   часть её страниц. Раз выгода 3px, а цена потенциальной ошибки — унесённая
+   колонка на незнакомой странице, ограничиваем правило дашбордом. */
+body.page-main-menu table#width_limiter > tbody > tr > td:first-child {
   display: none;
 }
 .mainCellBackground {
