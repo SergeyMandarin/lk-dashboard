@@ -457,7 +457,6 @@
   var hbar = null;
   var thumb = null;
   var activeScroller = null;
-  var hbarScheduled = false;
   var cachedScrollers = [];
 
   function isWideScroller(el) {
@@ -481,20 +480,50 @@
     return out;
   }
 
-  /* Пересчёт размера/позиции ползунка по прокрутке активного отчёта. */
-  function updateThumb() {
+  /* Ширина дорожки #lk-hbar. КЕШИРУЕМ: hbar.clientWidth — это чтение, а
+     updateThumb зовётся на каждый кадр прокрутки и на каждое движение пальца
+     при перетаскивании. Читать её сразу после записи hbar.style.width —
+     принудительный layout, а на таблице в десятки тысяч ячеек он стоит
+     десятки-сотни мс. Кеш сбрасываем только там, где ширину реально меняем. */
+  var hbarClientW = 0;
+  function hbarWidth() {
+    if (!hbarClientW && hbar) hbarClientW = hbar.clientWidth;
+    return hbarClientW;
+  }
+  /* Последнее ЗАПИСАННОЕ состояние — чтобы не трогать стили впустую: при
+     обычной вертикальной прокрутке позиция и ширина дорожки не меняются,
+     значит записи можно пропустить целиком, и layout не понадобится вовсе. */
+  var hbarLastDisplay = "";
+  var hbarLastLeft = -1;
+  var hbarLastWidth = -1;
+  var thumbLastW = -1;
+  var thumbLastL = -1;
+
+  /* Пересчёт размера/позиции ползунка по прокрутке активного отчёта.
+     `m` — заранее снятые размеры {sw, cw, scrollLeft}; если не передали,
+     читаем сами (путь перетаскивания и одиночных вызовов). */
+  function updateThumb(m) {
     if (!hbar || !thumb || !activeScroller) return;
-    var barW = hbar.clientWidth;
-    var sw = activeScroller.scrollWidth;
-    var cw = activeScroller.clientWidth;
+    var barW = hbarWidth();
+    var sw = m ? m.sw : activeScroller.scrollWidth;
+    var cw = m ? m.cw : activeScroller.clientWidth;
+    var sl = m ? m.scrollLeft : activeScroller.scrollLeft;
+    if (!sw) return;
     var maxScroll = sw - cw;
     var tw = Math.max(THUMB_MIN, Math.round((cw / sw) * barW));
     if (tw > barW) tw = barW;
-    thumb.style.width = tw + "px";
     var range = barW - tw;
     var ratio = 0;
-    if (maxScroll > 0) ratio = activeScroller.scrollLeft / maxScroll;
-    thumb.style.left = Math.round(ratio * range) + "px";
+    if (maxScroll > 0) ratio = sl / maxScroll;
+    var tl = Math.round(ratio * range);
+    if (thumbLastW !== tw) {
+      thumb.style.width = tw + "px";
+      thumbLastW = tw;
+    }
+    if (thumbLastL !== tl) {
+      thumb.style.left = tl + "px";
+      thumbLastL = tl;
+    }
   }
 
   function buildHBar() {
@@ -511,11 +540,20 @@
     var dsx = 0;
     var dsl = 0;
     var dpid = null;
+    /* Геометрию перетаскивания снимаем ОДИН раз, при нажатии: за время drag'а
+       ни ширина дорожки, ни ширина ползунка, ни максимум прокрутки не меняются.
+       Раньше все четыре величины читались на КАЖДОЕ движение пальца — и сразу
+       после записи scrollLeft, то есть принудительный layout на каждое
+       touchmove при панорамировании таблицы. */
+    var dragRange = 0;
+    var dragMax = 0;
     thumb.addEventListener("pointerdown", function (e) {
       if (!activeScroller) return;
       dragging = true;
       dsx = e.clientX;
       dsl = activeScroller.scrollLeft;
+      dragRange = hbarWidth() - thumb.offsetWidth;
+      dragMax = activeScroller.scrollWidth - activeScroller.clientWidth;
       dpid = e.pointerId;
       try {
         thumb.setPointerCapture(dpid);
@@ -525,13 +563,10 @@
     });
     thumb.addEventListener("pointermove", function (e) {
       if (!dragging || !activeScroller) return;
-      var barW = hbar.clientWidth;
-      var range = barW - thumb.offsetWidth;
-      var maxScroll = activeScroller.scrollWidth - activeScroller.clientWidth;
-      if (range > 0) {
+      if (dragRange > 0) {
         var dx = e.clientX - dsx;
-        activeScroller.scrollLeft = dsl + (dx / range) * maxScroll;
-        updateThumb();
+        activeScroller.scrollLeft = dsl + (dx / dragRange) * dragMax;
+        scheduleThumb();
       }
       e.preventDefault();
     });
@@ -560,8 +595,8 @@
   /* Выбираем "активный" отчёт: видимый на экране И такой, у которого
      родная нижняя полоса ушла ниже вьюпорта. Если он есть — показываем
      дублёр под ним; иначе прячем. */
-  function updateHBar() {
-    if (!hbar) return;
+  function pickBestScroller() {
+    if (!hbar) return null;
     var vh = window.innerHeight;
     var best = null;
     var bestVis = 0;
@@ -600,26 +635,92 @@
           best = el;
         }
       });
-    if (best) {
-      var rb = best.getBoundingClientRect();
-      hbar.style.display = "block";
-      hbar.style.left = Math.round(rb.left) + "px";
-      hbar.style.width = Math.round(best.clientWidth) + "px";
+    return best;
+  }
+
+  /* ЧТЕНИЕ: снимаем всю геометрию активного скроллера разом. */
+  function measureScroller(el) {
+    var r = el.getBoundingClientRect();
+    return {
+      left: Math.round(r.left),
+      width: Math.round(el.clientWidth),
+      sw: el.scrollWidth,
+      cw: el.clientWidth,
+      scrollLeft: el.scrollLeft,
+    };
+  }
+
+  /* ЗАПИСЬ: ни одного чтения геометрии — всё уже измерено в фазе чтения. */
+  function applyHBar(best, m) {
+    if (!hbar) return;
+    if (best && m) {
+      if (hbarLastDisplay !== "block") {
+        hbar.style.display = "block";
+        hbarLastDisplay = "block";
+      }
+      if (hbarLastLeft !== m.left) {
+        hbar.style.left = m.left + "px";
+        hbarLastLeft = m.left;
+      }
+      if (hbarLastWidth !== m.width) {
+        hbar.style.width = m.width + "px";
+        hbarLastWidth = m.width;
+        hbarClientW = 0; /* ширина дорожки изменилась — перечитаем один раз */
+      }
       activeScroller = best;
-      updateThumb();
+      updateThumb(m);
     } else {
-      hbar.style.display = "none";
+      if (hbarLastDisplay !== "none") {
+        hbar.style.display = "none";
+        hbarLastDisplay = "none";
+      }
       activeScroller = null;
     }
   }
 
-  function scheduleHBar() {
-    if (hbarScheduled) return;
-    hbarScheduled = true;
+  /* Совместимость: одиночный вызов «прочитать и применить» (resize, enhance). */
+  function updateHBar() {
+    var best = pickBestScroller();
+    applyHBar(best, best ? measureScroller(best) : null);
+  }
+
+  /* Один rAF на ОБА обработчика прокрутки, и внутри строгий порядок:
+     СНАЧАЛА все чтения геометрии, ПОТОМ все записи. Раньше кадр стоил два
+     принудительных layout'а: updateHBar писал стили и тут же updateThumb читал
+     hbar.clientWidth, а следом evalTabbarScroll читал scrollHeight уже после
+     записи класса таб-бара. На широкой таблице отчёта каждый такой layout —
+     десятки-сотни мс, отсюда рывки прокрутки на телефоне. */
+  var scrollFrameScheduled = false;
+  function scheduleScrollFrame() {
+    if (scrollFrameScheduled) return;
+    scrollFrameScheduled = true;
+    requestAnimationFrame(runScrollFrame);
+  }
+  function runScrollFrame() {
+    scrollFrameScheduled = false;
+    /* --- фаза ЧТЕНИЯ (ни одной записи в стили/классы) --- */
+    var tabDecision = readTabbarDecision();
+    var best = pickBestScroller();
+    var m = best ? measureScroller(best) : null;
+    /* --- фаза ЗАПИСИ (ни одного чтения геометрии) --- */
+    applyTabbarDecision(tabDecision);
+    applyHBar(best, m);
+  }
+
+  /* Ползунок отдельно: событие scroll самого отчёта стреляет десятки раз за
+     кадр, а нужен один пересчёт. */
+  var thumbScheduled = false;
+  function scheduleThumb() {
+    if (thumbScheduled) return;
+    thumbScheduled = true;
     requestAnimationFrame(function () {
-      hbarScheduled = false;
-      updateHBar();
+      thumbScheduled = false;
+      updateThumb();
     });
+  }
+
+  function scheduleHBar() {
+    scheduleScrollFrame();
   }
 
   function enhanceScroller(el) {
@@ -629,7 +730,9 @@
 
     /* родной скролл отчёта (колесо/тачпад/drag) -> двигаем ползунок дублёра */
     el.addEventListener("scroll", function () {
-      if (el === activeScroller) updateThumb();
+      /* через rAF: событие стреляет десятки раз за кадр, а раньше каждое
+         вызывало updateThumb с чтением геометрии — layout на каждое событие */
+      if (el === activeScroller) scheduleThumb();
     });
 
     /* Shift + колесо -> горизонтальная прокрутка */
@@ -1666,7 +1769,6 @@
   var TABBAR_SCROLL_MIN = 8;
   var TABBAR_TOP_ZONE = 60;
   var lastScrollY = 0;
-  var tabbarScrollScheduled = false;
 
   function showTabbar() {
     root.classList.remove("lk-tabbar-hidden");
@@ -1675,8 +1777,11 @@
     root.classList.add("lk-tabbar-hidden");
   }
 
-  function evalTabbarScroll() {
-    tabbarScrollScheduled = false;
+  /* ФАЗА ЧТЕНИЯ: только решаем, что делать с таб-баром, ничего не пишем.
+     Класс на <html> меняет applyTabbarDecision уже в фазе записи — иначе
+     чтение scrollHeight соседним кодом после смены класса стоило бы
+     принудительного layout'а всего документа. */
+  function readTabbarDecision() {
     /* только вариант A; при открытых оверлеях бар всегда виден (см. setAppOverlay) */
     if (
       !isAppMode() ||
@@ -1686,30 +1791,26 @@
       root.classList.contains("lk-tview-open")
     ) {
       lastScrollY = window.pageYOffset || 0;
-      return;
+      return null;
     }
     var y = window.pageYOffset || 0;
     var maxY = document.documentElement.scrollHeight - window.innerHeight;
     /* у самого верха и у самого низа держим бар видимым: вверху прятать нечего,
        внизу — чтобы навигация была под рукой в конце отчёта */
     if (y <= TABBAR_TOP_ZONE || y >= maxY - 4) {
-      showTabbar();
       lastScrollY = y;
-      return;
+      return "show";
     }
     var dy = y - lastScrollY;
-    if (Math.abs(dy) < TABBAR_SCROLL_MIN) return; /* микродвижение — игнор */
-    if (dy > 0) hideTabbar();
-    else showTabbar();
+    if (Math.abs(dy) < TABBAR_SCROLL_MIN) return null; /* микродвижение — игнор */
     lastScrollY = y;
+    return dy > 0 ? "hide" : "show";
   }
 
-  function onTabbarScroll() {
-    if (tabbarScrollScheduled) return;
-    tabbarScrollScheduled = true;
-    /* пересчёт в rAF: событие scroll стреляет десятки раз в кадр, а нам нужен
-       один замер на кадр — иначе лишний layout-трэшинг */
-    window.requestAnimationFrame(evalTabbarScroll);
+  /* ФАЗА ЗАПИСИ. */
+  function applyTabbarDecision(d) {
+    if (d === "show") showTabbar();
+    else if (d === "hide") hideTabbar();
   }
 
   /* Сколько фильтров реально применено — для бейджа на табе.
@@ -2641,11 +2742,10 @@
   }
   window.addEventListener("load", reflowCharts);
 
-  /* Липкая гориз. полоса: следим за скроллом страницы. */
-  window.addEventListener("scroll", scheduleHBar, { passive: true });
-
-  /* Hide-on-scroll таб-бара: тот же поток скролла, отдельный обработчик. */
-  window.addEventListener("scroll", onTabbarScroll, { passive: true });
+  /* Липкая гориз. полоса И hide-on-scroll таб-бара — ОДИН обработчик и один
+     rAF на кадр. Раньше слушателя было два, каждый со своим кадром, и каждый
+     успевал перемешать чтения с записями. */
+  window.addEventListener("scroll", scheduleScrollFrame, { passive: true });
 
   /* Ресайз ОДНИМ задебаунсенным обработчиком. Событие стреляет десятки раз в
      секунду, пока тянут край окна, а работа тут тяжёлая: refreshScrollers()
