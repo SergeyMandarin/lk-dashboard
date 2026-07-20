@@ -2309,8 +2309,14 @@ a.reportitemtitle {
   height: 2.5rem !important;
   padding: 0.3rem 0.4rem !important;
 }
+/* Плейсхолдер поиска внутри выпадашки фильтра («Введите ключевые слова»).
+   ⚠️ !important обязателен: на мобилке платформенная @media (max-device-width)
+   раздувала псевдоэлемент до 30px (при font-size самого input 15px), текст
+   обрезался до «Введите кл». Правило без !important проигрывало по важности.
+   1.2rem = как подпись «Фильтр» рядом; влезает целиком даже на узких (360px)
+   экранах, где поле сужается подписью примерно до 190px. */
 .ui-multiselect-filter input::placeholder {
-  font-size: 1.2rem;
+  font-size: 1.2rem !important;
 }
 body.page-menu-manage .reportItemTitle {
   margin-bottom: 0px;
