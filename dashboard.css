@@ -6589,79 +6589,78 @@ a.export_download:hover {
    Рельса + нижнее меню прячутся в бургер-оверлей #lk-mnav
    (перенос кусков — sidebar-toggle.js). Показ по классу sb-open.
    ============================================================ */
-html.lk-m {
-  &, body { overflow-x: hidden !important; max-width: 100% !important; }
-  .middle-right { display: block !important; width: 100% !important; max-width: 100% !important; }
-  #main_menu_title_text { width: 100% !important; max-width: 100% !important; }
-
-  /* бургер — как на десктопе (ниже угла): по центру свёрнутой рельсы 61px и
+html.lk-m, html.lk-m body { overflow-x: hidden !important; max-width: 100% !important;
+}
+html.lk-m .middle-right { display: block !important; width: 100% !important; max-width: 100% !important;
+}
+html.lk-m #main_menu_title_text { width: 100% !important; max-width: 100% !important;
+}
+/* бургер — как на десктопе (ниже угла): по центру свёрнутой рельсы 61px и
      по центру полоски приветствия (top:17, left:18), скругление 10 */
-  #lk-burger { top: 1.7rem !important; left: 1.8rem !important; margin: 0 !important; border-radius: 1rem !important; }
-
-  /* оверлей-панель */
-  #lk-mnav {
+html.lk-m #lk-burger { top: 1.7rem !important; left: 1.8rem !important; margin: 0 !important; border-radius: 1rem !important;
+}
+/* оверлей-панель */
+html.lk-m #lk-mnav {
     position: fixed; top: 0; left: 0; bottom: 0;
     width: 84%; max-width: 30rem;
     background: #fff; z-index: 100000;
     transform: translateX(-100%); transition: transform .25s ease;
     overflow-y: auto;
     box-shadow: 0.2rem 0 1.8rem rgba(0,0,0,.28);
-  }
-  #lk-mnav-hdr {
+}
+html.lk-m #lk-mnav-hdr {
     background: var(--main-brand-color); color: #fff;
     font: 700 1.6rem/1.2 Montserrat, Arial, sans-serif;
     text-align: center; padding: 1.8rem 1.6rem;
-  }
-  #lk-mnav-bd {
+}
+html.lk-m #lk-mnav-bd {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,.45); z-index: 99999;
     opacity: 0; pointer-events: none; transition: opacity .25s;
-  }
-  &.sb-open #lk-mnav { transform: translateX(0); }
-  &.sb-open #lk-mnav-bd { opacity: 1; pointer-events: auto; }
-
-  /* рельса разделов — вертикальный список */
-  #lk-mnav .upper_tabs_nav {
+}
+html.lk-m.sb-open #lk-mnav { transform: translateX(0);
+}
+html.lk-m.sb-open #lk-mnav-bd { opacity: 1; pointer-events: auto;
+}
+/* рельса разделов — вертикальный список */
+html.lk-m #lk-mnav .upper_tabs_nav {
     display: flex !important; flex-direction: column !important;
     width: auto !important; left: auto !important;
     height: auto !important; max-height: none !important; overflow: visible !important;
     padding: 0.6rem 0;
-  }
-  #lk-mnav .upper_tabs_nav .tab_menu_item {
+}
+html.lk-m #lk-mnav .upper_tabs_nav .tab_menu_item {
     display: block !important; width: 100% !important; margin: 0 !important;
     padding: 1.3rem 1.8rem !important; box-sizing: border-box;
     background-position: 1.8rem center !important;
-  }
-
-  /* нижнее меню: снять платформенный max-width:40, на всю ширину, вернуть ТЕКСТ */
-  #lk-mnav #menu_top_level_wrapper,
-  #lk-mnav #menu_top_level_wrapper * { max-width: none !important; }
-  #lk-mnav #menu_top_level_wrapper,
-  #lk-mnav #menu_top_level_wrapper tbody,
-  #lk-mnav #menu_top_level_wrapper tr,
-  #lk-mnav #menu_top_level_wrapper table {
+}
+/* нижнее меню: снять платформенный max-width:40, на всю ширину, вернуть ТЕКСТ */
+html.lk-m #lk-mnav #menu_top_level_wrapper, html.lk-m #lk-mnav #menu_top_level_wrapper * { max-width: none !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper, html.lk-m #lk-mnav #menu_top_level_wrapper tbody, html.lk-m #lk-mnav #menu_top_level_wrapper tr, html.lk-m #lk-mnav #menu_top_level_wrapper table {
     display: block !important; width: 100% !important;
     position: static !important; height: auto !important; overflow: visible !important;
-  }
-  #lk-mnav #menu_top_level_wrapper { margin-top: 0.6rem; }
-  /* убираем серую tr-границу платформы — оставляем только фиолетовый акцент-разделитель */
-  #lk-mnav #menu_top_level_wrapper tr { border: 0 !important; }
-  #lk-mnav #menu_top_level_wrapper td { display: block !important; width: 100% !important; padding: 0 !important; }
-  #lk-mnav #menu_top_level_wrapper { clip-path: none !important; }
-  #lk-mnav #menu_top_level_wrapper td.top_menu a {
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper { margin-top: 0.6rem;
+}
+/* убираем серую tr-границу платформы — оставляем только фиолетовый акцент-разделитель */
+html.lk-m #lk-mnav #menu_top_level_wrapper tr { border: 0 !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper td { display: block !important; width: 100% !important; padding: 0 !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper { clip-path: none !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper td.top_menu a {
     clip-path: none !important;
     display: block !important; width: 100% !important; white-space: nowrap !important;
     box-sizing: border-box; text-align: left !important;
     color: var(--text-color, #3c3c3b) !important;
     padding: 1.3rem 1.8rem 1.3rem 4.6rem !important;
     background-position: 1.8rem center !important; background-size: auto 1.8rem !important;
-  }
-
-  #lk-mnav .tab_menu_item,
-  #lk-mnav #menu_top_level_wrapper a {
+}
+html.lk-m #lk-mnav .tab_menu_item, html.lk-m #lk-mnav #menu_top_level_wrapper a {
     font: 600 1.5rem/1.2 Montserrat, Arial, sans-serif !important;
     color: var(--text-color, #3c3c3b) !important;
-  }
 }
 
 /* ============================================================
@@ -6669,104 +6668,93 @@ html.lk-m {
    бургера и залипает вверху, выровненные отступы иконка-текст, единый
    transition у среднего и нижнего блоков.
    ============================================================ */
-html.lk-m {
-  #lk-mnav { padding-top: 0 !important; }
-  #lk-mnav-hdr {
+html.lk-m #lk-mnav { padding-top: 0 !important;
+}
+html.lk-m #lk-mnav-hdr {
     height: 6rem !important; box-sizing: border-box !important;
     display: flex !important; align-items: center !important; justify-content: center !important;
     position: sticky !important; top: 0 !important; z-index: 2 !important;
     padding: 0 1.6rem !important;
-  }
-  #lk-burger { border-radius: 1rem !important; }
-
-  /* одинаковые иконка(18px@18) + текст(48) у обоих блоков */
-  #lk-mnav .upper_tabs_nav .tab_menu_item {
+}
+html.lk-m #lk-burger { border-radius: 1rem !important;
+}
+/* одинаковые иконка(18px@18) + текст(48) у обоих блоков */
+html.lk-m #lk-mnav .upper_tabs_nav .tab_menu_item {
     padding: 1.3rem 1.8rem 1.3rem 4.8rem !important;
     background-position: 1.8rem center !important; background-size: auto 1.8rem !important;
-  }
-  #lk-mnav .upper_tabs_nav .tab_menu_item a { padding: 0 !important; }
-  #lk-mnav #menu_top_level_wrapper td.top_menu a { padding: 1.3rem 1.8rem 1.3rem 4.8rem !important; }
-
-  /* без hover (нет мыши) — подсветка только по нажатию (:active); единый transition */
-  #lk-mnav .tab_menu_item,
-  #lk-mnav .tab_menu_item a,
-  #lk-mnav #menu_top_level_wrapper td.top_menu a { transition: background-color .15s ease !important; }
-  #lk-mnav .tab_menu_item:hover,
-  #lk-mnav .tab_menu_item a:hover,
-  #lk-mnav #menu_top_level_wrapper td.top_menu a:hover { background-color: transparent !important; }
-  #lk-mnav .tab_menu_item:active,
-  #lk-mnav .tab_menu_item a:active,
-  #lk-mnav #menu_top_level_wrapper td.top_menu a:active { background-color: rgba(84,18,97,0.07) !important; }
+}
+html.lk-m #lk-mnav .upper_tabs_nav .tab_menu_item a { padding: 0 !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper td.top_menu a { padding: 1.3rem 1.8rem 1.3rem 4.8rem !important;
+}
+/* без hover (нет мыши) — подсветка только по нажатию (:active); единый transition */
+html.lk-m #lk-mnav .tab_menu_item, html.lk-m #lk-mnav .tab_menu_item a, html.lk-m #lk-mnav #menu_top_level_wrapper td.top_menu a { transition: background-color .15s ease !important;
+}
+html.lk-m #lk-mnav .tab_menu_item:hover, html.lk-m #lk-mnav .tab_menu_item a:hover, html.lk-m #lk-mnav #menu_top_level_wrapper td.top_menu a:hover { background-color: transparent !important;
+}
+html.lk-m #lk-mnav .tab_menu_item:active, html.lk-m #lk-mnav .tab_menu_item a:active, html.lk-m #lk-mnav #menu_top_level_wrapper td.top_menu a:active { background-color: rgba(84,18,97,0.07) !important;
 }
 
 /* ============================================================
    Мобилка — фильтры под кнопку "Фильтры" (логика — sidebar-toggle.js):
    полноэкранный оверлей #lk-filt, формы в столбик, влево.
    ============================================================ */
-html.lk-m {
-  #lk-filt-btn {
+html.lk-m #lk-filt-btn {
     display: inline-flex; align-items: center;
     /* device-media платформы раздувает любой button (font-size:30, padding:20/30,
        min-height:60) — глушим !important'ом, иначе кнопка «Фильтры» огромная */
     margin: 1.2rem 1.8rem; padding: 1.2rem 2.4rem !important; min-height: 0 !important;
     background: var(--main-brand-color); color: #fff; border: 0; border-radius: 1rem;
     font: 700 1.5rem Montserrat, Arial, sans-serif; font-size: 1.5rem !important; cursor: pointer;
-  }
-  #lk-filt-bd {
+}
+html.lk-m #lk-filt-bd {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,.45); z-index: 99999;
     opacity: 0; pointer-events: none; transition: opacity .25s;
-  }
-  #lk-filt {
+}
+html.lk-m #lk-filt {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: #fff; z-index: 100000;
     transform: translateX(100%); transition: transform .25s ease;
     overflow-y: auto; overflow-x: hidden;
-  }
-  #lk-filt-hdr {
+}
+html.lk-m #lk-filt-hdr {
     background: var(--main-brand-color); color: #fff; height: 6rem;
     display: flex; align-items: center; justify-content: center;
     font: 700 1.6rem Montserrat, Arial, sans-serif; position: sticky; top: 0;
-  }
-  #lk-filt-close {
+}
+html.lk-m #lk-filt-close {
     position: absolute; right: 0; top: 0; width: 6rem; height: 6rem;
     background: transparent; border: 0; color: #fff; font-size: 2.2rem; cursor: pointer;
-  }
-  &.filt-open #lk-filt { transform: translateX(0); }
-  &.filt-open #lk-filt-bd { opacity: 1; pointer-events: auto; }
-
-  /* формы фильтров в столбик, влево, на всю ширину. display:block — платформа держит
+}
+html.lk-m.filt-open #lk-filt { transform: translateX(0);
+}
+html.lk-m.filt-open #lk-filt-bd { opacity: 1; pointer-events: auto;
+}
+/* формы фильтров в столбик, влево, на всю ширину. display:block — платформа держит
      form#general_filters_form{display:flex}, из-за чего строки-фильтры легли бы в 2
      колонки; в оверлее (мобилка) нужен ОДИН столбик. На планшете форма инлайн (не в
      #lk-filt) и получает grid 2 колонки отдельным правилом html.lk-wide. */
-  #lk-filt #general_filters_form {
+html.lk-m #lk-filt #general_filters_form {
     display: block !important;
     width: 100% !important; max-width: 100% !important;
     padding: 1.4rem 1.8rem 2.8rem !important; box-sizing: border-box; color: #3c3c3b;
-  }
-  #lk-filt #general_filters_form * { max-width: 100% !important; }
-  #lk-filt #general_filters_form table,
-  #lk-filt #general_filters_form tbody,
-  #lk-filt #general_filters_form tr,
-  #lk-filt #general_filters_form td,
-  #lk-filt #general_filters_form form {
+}
+html.lk-m #lk-filt #general_filters_form * { max-width: 100% !important;
+}
+html.lk-m #lk-filt #general_filters_form table, html.lk-m #lk-filt #general_filters_form tbody, html.lk-m #lk-filt #general_filters_form tr, html.lk-m #lk-filt #general_filters_form td, html.lk-m #lk-filt #general_filters_form form {
     display: block !important; width: 100% !important; box-sizing: border-box;
     margin-left: 0 !important; margin-right: 0 !important; text-align: left !important;
-  }
-  #lk-filt #general_filters_form td {
+}
+html.lk-m #lk-filt #general_filters_form td {
     padding: 0.5rem 0 !important; white-space: normal !important;
     line-height: 1.35 !important; font-size: 1.5rem !important; vertical-align: middle;
-  }
-  #lk-filt #general_filters_form select,
-  #lk-filt #general_filters_form .list-select,
-  #lk-filt #general_filters_form .ui-multiselect,
-  #lk-filt #general_filters_form input:not([type=checkbox]):not([type=radio]) {
+}
+html.lk-m #lk-filt #general_filters_form select, html.lk-m #lk-filt #general_filters_form .list-select, html.lk-m #lk-filt #general_filters_form .ui-multiselect, html.lk-m #lk-filt #general_filters_form input:not([type=checkbox]):not([type=radio]) {
     width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
     font-size: 1.5rem !important;
-  }
-  #lk-filt #general_filters_form td:first-child,
-  #lk-filt #general_filters_form b,
-  #lk-filt #general_filters_form label { font-weight: 600 !important; }
+}
+html.lk-m #lk-filt #general_filters_form td:first-child, html.lk-m #lk-filt #general_filters_form b, html.lk-m #lk-filt #general_filters_form label { font-weight: 600 !important;
 }
 
 /* ============================================================
@@ -6774,12 +6762,13 @@ html.lk-m {
    блок скролла страницы, отступ 12px, единый шрифт виджетов, условные
    поля дат (уважаем инлайн-скрытие), Подтвердить+Очистить в один ряд.
    ============================================================ */
-html.lk-m {
-  #lk-filt-hdr { z-index: 10 !important; }
-  #lk-filt-close { height: 6rem !important; box-sizing: border-box !important; padding: 0 !important; line-height: 6rem !important; overflow: hidden; }
-  #lk-filt-close:hover { background: rgba(255,255,255,.14) !important; }
-
-  /* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями.
+html.lk-m #lk-filt-hdr { z-index: 10 !important;
+}
+html.lk-m #lk-filt-close { height: 6rem !important; box-sizing: border-box !important; padding: 0 !important; line-height: 6rem !important; overflow: hidden;
+}
+html.lk-m #lk-filt-close:hover { background: rgba(255,255,255,.14) !important;
+}
+/* убираем вторую полосу прокрутки — блокируем скролл страницы за оверлеями.
      ⚠️ sb-open — ТОЛЬКО не в варианте A. Замок нужен, пока открыт оверлей меню
      #lk-mnav, а в lk-app его нет вообще (бургер скрыт, разделы — в лаунчере).
      При этом класс sb-open остаётся в localStorage от десктопной рельсы и
@@ -6787,58 +6776,51 @@ html.lk-m {
      намертво убивал прокрутку страницы во всём ЛК. Свои замки у оверлеев
      варианта A есть отдельно (lk-launcher-open / lk-more-open / lk-app.filt-open
      / lk-tview-open). */
-  &.filt-open, &.filt-open body,
-  &.sb-open:not(.lk-app), &.sb-open:not(.lk-app) body { overflow: hidden !important; }
-
-  /* меньший левый отступ: margin формы 0 + зануляем вложенные.
+html.lk-m.filt-open, html.lk-m.filt-open body, html.lk-m.sb-open:not(.lk-app), html.lk-m.sb-open:not(.lk-app) body { overflow: hidden !important;
+}
+/* меньший левый отступ: margin формы 0 + зануляем вложенные.
      padding-top держит контент НИЖЕ sticky-шапки «Фильтры»: без него первая
      строка фильтров пряталась под шапкой (заметно в ЛАНДШАФТЕ, где шторка
      низкая). Высота шапки — 6rem, берём её же. */
-  #lk-filt #general_filters_form { margin: 0 !important; padding: 6.4rem 1.2rem 2.8rem !important; }
-  /* ⚠️ ЛАНДШАФТ: платформа раскладывает группы фильтров через float:left, и на
+html.lk-m #lk-filt #general_filters_form { margin: 0 !important; padding: 6.4rem 1.2rem 2.8rem !important;
+}
+/* ⚠️ ЛАНДШАФТ: платформа раскладывает группы фильтров через float:left, и на
      широком экране (915px) они встают В РЯД — кнопки Подтвердить\Очистить
      уезжают в узкую float-колонку справа (147px), текст обрезается. Форсируем
      ВЕРТИКАЛЬНЫЙ стек: каждая группа-div на всю ширину, float снят. В портрете
      стек и так был (группы не влезали в ряд) — правило его лишь закрепляет. */
-  #lk-filt #general_filters_form > div {
+html.lk-m #lk-filt #general_filters_form > div {
     float: none !important;
     width: 100% !important;
     clear: both !important;
-  }
-  #lk-filt #general_filters_form table,
-  #lk-filt #general_filters_form tbody,
-  #lk-filt #general_filters_form tr,
-  #lk-filt #general_filters_form td,
-  #lk-filt #general_filters_form div { padding-left: 0 !important; margin-left: 0 !important; }
-  #lk-filt #general_filters_form td { padding: 0.5rem 0 !important; }
-  /* ⚠️ Фоновые иконки подписей фильтров («Фильтрация по датам» и т.п. — bg на
+}
+html.lk-m #lk-filt #general_filters_form table, html.lk-m #lk-filt #general_filters_form tbody, html.lk-m #lk-filt #general_filters_form tr, html.lk-m #lk-filt #general_filters_form td, html.lk-m #lk-filt #general_filters_form div { padding-left: 0 !important; margin-left: 0 !important;
+}
+html.lk-m #lk-filt #general_filters_form td { padding: 0.5rem 0 !important;
+}
+/* ⚠️ Фоновые иконки подписей фильтров («Фильтрация по датам» и т.п. — bg на
      td:nth-child(2)) убираем, как это делает device-media платформы (≤480px).
      Иначе в ЛАНДШАФТЕ (device-width 915 > 480 → device-media OFF) иконки вылезали
      с обнулённым padding-left и текст налезал на них (клиент: «иконки
      посъёжились»). В ПОРТРЕТЕ их и так нет — распространяем на весь вариант A для
      единообразия. Иконки-img[id^=img_apl] это НЕ трогает (другой механизм). */
-  #lk-filt #general_filters_form > div > table > tbody > tr > td:nth-child(2) {
+html.lk-m #lk-filt #general_filters_form > div > table > tbody > tr > td:nth-child(2) {
     background-image: none !important;
     padding-left: 0 !important;
-  }
-
-  /* единый шрифт в дропдаунах-виджетах */
-  #lk-filt #general_filters_form .ui-multiselect,
-  #lk-filt #general_filters_form .ui-multiselect *,
-  #lk-filt #general_filters_form .list-select,
-  #lk-filt #general_filters_form .list-select * { font-size: 1.5rem !important; }
-
-  /* уважаем инлайн-скрытие платформы: поля дат видны только при "Задать диапазон дат" */
-  #lk-filt #general_filters_form [style*="display: none"],
-  #lk-filt #general_filters_form [style*="display:none"] { display: none !important; }
-
-  /* Подтвердить + Очистить в один ряд 50/50 */
-  #lk-filt-actions { display: flex !important; gap: 1.2rem; justify-content: center; align-items: center; flex-wrap: nowrap; padding: 1.8rem 1.2rem 0.8rem !important; }
-  #lk-filt-actions > * {
+}
+/* единый шрифт в дропдаунах-виджетах */
+html.lk-m #lk-filt #general_filters_form .ui-multiselect, html.lk-m #lk-filt #general_filters_form .ui-multiselect *, html.lk-m #lk-filt #general_filters_form .list-select, html.lk-m #lk-filt #general_filters_form .list-select * { font-size: 1.5rem !important;
+}
+/* уважаем инлайн-скрытие платформы: поля дат видны только при "Задать диапазон дат" */
+html.lk-m #lk-filt #general_filters_form [style*="display: none"], html.lk-m #lk-filt #general_filters_form [style*="display:none"] { display: none !important;
+}
+/* Подтвердить + Очистить в один ряд 50/50 */
+html.lk-m #lk-filt-actions { display: flex !important; gap: 1.2rem; justify-content: center; align-items: center; flex-wrap: nowrap; padding: 1.8rem 1.2rem 0.8rem !important;
+}
+html.lk-m #lk-filt-actions > * {
     flex: 1 1 0 !important; min-width: 0 !important; width: auto !important;
     box-sizing: border-box !important; margin: 0 !important;
     white-space: nowrap;
-  }
 }
 
 /* ============================================================
@@ -6846,19 +6828,18 @@ html.lk-m {
    висит на body и позиционировалось за экраном (left:409). Притягиваем
    в экран, поднимаем над оверлеем, нормализуем шрифт. Только ≤767.
    ============================================================ */
-html.lk-m {
-  /* Меню jQuery-UI multiselect висит на body с inline position:absolute + top под
+/* Меню jQuery-UI multiselect висит на body с inline position:absolute + top под
      кнопкой. На телефоне это ломалось: в ЛАНДШАФТЕ (низкий экран) список уходил
      за нижний край, при листании страницы оставался на месте (absolute), и
      все варианты было не посмотреть; плюс left не совпадал с кнопкой.
      Делаем меню ФИКСИРОВАННОЙ шторкой снизу (как нативный мобильный select):
      position:fixed прижимает к низу над таб-баром, список скроллится ВНУТРИ —
      меню всегда в экране целиком и держится при листании фона. */
-  /* ⚠️ display НЕ трогаем: jQuery-UI сам ставит открытому меню display:block, а
+/* ⚠️ display НЕ трогаем: jQuery-UI сам ставит открытому меню display:block, а
      закрытым display:none. Наш !important на display показал бы ВСЕ меню разом
      (их по одному на каждый фильтр). Раскладку скролла делаем без flex —
      max-height на самом списке, чтобы не потребовался display:flex. */
-  .ui-multiselect-menu {
+html.lk-m .ui-multiselect-menu {
     position: fixed !important;
     top: auto !important;
     bottom: calc(var(--lk-tabbar-h) + env(safe-area-inset-bottom, 0px) + 1rem) !important;
@@ -6870,27 +6851,29 @@ html.lk-m {
     box-sizing: border-box !important;
     border-radius: 1.2rem !important; overflow: hidden !important;
     box-shadow: 0 -0.6rem 2.4rem rgba(0, 0, 0, 0.28) !important;
-  }
-  /* Список вариантов — прокручиваемая часть; над ним шапка (поиск + «Выбрать/
+}
+/* Список вариантов — прокручиваемая часть; над ним шапка (поиск + «Выбрать/
      Отменить всё»). ⚠️ Потолок = 60vh (потолок меню) МИНУС высота шапки (~10rem),
      иначе список 46vh + шапка вылезал за меню, а overflow:hidden меню обрезал
      последние пункты, и скролла не было (список влезал в свой 46vh, но не в
      меню). calc держит список ровно в остатке под шапкой — длинный список
      скроллится, короткий помещается целиком. */
-  .ui-multiselect-menu .ui-multiselect-checkboxes {
+html.lk-m .ui-multiselect-menu .ui-multiselect-checkboxes {
     max-height: calc(60vh - 10rem) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-  }
-  .ui-multiselect-menu, .ui-multiselect-menu * { font-size: 1.5rem !important; }
-  .ui-multiselect-menu .ui-multiselect-checkboxes li { padding: 0.2rem 0 !important; }
-  .ui-multiselect-menu input.ui-multiselect-filter { font-size: 1.5rem !important; }
-
-  /* Календарь выбора дат (jQuery-UI datepicker при «Задать диапазон дат»).
+}
+html.lk-m .ui-multiselect-menu, html.lk-m .ui-multiselect-menu * { font-size: 1.5rem !important;
+}
+html.lk-m .ui-multiselect-menu .ui-multiselect-checkboxes li { padding: 0.2rem 0 !important;
+}
+html.lk-m .ui-multiselect-menu input.ui-multiselect-filter { font-size: 1.5rem !important;
+}
+/* Календарь выбора дат (jQuery-UI datepicker при «Задать диапазон дат»).
      Платформа позиционирует его под полем, а в ЛАНДШАФТЕ (низкий экран) поле
      внизу → календарь уходил за нижний край, конец месяца не виден (клиент).
      Центрируем в экране — всегда влезает целиком; выше меню мультиселекта. */
-  #ui-datepicker-div {
+html.lk-m #ui-datepicker-div {
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
@@ -6900,7 +6883,6 @@ html.lk-m {
     overflow-y: auto !important;
     z-index: 100003 !important;
     box-shadow: 0 0.4rem 2.4rem rgba(0, 0, 0, 0.35) !important;
-  }
 }
 
 /* ============================================================
@@ -6908,10 +6890,9 @@ html.lk-m {
    бургер прячем при открытых фильтрах, скрываем платформенный
    тоглер меню (2 серые полоски).
    ============================================================ */
-html.lk-m {
-  &.filt-open #lk-burger { display: none !important; }
-  a.fieldset_toggler.menu_top_level_wrapper,
-  .fieldset_toggler { display: none !important; }
+html.lk-m.filt-open #lk-burger { display: none !important;
+}
+html.lk-m a.fieldset_toggler.menu_top_level_wrapper, html.lk-m .fieldset_toggler { display: none !important;
 }
 
 /* ============================================================
@@ -6919,11 +6900,11 @@ html.lk-m {
    position:fixed (TD.font-style в TR.bottom-tr absolute) → налезал на
    контент. Делаем static, пусть живёт внизу страницы в потоке.
    ============================================================ */
-html.lk-m {
-  .bottom-tr { position: static !important; }
-  td.font-style { position: static !important; }
-
-  /* Подвал на телефоне: оставляем только логотип компании, текст «Control
+html.lk-m .bottom-tr { position: static !important;
+}
+html.lk-m td.font-style { position: static !important;
+}
+/* Подвал на телефоне: оставляем только логотип компании, текст «Control
      Service» убираем (решение клиента 2026-07-17).
      ⚠️ Логотип — это background-image САМОЙ ячейки, а текст — её же текстовый
      узел. Поэтому ни display:none, ни visibility:hidden на td нельзя: вместе с
@@ -6933,7 +6914,7 @@ html.lk-m {
      Логотип на 15% мельче: было auto 80px → 68px (клиент: «процентов на 15»).
      padding-top держит место ровно под картинку (68 + 10 зазор), height:auto —
      платформенные 52px были высотой под текст, без него это пустота. */
-  tr.bottom-tr td.font-style {
+html.lk-m tr.bottom-tr td.font-style {
     font-size: 0 !important;
     background-size: auto 6.8rem !important;
     /* Позицию пиним явно: в ЛАНДШАФТЕ device-media платформы сдвигает лого
@@ -6941,31 +6922,28 @@ html.lk-m {
     background-position: center top !important;
     height: auto !important;
     padding: 6.8rem 1rem 1rem !important;
-  }
-
-  /* Чекбоксы и радио в таблицах отчётов были сплющены (20×10): наш
+}
+/* Чекбоксы и радио в таблицах отчётов были сплющены (20×10): наш
      `input[type=checkbox]{width:2rem;height:2rem}` из базовой части файла
      перебивался легаси-правилом `input{height:auto !important}` из device-media
      платформы — ширина применялась, высота нет, отсюда несоразмерность.
      Бьём точечно по чекбоксам\радио: правило `input{height:auto}` трогать нельзя,
      на нём висят кнопки и текстовые поля. Радио сюда же — в двухшаговом диалоге
      экспорта «Клиентских комментариев» они были нулевой высоты по той же причине. */
-  input[type="checkbox"],
-  input[type="radio"] {
+html.lk-m input[type="checkbox"], html.lk-m input[type="radio"] {
     width: 1.8rem !important;
     height: 1.8rem !important;
     min-height: 0 !important;
     padding: 0 !important;
     vertical-align: middle;
-  }
-  /* ⚠️ Чекбоксы В ВЫПАДАШКАХ ФИЛЬТРОВ (jQuery-UI multiselect) НЕ трогаем: у них
+}
+/* ⚠️ Чекбоксы В ВЫПАДАШКАХ ФИЛЬТРОВ (jQuery-UI multiselect) НЕ трогаем: у них
      свой размер 1.5rem и выверенные top/margin (см. .ui-multiselect-checkboxes),
      а общее правило выше раздуло бы их до 1.8rem и рассогласовало с галочкой.
      Специфичнее общего (класс-контейнер) → возвращаем прежний размер. */
-  .ui-multiselect-checkboxes label input[type="checkbox"] {
+html.lk-m .ui-multiselect-checkboxes label input[type="checkbox"] {
     width: 1.5rem !important;
     height: 1.5rem !important;
-  }
 }
 
 /* ============================================================
@@ -6974,32 +6952,29 @@ html.lk-m {
    с id-специфичностью выигрывают у их классовых. Селекторы шире: и td.top_menu,
    и li.top_menu; рельса и меню — вертикально, на всю ширину, нормальный шрифт.
    ============================================================ */
-html.lk-m {
-  /* нормальный шрифт (бьём device font 30-45px) */
-  #lk-mnav .tab_menu_item, #lk-mnav .tab_menu_item a,
-  #lk-mnav .top_menu, #lk-mnav .top_menu a, #lk-mnav .top_menu a:hover,
-  #lk-mnav .tabs_menu, #lk-mnav .fathertab, #lk-mnav .fathertab a {
+/* нормальный шрифт (бьём device font 30-45px) */
+html.lk-m #lk-mnav .tab_menu_item, html.lk-m #lk-mnav .tab_menu_item a, html.lk-m #lk-mnav .top_menu, html.lk-m #lk-mnav .top_menu a, html.lk-m #lk-mnav .top_menu a:hover, html.lk-m #lk-mnav .tabs_menu, html.lk-m #lk-mnav .fathertab, html.lk-m #lk-mnav .fathertab a {
     font-size: 1.5rem !important; line-height: 1.3 !important;
-  }
-  /* рельса-элементы: вертикально, без float, иконка 18px@18, текст 48 */
-  #lk-mnav .tab_menu_item {
+}
+/* рельса-элементы: вертикально, без float, иконка 18px@18, текст 48 */
+html.lk-m #lk-mnav .tab_menu_item {
     display: block !important; width: 100% !important; float: none !important;
     margin: 0 !important; padding: 1.3rem 1.8rem 1.3rem 4.8rem !important; box-sizing: border-box;
     background-position: 1.8rem center !important; background-size: auto 1.8rem !important;
-  }
-  #lk-mnav .tab_menu_item a { padding: 0 !important; }
-  /* нижнее меню: и td.top_menu, и li.top_menu */
-  #lk-mnav li.top_menu, #lk-mnav td.top_menu {
+}
+html.lk-m #lk-mnav .tab_menu_item a { padding: 0 !important;
+}
+/* нижнее меню: и td.top_menu, и li.top_menu */
+html.lk-m #lk-mnav li.top_menu, html.lk-m #lk-mnav td.top_menu {
     display: block !important; width: 100% !important; float: none !important;
     margin: 0 !important; padding: 0 !important;
-  }
-  #lk-mnav .top_menu a {
+}
+html.lk-m #lk-mnav .top_menu a {
     display: block !important; width: 100% !important; float: none !important;
     white-space: nowrap !important; text-align: left !important; clip-path: none !important;
     color: var(--text-color, #3c3c3b) !important; box-sizing: border-box;
     padding: 1.3rem 1.8rem 1.3rem 4.8rem !important;
     background-position: 1.8rem center !important; background-size: auto 1.8rem !important;
-  }
 }
 
 /* ============================================================
@@ -7008,36 +6983,32 @@ html.lk-m {
    (UL display:none) c li.topTabActive/topTabInactive. В оверлее: раскрываем
    список, прячем свёрнутый заголовок, вертикальный список, шрифт 15.
    ============================================================ */
-html.lk-m {
-  #lk-mnav .mobile_categories_list {
+html.lk-m #lk-mnav .mobile_categories_list {
     display: block !important; position: static !important;
     width: auto !important; height: auto !important;
-  }
-  #lk-mnav .mobile_categories_list .current_tab_title,
-  #lk-mnav .mobile_categories_list .filter_upper { display: none !important; }
-  #lk-mnav .the_categories_list { display: block !important; }
-  #lk-mnav #reports_categories {
+}
+html.lk-m #lk-mnav .mobile_categories_list .current_tab_title, html.lk-m #lk-mnav .mobile_categories_list .filter_upper { display: none !important;
+}
+html.lk-m #lk-mnav .the_categories_list { display: block !important;
+}
+html.lk-m #lk-mnav #reports_categories {
     display: block !important; width: 100% !important;
     margin: 0 !important; padding: 0.6rem 0 !important; list-style: none !important;
-  }
-  #lk-mnav #reports_categories li,
-  #lk-mnav #reports_categories li * {
+}
+html.lk-m #lk-mnav #reports_categories li, html.lk-m #lk-mnav #reports_categories li * {
     font-size: 1.5rem !important; line-height: 1.35 !important; text-align: left !important;
-  }
-  #lk-mnav #reports_categories li {
+}
+html.lk-m #lk-mnav #reports_categories li {
     display: block !important; width: 100% !important; float: none !important;
     padding: 1.3rem 1.8rem !important; box-sizing: border-box; margin: 0 !important;
-  }
-  #lk-mnav #reports_categories li a,
-  #lk-mnav #reports_categories li strong,
-  #lk-mnav #reports_categories li font {
+}
+html.lk-m #lk-mnav #reports_categories li a, html.lk-m #lk-mnav #reports_categories li strong, html.lk-m #lk-mnav #reports_categories li font {
     display: inline !important; padding: 0 !important; margin: 0 !important;
     font-weight: 600 !important; color: var(--text-color, #3c3c3b) !important; background: none !important;
-  }
-  #lk-mnav #reports_categories li.topTabActive { background: rgba(84,18,97,0.08) !important; }
-  #lk-mnav #reports_categories li.topTabActive strong,
-  #lk-mnav #reports_categories li.topTabActive a,
-  #lk-mnav #reports_categories li.topTabActive font { color: var(--main-brand-color) !important; }
+}
+html.lk-m #lk-mnav #reports_categories li.topTabActive { background: rgba(84,18,97,0.08) !important;
+}
+html.lk-m #lk-mnav #reports_categories li.topTabActive strong, html.lk-m #lk-mnav #reports_categories li.topTabActive a, html.lk-m #lk-mnav #reports_categories li.topTabActive font { color: var(--main-brand-color) !important;
 }
 
 /* ============================================================
@@ -7045,19 +7016,19 @@ html.lk-m {
    класс проставляет tagRailIcons и мобильным пунктам) + позиция;
    + НЕ сдвигаем контент при открытии рельсы (оверлей просто наплывает).
    ============================================================ */
-html.lk-m {
-  /* иконка только у распознанных пунктов (с классом lk-sec-*) */
-  #lk-mnav #reports_categories li[class*="lk-sec-"] {
+/* иконка только у распознанных пунктов (с классом lk-sec-*) */
+html.lk-m #lk-mnav #reports_categories li[class*="lk-sec-"] {
     padding-left: 4.8rem !important;
     background-position: 1.8rem center !important;
     background-size: auto 1.6rem !important;
     background-repeat: no-repeat !important;
-  }
-  /* открытие рельсы не должно ужимать/двигать контент */
-  &.sb-open .begin-report-area { max-width: none !important; }
-  &.sb-open table#main_menu_title_text { max-width: 100% !important; }
-  &.sb-open .top_tabs_row,
-  &.sb-open .upper_tabs_nav { width: auto !important; }
+}
+/* открытие рельсы не должно ужимать/двигать контент */
+html.lk-m.sb-open .begin-report-area { max-width: none !important;
+}
+html.lk-m.sb-open table#main_menu_title_text { max-width: 100% !important;
+}
+html.lk-m.sb-open .top_tabs_row, html.lk-m.sb-open .upper_tabs_nav { width: auto !important;
 }
 
 /* ============================================================
@@ -7067,30 +7038,30 @@ html.lk-m {
    только мобильная раскладка: иконки-действия (edit/print) в правый
    верхний угол + место под них, перенос длинных слов.
    ============================================================ */
-html.lk-m {
-  /* место сверху под иконки, чтобы центрированный заголовок не наезжал */
-  table.grid_reports_table td.grid_report_td h1 {
+/* место сверху под иконки, чтобы центрированный заголовок не наезжал */
+html.lk-m table.grid_reports_table td.grid_report_td h1 {
     padding-top: 4.2rem !important;
     margin: 0.8rem 0 !important;
     line-height: 1.25 !important;
-  }
-  /* иконки-действия в правом верхнем углу шапки */
-  table.grid_reports_table td.grid_report_td h1 > a {
+}
+/* иконки-действия в правом верхнем углу шапки */
+html.lk-m table.grid_reports_table td.grid_report_td h1 > a {
     width: 3.2rem !important;
     height: 3.2rem !important;
     top: 0.8rem !important;
-  }
-  table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(1) { right: 0.8rem !important; }
-  table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(2) { right: 4.6rem !important; }
-  table.grid_reports_table td.grid_report_td h1 > a img {
+}
+html.lk-m table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(1) { right: 0.8rem !important;
+}
+html.lk-m table.grid_reports_table td.grid_report_td h1 > a:nth-of-type(2) { right: 4.6rem !important;
+}
+html.lk-m table.grid_reports_table td.grid_report_td h1 > a img {
     width: 3.2rem !important;
     height: 3.2rem !important;
-  }
-  /* длинные слова переносим, чтобы текст не улетал вправо за край блока */
-  table.grid_reports_table td.grid_report_td .lk-pannable {
+}
+/* длинные слова переносим, чтобы текст не улетал вправо за край блока */
+html.lk-m table.grid_reports_table td.grid_report_td .lk-pannable {
     overflow-wrap: break-word;
     word-break: break-word;
-  }
 }
 
 /* ============================================================
@@ -7100,9 +7071,9 @@ html.lk-m {
    разваливается на узком экране. В оверлее-рельсе (#lk-mnav) —
    остаётся видимым по правилу display:block !important выше.
    ============================================================ */
-html.lk-m {
-  .mobile_categories_list { display: none !important; }
-  #lk-mnav .mobile_categories_list { display: block !important; }
+html.lk-m .mobile_categories_list { display: none !important;
+}
+html.lk-m #lk-mnav .mobile_categories_list { display: block !important;
 }
 
 /* ============================================================
@@ -7113,26 +7084,29 @@ html.lk-m {
    перекрывала сайдбар) — тоже. Ставится по классу lk-wide (короткая сторона
    экрана > 550px), см. syncModeClasses() в sidebar-toggle.js.
    ============================================================ */
-html.lk-wide {
-  /* рельса-сайдбар как на ДЕСКТОПЕ: слайд по бургеру + сдвиг контента +
+/* рельса-сайдбар как на ДЕСКТОПЕ: слайд по бургеру + сдвиг контента +
      память (класс sb-open в localStorage, см. JS). Ширина фикс 280, без
      бэкдропа (push, а не оверлей). Слайд-transform наследуется из html.lk-m
      (закрыт: translateX(-100%), sb-open: translateX(0)) — здесь НЕ трогаем. */
-  #lk-mnav {
+html.lk-wide #lk-mnav {
     width: 28rem !important;
     max-width: 28rem !important;
     z-index: 5 !important; /* ниже оверлейного — чтобы не перекрывать дропдауны */
     box-shadow: 0.1rem 0 1rem rgba(0, 0, 0, 0.08) !important;
     border-right: 0.1rem solid rgba(0, 0, 0, 0.1) !important;
-  }
-  #lk-mnav-bd { display: none !important; } /* push, а не оверлей — бэкдроп не нужен */
-  .top_tabs_row { display: none !important; } /* платформенная лого-полоса перекрывала сайдбар */
-  /* бургер оставляем видимым (в отличие от desktop-desktop он тут нужен) */
-  #container { transition: padding-left 0.25s ease !important; }
-  &.sb-open #container {
+}
+html.lk-wide #lk-mnav-bd { display: none !important;
+}
+/* push, а не оверлей — бэкдроп не нужен */
+html.lk-wide .top_tabs_row { display: none !important;
+}
+/* платформенная лого-полоса перекрывала сайдбар */
+/* бургер оставляем видимым (в отличие от desktop-desktop он тут нужен) */
+html.lk-wide #container { transition: padding-left 0.25s ease !important;
+}
+html.lk-wide.sb-open #container {
     padding-left: 28rem !important;
     box-sizing: border-box !important;
-  }
 }
 
 /* ============================================================
@@ -7143,48 +7117,49 @@ html.lk-wide {
    - фолбэк красный «?» для пунктов без нашей секц-иконки (Карта/CX/Впечатления/
      Инструкция + «Общий результат», у которого иконки пока нет) — чтобы не забыть.
    ============================================================ */
-html.lk-m {
-  #lk-mnav { display: flex !important; flex-direction: column !important; }
-  #menu_top_level_wrapper { margin-top: auto !important; } /* нижнее меню — к низу */
-
-  /* выделение активного — фон-ЦВЕТ (не shorthand background:, иначе стирается
+html.lk-m #lk-mnav { display: flex !important; flex-direction: column !important;
+}
+html.lk-m #menu_top_level_wrapper { margin-top: auto !important;
+}
+/* нижнее меню — к низу */
+/* выделение активного — фон-ЦВЕТ (не shorthand background:, иначе стирается
      background-image с иконкой), во всю ширину, без платформенной рамки */
-  #lk-mnav #reports_categories li.topTabActive {
+html.lk-m #lk-mnav #reports_categories li.topTabActive {
     background-color: rgba(84, 18, 97, 0.1) !important;
     border: 0 !important;
     outline: 0 !important;
     box-shadow: none !important;
-  }
-  /* текст по центру иконки — flex; специфичность #lk-mnav … выше базового
+}
+/* текст по центру иконки — flex; специфичность #lk-mnav … выше базового
      `#lk-mnav #reports_categories li{display:block}`, поэтому применяется */
-  #lk-mnav #reports_categories li,
-  #lk-mnav #menu_top_level_wrapper .top_menu a {
+html.lk-m #lk-mnav #reports_categories li, html.lk-m #lk-mnav #menu_top_level_wrapper .top_menu a {
     display: flex !important;
     align-items: center !important;
-  }
-  /* без подчёркивания (в т.ч. у активной ссылки «Общий результат») */
-  #lk-mnav #reports_categories li a,
-  #lk-mnav #reports_categories li font { text-decoration: none !important; }
-  /* нижнее меню — высота строки как у верхнего блока (верх: height:27 border-box;
+}
+/* без подчёркивания (в т.ч. у активной ссылки «Общий результат») */
+html.lk-m #lk-mnav #reports_categories li a, html.lk-m #lk-mnav #reports_categories li font { text-decoration: none !important;
+}
+/* нижнее меню — высота строки как у верхнего блока (верх: height:27 border-box;
      низ был auto=46). Реплицируем 27px → одинаковый ритм. Иконка 16px (была 18)
      — иначе крупнее и зазор иконка→текст не совпадал с верхним блоком. */
-  #lk-mnav #menu_top_level_wrapper .top_menu a {
+html.lk-m #lk-mnav #menu_top_level_wrapper .top_menu a {
     line-height: 1.35 !important;
     height: 2.7rem !important;
     box-sizing: border-box !important;
     background-size: auto 1.6rem !important;
     background-position: 1.8rem center !important;
-  }
-  /* разделитель нижнего блока (фон-линия на #menu_top_level_wrapper) — ближе к
+}
+/* разделитель нижнего блока (фон-линия на #menu_top_level_wrapper) — ближе к
      «Главная»: сокращаем отступ сверху 30px → ~12px (padding-top + ul margin). */
-  #lk-mnav #menu_top_level_wrapper { padding-top: 1.2rem !important; }
-  #lk-mnav #menu_top_level_wrapper ul { margin-top: 0 !important; }
-
-  /* фолбэк красный «?» для пунктов без секц-иконки (все известные названия
+html.lk-m #lk-mnav #menu_top_level_wrapper { padding-top: 1.2rem !important;
+}
+html.lk-m #lk-mnav #menu_top_level_wrapper ul { margin-top: 0 !important;
+}
+/* фолбэк красный «?» для пунктов без секц-иконки (все известные названия
      теперь покрыты, включая «Общий результат» — chart-pie, см. lk-sec-overall
      выше). Размер/позиция/метод — как у секц-иконок: auto 16px, 18px center,
      no-repeat, padding-left 48. */
-  #lk-mnav #reports_categories li:not([class*="lk-sec-"]) {
+html.lk-m #lk-mnav #reports_categories li:not([class*="lk-sec-"]) {
     /* красный кружок с белым «?» — ЗАПОЛНЯЕТ бокс (как настоящие иконки),
        иначе тонкий глиф «?» не доходит до края и зазор до текста больше (18 vs 14) */
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Ccircle%20cx='12'%20cy='12'%20r='11.7'%20fill='%23e00000'/%3E%3Ctext%20x='12'%20y='17.5'%20font-size='16'%20font-weight='700'%20fill='%23ffffff'%20text-anchor='middle'%20font-family='Arial,sans-serif'%3E?%3C/text%3E%3C/svg%3E") !important;
@@ -7192,7 +7167,6 @@ html.lk-m {
     background-position: 1.8rem center !important;
     background-size: auto 1.6rem !important;
     padding-left: 4.8rem !important;
-  }
 }
 
 /* ============================================================
@@ -7209,54 +7183,56 @@ html.lk-m {
    унифицированным по шрифту со счётчиком; ячейки таблицы в блок-поток → текст
    (приветствие+счётчик) на всю ширину и переносится; по центру. Планшет
    (html.lk-wide) добавляет свой инсет/компакт-раскладку ниже. */
-html.lk-m {
-  #main_menu_title_text {
+html.lk-m #main_menu_title_text {
     display: block !important;
     width: auto !important; /* заполняет по контенту-ячейке (см. .gray-lighter2 ниже) */
     box-sizing: border-box !important;
     text-align: center !important;
     margin: 1.4rem var(--lk-inset) 1rem !important;
     padding: 1.6rem 2rem !important;
-  }
-  #main_menu_title_text > tbody,
-  #main_menu_title_text > tbody > tr {
+}
+html.lk-m #main_menu_title_text > tbody, html.lk-m #main_menu_title_text > tbody > tr {
     display: block !important;
     width: auto !important;
-  }
-  #main_menu_title_text td {
+}
+html.lk-m #main_menu_title_text td {
     display: inline !important;
     width: auto !important;
     height: auto !important;
     white-space: normal !important;
-  }
-  /* клиентское лого (#top_title_graphics) убираем и на мобилке, и на планшете */
-  #top_title_graphics { display: none !important; }
-  /* бургер — в самый левый верхний угол (мобилка); планшет переопределит на
+}
+/* клиентское лого (#top_title_graphics) убираем и на мобилке, и на планшете */
+html.lk-m #top_title_graphics { display: none !important;
+}
+/* бургер — в самый левый верхний угол (мобилка); планшет переопределит на
      положение внутри полосы (top:27, left:42). */
-  #lk-burger { top: 0 !important; left: 0 !important; }
-  /* «Язык» на МОБИЛКЕ пока скрыт (позицию решим позже); на планшете он остаётся
+html.lk-m #lk-burger { top: 0 !important; left: 0 !important;
+}
+/* «Язык» на МОБИЛКЕ пока скрыт (позицию решим позже); на планшете он остаётся
      в полосе, поэтому прячем только когда НЕ lk-wide. Специфичность выше базового
      #set-language{display:inline-flex!important} (2 id). */
-  &:not(.lk-wide) #main_menu_title_text #set-language { display: none !important; }
-  /* ячейку приветствия платформа на мобилке прячет (.gray-lighter2:nth-child(2)
+html.lk-m:not(.lk-wide) #main_menu_title_text #set-language { display: none !important;
+}
+/* ячейку приветствия платформа на мобилке прячет (.gray-lighter2:nth-child(2)
      {display:none}, стр.~5023 в device-media) — возвращаем */
-  #main_menu_title_text td.gray-lighter2:nth-child(2) { display: inline !important; }
-  /* приветствие видимым (было color:transparent, стр.455-460) + ЕДИНЫЙ шрифт со
+html.lk-m #main_menu_title_text td.gray-lighter2:nth-child(2) { display: inline !important;
+}
+/* приветствие видимым (было color:transparent, стр.455-460) + ЕДИНЫЙ шрифт со
      счётчиком: .unwatchedLink = Montserrat 14, а приветствие (текст-узел td) было
      Arial 12 → накидываем на родителя .gray-lighter2 те же правила */
-  #main_menu_title_text .gray-lighter2 {
+html.lk-m #main_menu_title_text .gray-lighter2 {
     color: #fff !important;
     font-family: "Montserrat", sans-serif !important;
     font-size: 1.4rem !important;
     line-height: 1.4 !important;
-  }
-  /* Блоки отчётов — тот же инсет, что и у шапки (выравнивание + резина).
+}
+/* Блоки отчётов — тот же инсет, что и у шапки (выравнивание + резина).
      ⚠️ width обязателен вместе с margin. Раньше стоял только margin, а ширину
      таблица брала по содержимому (391px при вьюпорте 412) — при переполнении
      правый margin схлопывается, и отступы разъезжались: слева 44, справа 25
      (замер на телефоне 412). box-sizing — чтобы padding\border не прибавлялись
      к 100% и не возвращали ту же асимметрию. */
-  table.grid_reports_table {
+html.lk-m table.grid_reports_table {
     width: calc(100% - 2 * var(--lk-inset)) !important;
     margin-left: var(--lk-inset) !important;
     margin-right: var(--lk-inset) !important;
@@ -7281,7 +7257,6 @@ html.lk-m {
        строке больше одной (напр. `table:has(td.grid_report_td + td.grid_report_td)`),
        чтобы не воскресить асимметрию у 1-в-ряд. */
     border-spacing: 0 2.4rem !important;
-  }
 }
 
 /* ============================================================
@@ -7291,47 +7266,46 @@ html.lk-m {
    - Шапка компактная (padding 12/24 вместо мобильного 16/20), инсет 30 вместо
      мобильного 26, «Язык»/бургер — внутри полосы (мобилка их прячет/в угол).
    ============================================================ */
-html.lk-wide {
-  /* #top_title_graphics скрыт в html.lk-m выше (общий для мобилки и планшета) */
-  .begin-report-area {
+/* #top_title_graphics скрыт в html.lk-m выше (общий для мобилки и планшета) */
+html.lk-wide .begin-report-area {
     max-width: none !important;
     width: 100% !important;
     margin: 0 !important;
-  }
-  table.grid_reports_table {
+}
+html.lk-wide table.grid_reports_table {
     width: calc(100% - 2 * var(--lk-inset)) !important;
     margin: 0 var(--lk-inset) !important;
-  }
-
-  /* шапка компактная; инсет флюидный (как блоки). Горизонтальный паддинг — 0,
+}
+/* шапка компактная; инсет флюидный (как блоки). Горизонтальный паддинг — 0,
      клиренс от бургера/«Язык» задаём на ЯЧЕЙКЕ приветствия ниже (чтобы шапка
      заполняла ширину контентом-ячейкой, а не съёживалась от padding).
      position:relative — чтобы «Язык» центрировался по вертикали относительно шапки. */
-  #main_menu_title_text {
+html.lk-wide #main_menu_title_text {
     position: relative !important;
     margin: 1.4rem var(--lk-inset) 1rem !important;
     padding: 1.2rem 0 !important;
-  }
-  /* пустая первая ячейка (скрытая иконка-меню) создаёт строку НАД приветствием и
+}
+/* пустая первая ячейка (скрытая иконка-меню) создаёт строку НАД приветствием и
      сбивает его вертикальное центрирование — прячем. */
-  #main_menu_title_text td:first-child { display: none !important; }
-  /* ячейка приветствия = блок на всю ширину (шапка заполняет по ней и выравнивается
+html.lk-wide #main_menu_title_text td:first-child { display: none !important;
+}
+/* ячейка приветствия = блок на всю ширину (шапка заполняет по ней и выравнивается
      с блоками отчётов) + внутренний padding-клиренс, чтобы центрированное приветствие
      не подлезало под бургер (слева) и «Язык» (справа) на узких планшетах.
      Селектор nth-child(2) — чтобы перебить lk-m'ное правило un-hide той же
      специфичности (иначе ячейка оставалась inline и шапка съёживалась). «Язык»
      занимает ~80px от края полосы, поэтому клиренс 88. */
-  #main_menu_title_text td.gray-lighter2:nth-child(2) {
+html.lk-wide #main_menu_title_text td.gray-lighter2:nth-child(2) {
     display: block !important;
     width: 100% !important;
     box-sizing: border-box !important;
     padding: 0 8.8rem !important;
     text-align: center !important;
-  }
-  /* «Язык» — центр по вертикали ДИНАМИЧЕСКИ (полоса растёт при переносе приветствия
+}
+/* «Язык» — центр по вертикали ДИНАМИЧЕСКИ (полоса растёт при переносе приветствия
      на 2 строки): top:50% + translateY(-50%) относительно position:relative шапки;
      по горизонтали едет за флюид-инсетом (12px внутри правого края полосы). */
-  #main_menu_title_text #set-language {
+html.lk-wide #main_menu_title_text #set-language {
     /* platform-CSS вешает на #set-language transition:all .5s — на ≤767 она
        ПЕРМАНЕНТНО держит стартовые top:17/right:42 (базовое правило), маскируя наши
        значения (переход не завершается/ре-триггерится). Глушим — иначе на 600 «Язык»
@@ -7344,26 +7318,25 @@ html.lk-wide {
        ровно как у бургера слева; НЕ прибавляем --lk-inset (это отступ вьюпорта,
        а containing block здесь — сама шапка), иначе «Язык» наезжает на текст */
     right: 1.2rem !important;
-  }
-  /* бургер: device-media раздувает его до 60×60 (padding 20/30 + min-height:60 на
+}
+/* бургер: device-media раздувает его до 60×60 (padding 20/30 + min-height:60 на
      button) — зануляем, ставим 36×36 чтобы влезал в полосу; по вертикали центр
      (fixed, статичный top — компромисс ±3px между 1- и 2-строчной полосой);
      по горизонтали едет за инсетом. */
-  #lk-burger {
+html.lk-wide #lk-burger {
     width: 3.6rem !important;
     height: 3.6rem !important;
     min-height: 0 !important;
     padding: 0 !important;
     top: 2.5rem !important;
     left: calc(var(--lk-inset) + 1.2rem) !important;
-  }
-
-  /* ====== ФИЛЬТРЫ инлайн на планшете ======
+}
+/* ====== ФИЛЬТРЫ инлайн на планшете ======
      JS (syncFilt) на lk-wide НЕ уводит фильтры в оверлей — форма остаётся в потоке,
      как на десктопе. Но HTML мобильный, и платформенный device-media раздувает
      шрифты до 25-30px, форма вылетает вправо. Приводим к читаемым 14px, вписываем
      в ширину блоков и раскладываем поля в 2 колонки (используем ширину планшета). */
-  #general_filters_form {
+html.lk-wide #general_filters_form {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 1.2rem 2.4rem !important;
@@ -7377,70 +7350,53 @@ html.lk-wide {
     margin: 2.8rem var(--lk-inset) 1.8rem !important;
     padding: 0 !important;
     color: #3c3c3b !important;
-  }
-  /* каждая строка-фильтр = ячейка сетки */
-  #general_filters_form > div {
+}
+/* каждая строка-фильтр = ячейка сетки */
+html.lk-wide #general_filters_form > div {
     width: auto !important; min-width: 0 !important; margin: 0 !important;
-  }
-  /* таблицы строк → блок: label над контролом, всё тянется по ширине колонки */
-  #general_filters_form table,
-  #general_filters_form tbody,
-  #general_filters_form tr,
-  #general_filters_form td {
+}
+/* таблицы строк → блок: label над контролом, всё тянется по ширине колонки */
+html.lk-wide #general_filters_form table, html.lk-wide #general_filters_form tbody, html.lk-wide #general_filters_form tr, html.lk-wide #general_filters_form td {
     display: block !important; width: 100% !important; box-sizing: border-box !important;
     margin: 0 !important; text-align: left !important; white-space: normal !important;
-  }
-  #general_filters_form td { padding: 0.2rem 0 !important; }
-  /* читаемые шрифты вместо платформенных 25-35px. ВАЖНО: device-media платформы
+}
+html.lk-wide #general_filters_form td { padding: 0.2rem 0 !important;
+}
+/* читаемые шрифты вместо платформенных 25-35px. ВАЖНО: device-media платформы
      держит лейблы правилом form#general_filters_form>div>table>tbody>tr>td {35px!}
      (специфичность 1,0,6) — поэтому селекторы ведём от form# и повторяем глубокий
      путь, чтобы гарантированно перебить (наш префикс html.lk-wide добавляет класс). */
-  form#general_filters_form,
-  form#general_filters_form > div > table > tbody > tr > td,
-  form#general_filters_form td,
-  form#general_filters_form b,
-  form#general_filters_form label,
-  form#general_filters_form .ui-multiselect,
-  form#general_filters_form .ui-multiselect *,
-  form#general_filters_form .list-select,
-  form#general_filters_form .list-select *,
-  form#general_filters_form select,
-  form#general_filters_form input:not([type=checkbox]):not([type=radio]) {
+html.lk-wide form#general_filters_form, html.lk-wide form#general_filters_form > div > table > tbody > tr > td, html.lk-wide form#general_filters_form td, html.lk-wide form#general_filters_form b, html.lk-wide form#general_filters_form label, html.lk-wide form#general_filters_form .ui-multiselect, html.lk-wide form#general_filters_form .ui-multiselect *, html.lk-wide form#general_filters_form .list-select, html.lk-wide form#general_filters_form .list-select *, html.lk-wide form#general_filters_form select, html.lk-wide form#general_filters_form input:not([type=checkbox]):not([type=radio]) {
     font-size: 1.4rem !important; line-height: 1.3 !important;
-  }
-  #general_filters_form td:first-child,
-  #general_filters_form b,
-  #general_filters_form label { font-weight: 600 !important; }
-  /* контролы во всю ширину колонки */
-  #general_filters_form select,
-  #general_filters_form .list-select,
-  #general_filters_form .ui-multiselect,
-  #general_filters_form input:not([type=checkbox]):not([type=radio]) {
+}
+html.lk-wide #general_filters_form td:first-child, html.lk-wide #general_filters_form b, html.lk-wide #general_filters_form label { font-weight: 600 !important;
+}
+/* контролы во всю ширину колонки */
+html.lk-wide #general_filters_form select, html.lk-wide #general_filters_form .list-select, html.lk-wide #general_filters_form .ui-multiselect, html.lk-wide #general_filters_form input:not([type=checkbox]):not([type=radio]) {
     width: 100% !important; max-width: 100% !important;
     box-sizing: border-box !important; min-height: 0 !important;
-  }
-  /* уважаем инлайн-скрытие платформы (поля дат видны только при «Задать диапазон») */
-  #general_filters_form [style*="display: none"],
-  #general_filters_form [style*="display:none"] { display: none !important; }
-  /* строка действий (Подтвердить + Очистить) — на всю ширину под сеткой */
-  #general_filters_form > div:has(#update_filters) {
+}
+/* уважаем инлайн-скрытие платформы (поля дат видны только при «Задать диапазон») */
+html.lk-wide #general_filters_form [style*="display: none"], html.lk-wide #general_filters_form [style*="display:none"] { display: none !important;
+}
+/* строка действий (Подтвердить + Очистить) — на всю ширину под сеткой */
+html.lk-wide #general_filters_form > div:has(#update_filters) {
     grid-column: 1 / -1 !important;
     display: flex !important; gap: 1.2rem !important; align-items: center !important;
     justify-content: flex-start !important; margin-top: 0.8rem !important;
-  }
-  /* «Подтвердить»: padding-left под иконку (bg на 12px), чтобы текст не наезжал */
-  #general_filters_form #update_filters {
+}
+/* «Подтвердить»: padding-left под иконку (bg на 12px), чтобы текст не наезжал */
+html.lk-wide #general_filters_form #update_filters {
     min-height: 0 !important; font-size: 1.4rem !important;
     padding: 0.8rem 1.8rem 0.8rem 3.4rem !important; width: auto !important;
-  }
-  /* «Очистить» — отдельный элемент ВНЕ формы (в области отчётов), поэтому правило
+}
+/* «Очистить» — отдельный элемент ВНЕ формы (в области отчётов), поэтому правило
      не скоупим на форму. Платформенный device-media держит его на 30px — глушим до
      14px, иконка слева (bg на 12px) → padding-left 34px. */
-  #link_to_clear_general_filters {
+html.lk-wide #link_to_clear_general_filters {
     font-size: 1.4rem !important; min-height: 0 !important; line-height: 1.2 !important;
     padding: 0.8rem 1.8rem 0.8rem 3.4rem !important; width: auto !important;
     display: inline-flex !important; align-items: center !important;
-  }
 }
 
 /* ============================================================
