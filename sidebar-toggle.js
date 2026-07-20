@@ -265,9 +265,12 @@
      ⚠️ ИЗОЛЯЦИЯ: ось переводится ТОЛЬКО если КАЖДАЯ её категория — месяц (с
      необязательным годом). Смешанную ось не трогаем вовсе, поэтому осмысленный
      текст, случайно совпавший с названием месяца, у другого клиента уцелеет. */
+  /* С заглавной — как в интерфейсе ЛК. Заменяем ТОЛЬКО слово месяца: год
+     захватывается отдельной группой шаблона и подставляется обратно как есть
+     (вместе с исходным пробелом), поэтому «Feb 26» → «Фев 26», а не «Фев 2026». */
   var EN_MONTHS_RU = {
-    jan: "янв", feb: "фев", mar: "мар", apr: "апр", may: "май", jun: "июн",
-    jul: "июл", aug: "авг", sep: "сен", oct: "окт", nov: "ноя", dec: "дек",
+    jan: "Янв", feb: "Фев", mar: "Мар", apr: "Апр", may: "Май", jun: "Июн",
+    jul: "Июл", aug: "Авг", sep: "Сен", oct: "Окт", nov: "Ноя", dec: "Дек",
   };
   var EN_MONTHS_FULL = [
     "january", "february", "march", "april", "may", "june",
@@ -1741,7 +1744,12 @@
        не открыто поверх. */
     var onHome = !!(cat && firstHref.indexOf("cat_id=" + cat) !== -1);
 
-    bar.querySelectorAll(".lk-tab").forEach(function (t) {
+    /* ⚠️ [].forEach.call, а НЕ NodeList.forEach: в Chrome < 51 / старых Android
+       WebView его нет, и TypeError отсюда всплыл бы через buildAppNav() в
+       onReady(), оборвав всё, что идёт следом — reflowCharts, enhanceReports,
+       observeReports. Выглядело бы как «на этом телефоне вообще ничего не
+       работает». Остальные 20+ обходов в файле сделаны так же. */
+    [].forEach.call(bar.querySelectorAll(".lk-tab"), function (t) {
       var isOn =
         (t.classList.contains("lk-tab-home") && onHome && !anyOverlay) ||
         (t.classList.contains("lk-tab-sections") && launcherOpen) ||
