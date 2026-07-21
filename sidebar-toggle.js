@@ -290,6 +290,32 @@
     return ru + (m[2] || "");
   }
 
+  /* Подсказка приходит с сервера ГОТОВОЙ строкой, где месяц вшит в конец:
+     «Демо-проект,,  57.94, (3 анкеты), Jun 26». Форматтер у платформы свой, он
+     эту строку просто выводит, — поэтому переименование категорий оси до неё
+     не достаёт, и без этой функции ось была бы русской, а подсказка английской.
+     ⚠️ Меняем НЕ «что-то похожее на месяц», а РОВНО ту английскую категорию,
+     которую сами же заменили, и только если строка ею ЗАКАНЧИВАЕТСЯ. Тогда
+     случайное совпадение с названием точки исключено: нет точного совпадения —
+     строку не трогаем вовсе (отказ безопасный).
+     Перерисовка не нужна — значение читается при каждом наведении (проверено). */
+  function localizePointTooltips(axis, oldCats, newCats) {
+    var series = axis.series || [];
+    for (var s = 0; s < series.length; s++) {
+      var pts = series[s].points || [];
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        var was = oldCats[p.x];
+        var now = newCats[p.x];
+        if (!was || !now || was === now) continue;
+        var t = p.options && p.options.tooltip;
+        if (typeof t !== "string" || t.slice(-was.length) !== was) continue;
+        p.options.tooltip = t.slice(0, -was.length) + now;
+        if (typeof p.tooltip === "string") p.tooltip = p.options.tooltip;
+      }
+    }
+  }
+
   function localizeChartMonths(c) {
     if (c.__lkMonthsRu) return;
     var axes = c.xAxis || [];
@@ -316,7 +342,13 @@
          подсказки. Перерисовка тут одна на график за всю жизнь страницы
          (дальше срабатывает флаг __lkMonthsRu), так что она ничего не стоит. */
       if (all) {
+        /* Английские названия запоминаем ДО обновления: update перерисовывает
+           график и пересоздаёт точки, а именно эти строки мы потом ищем в
+           конце подсказок. И подсказки правим ПОСЛЕ update — иначе перерисовка
+           вернула бы серверные значения обратно. */
+        var orig = cats.slice();
         axes[i].update({ categories: ru }, true);
+        localizePointTooltips(axes[i], orig, ru);
         changed = true;
       }
     }
