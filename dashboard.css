@@ -1943,26 +1943,54 @@ html.lk-m .ui-multiselect-filter input::placeholder {
   font-size: 1.4rem !important;
 }
 /* 2) Иконка часов у «Задать диапазон дат»: была 50×50; уменьшаем. И снимаем с
-   неё ссылку — это мёртвый <a href="#"> (тап давал прыжок к началу страницы). */
+   неё ссылку — это мёртвый <a href="#"> (тап давал прыжок к началу страницы).
+   background-image:none — гасим наш же SVG-фон (см. правило img[src*=clock_edit]
+   ниже): у <img> одновременно рисуется и его src-PNG, и фоновый SVG → на мобилке
+   получались ДВЕ наложенные иконки часов. Оставляем только PNG. */
 html.lk-m a[id^="quick_date_filter"] img[src*="clock_edit"],
 html.lk-m img[src*="clock_edit"] {
   width: 2rem !important;
   height: 2rem !important;
   padding-right: 0 !important;
+  background-image: none !important;
 }
 html.lk-m a[id^="quick_date_filter"] {
   pointer-events: none !important;
   cursor: default !important;
 }
-/* 3) Календарь (jQuery-UI datepicker): шрифт раздувался до 30-33px и он не
-   влезал в экран — ужимаем шрифт и ограничиваем ширину окном. */
+/* 3) Календарь (jQuery-UI datepicker): шрифт раздувался до 30-33px, он не влезал
+   в экран. Ужимаем до 1.8rem (компромисс: влезает и при этом ячейки достаточно
+   крупные, чтобы удобно попадать пальцем) и ограничиваем ширину окном. */
 html.lk-m #ui-datepicker-div,
 html.lk-m #ui-datepicker-div * {
-  font-size: 1.3rem !important;
+  font-size: 1.8rem !important;
 }
 html.lk-m #ui-datepicker-div {
   width: auto !important;
   max-width: calc(100vw - 1.2rem) !important;
+}
+/* ячейки дней — увеличенная площадь нажатия (было ~28×23, стало ~36×42) */
+html.lk-m #ui-datepicker-div td a,
+html.lk-m #ui-datepicker-div td span {
+  display: block !important;
+  padding: 0.9rem 0 !important;
+  text-align: center !important;
+}
+/* Кнопки «Сейчас»/«Закрыть»: платформенная инфляция делала их огромными (56px)
+   и они не влезали в ширину календаря → переносились на две строки. Ставим
+   buttonpane во flex-строку (одна строка, по краям) и уменьшаем сами кнопки. */
+html.lk-m #ui-datepicker-div .ui-datepicker-buttonpane {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 0.6rem !important;
+}
+html.lk-m #ui-datepicker-div .ui-datepicker-buttonpane button {
+  float: none !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0.5rem 0.8rem !important;
+  font-size: 1.3rem !important;
 }
 /* 4) Поля фильтров прижимались к правому краю: левые margin'ы сдвигали их
    вправо, и они вылезали за правый паддинг формы (напр. кнопки-мультиселекты
