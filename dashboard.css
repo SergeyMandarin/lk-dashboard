@@ -1932,6 +1932,54 @@ a.reportitemtitle {
 .ui-multiselect-filter input::placeholder {
   font-size: 1.2rem !important;
 }
+
+/* ── Мобильная шторка фильтров (html.lk-m) ─────────────────────────────────
+   Платформенная @media (max-device-width) раздувает input/select/img до ~3rem
+   (30-50px), из-за чего в шторке фильтров всё огромное. Прицельно возвращаем
+   нормальные размеры; html.lk-m + повышенная специфичность бьют инфляцию. */
+/* 1) Плейсхолдер «Введите ключевые слова» — базовое правило выше на мобилке
+   перебивалось (30px); html.lk-m-версия выигрывает. */
+html.lk-m .ui-multiselect-filter input::placeholder {
+  font-size: 1.4rem !important;
+}
+/* 2) Иконка часов у «Задать диапазон дат»: была 50×50; уменьшаем. И снимаем с
+   неё ссылку — это мёртвый <a href="#"> (тап давал прыжок к началу страницы). */
+html.lk-m a[id^="quick_date_filter"] img[src*="clock_edit"],
+html.lk-m img[src*="clock_edit"] {
+  width: 2rem !important;
+  height: 2rem !important;
+  padding-right: 0 !important;
+}
+html.lk-m a[id^="quick_date_filter"] {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+/* 3) Календарь (jQuery-UI datepicker): шрифт раздувался до 30-33px и он не
+   влезал в экран — ужимаем шрифт и ограничиваем ширину окном. */
+html.lk-m #ui-datepicker-div,
+html.lk-m #ui-datepicker-div * {
+  font-size: 1.3rem !important;
+}
+html.lk-m #ui-datepicker-div {
+  width: auto !important;
+  max-width: calc(100vw - 1.2rem) !important;
+}
+/* 4) Поля фильтров прижимались к правому краю: левые margin'ы сдвигали их
+   вправо, и они вылезали за правый паддинг формы (напр. кнопки-мультиселекты
+   17/7, поля даты 15/9). Выравниваем по контент-боксу → зазоры симметричны
+   (12/12, как у select «Сгруппировать»). Поля даты таргетим напрямую: их
+   margin:0.3rem задан по id, form-scoped селектор его не перебивал. */
+html.lk-m #general_filters_form button.ui-multiselect,
+html.lk-m #general_filters_form select,
+html.lk-m input#general_rangeStart,
+html.lk-m input#general_rangeEnd {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
 body.page-menu-manage .reportItemTitle {
   margin-bottom: 0px;
 }
