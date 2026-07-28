@@ -5796,6 +5796,40 @@ a#thenote::after  { content: " !"; }
    внутренними отступами, чтобы текст не касался краёв. Выравнивание шкал в
    соседней ячейке mc-score по центру каждого ответа делает JS (report-appeal.js),
    т.к. высоты ответов разные — чистым CSS через ячейки таблицы не связать. */
+/* Столбцы «Сообщение» и «Tags» (два последних) в таблице полного отчёта
+   раздувались до ~360px: «Сообщение» — из-за длинных опций select «Send to»,
+   «Tags» — из-за чипов тегов, и таблица уезжала за правый край экрана.
+   Сжимаем к содержимому (width:1%) и КАПАЕМ max-width — при переполнении
+   (много тегов / длинный текст) столбцы не разъезжаются вправо, а переносят/
+   усекают внутри. Стабильный класс show-entire-crit-report (crit_<id>_gallery —
+   клиентский, не годится); nth-child(8)=Сообщение, (9)=Tags; `>`-комбинаторы,
+   чтобы не задеть ВЛОЖЕННЫЕ таблицы внутри этих же ячеек. */
+table.report.show-entire-crit-report > thead > tr > td:nth-child(8),
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8),
+table.report.show-entire-crit-report > thead > tr > td:nth-child(9),
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) {
+  width: 1%;
+  max-width: 16rem !important;
+  overflow: hidden !important;
+}
+/* внутренние таблицы этих ячеек не должны распирать столбец */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) table,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) table {
+  max-width: 100% !important;
+  table-layout: fixed !important;
+}
+/* select «Send to» и поле сообщения — под ширину столбца, длинное усекается */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) input {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+/* чипы тегов переносятся на новую строку, а не тянут столбец вправо */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) td {
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`
    в style.css матчит тот же <p> с равной специфичностью и грузится позже —
    съедало наш margin. td-префикс поднимает специфичность, чтобы победить. */
