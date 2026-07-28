@@ -1183,7 +1183,14 @@ td.first-aligment > img {
   height: 7rem;
 }
 table.grid_reports_table td.grid_report_td > center {
+  /* горизонтальный скролл для широких таблиц/графиков внутри блока.
+     overflow-y: hidden ОБЯЗАТЕЛЕН: по спецификации, если одна ось overflow=auto,
+     а другая visible — visible вычисляется в auto. Без этого overflow-y тоже
+     становился auto, и суб-пиксельная высота блока (напр. 519.5px, контент 521px)
+     рождала паразитный вертикальный скролл на 1px справа. По вертикали эти блоки
+     скроллить не нужно — они по высоте подгоняются под сетку. */
   overflow-x: auto;
+  overflow-y: hidden;
 }
 .top_tabs_row {
   max-width: 100%;
