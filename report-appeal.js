@@ -194,10 +194,59 @@
     return Date.now();
   }
 
+  /* ---- выравнивание шкал оценок по центру ответов ----
+     У мультивариантного вопроса ячейка ответов (td.mc-answer, где варианты —
+     «пилюли» с рамкой, см. CSS .mc-answer p) и соседняя ячейка шкал (td.mc-score)
+     содержат по ОДИНАКОВОМУ числу <p> в том же порядке. Но шкалы короткие и
+     прижаты к верху — стартуют вместе с ответами, но расходятся вниз (ответы
+     высокие). Задаём каждой шкале высоту (и вертикальные margin) соответствующего
+     ответа и центрируем её содержимое по вертикали: позиции сходятся каскадом,
+     т.к. обе колонки начинаются от верха ячейки. Идемпотентно: ap.offsetHeight
+     (border-box) от наших правок не зависит, повторный проход даёт то же.
+     Прямые дети через children (не :scope) — ради старых движков. */
+  function alignMcScales() {
+    var answers = document.querySelectorAll("td.mc-answer");
+    for (var a = 0; a < answers.length; a++) {
+      var ans = answers[a];
+      var row = ans.closest("tr");
+      var score = row && row.querySelector("td.mc-score");
+      if (!score) continue;
+      var aps = ans.querySelectorAll("div > p");
+      var sps = [];
+      for (var c = 0; c < score.children.length; c++) {
+        if (score.children[c].tagName === "P") sps.push(score.children[c]);
+      }
+      if (!aps.length || aps.length !== sps.length) continue;
+      for (var i = 0; i < aps.length; i++) {
+        var ap = aps[i];
+        var sp = sps[i];
+        var cs = getComputedStyle(ap);
+        sp.style.boxSizing = "border-box";
+        sp.style.height = ap.offsetHeight + "px";
+        sp.style.marginTop = cs.marginTop;
+        sp.style.marginBottom = cs.marginBottom;
+        sp.style.display = "flex";
+        sp.style.alignItems = "center";
+      }
+    }
+  }
+
+  var alignTimer = null;
+  function scheduleAlign() {
+    if (alignTimer) clearTimeout(alignTimer);
+    alignTimer = setTimeout(alignMcScales, 150);
+  }
+
   function init() {
     watchCommentButton();    /* модалка «Добавление замечания» */
     armOnCommentsSave();      /* «Сохранить комментарии» с изменёнными полями */
     firePendingAppeal();      /* отложенная подача апелляции после reload */
+    /* выравнивание шкал: сразу + повторы на подгрузку шрифтов (высота текста
+       ответов может измениться), + при ресайзе (перенос строк меняет высоты) */
+    alignMcScales();
+    setTimeout(alignMcScales, 300);
+    setTimeout(alignMcScales, 1200);
+    window.addEventListener("resize", scheduleAlign, { passive: true });
   }
 
   if (document.readyState === "loading") {
