@@ -1488,11 +1488,60 @@
     });
   }
 
+  /* Сноска отчёта «Примечание: Разделы, которые не оцениваются баллами, не
+     включены в отчёт.» — это ГОЛЫЙ текст-узел (перед ним <b>Примечание</b>),
+     прямой ребёнок .dashboard-report-slot, сидит над таблицей данных. Слот у нас
+     принудительно text-align:left, поэтому сноска липнет влево; а на мобилке она
+     ещё и раздувается (~30px) и не переносится в широком слоте. CSS-ом голый узел
+     не зацепить прицельно (align/размер на слоте задели бы график и таблицу),
+     поэтому оборачиваем <b>+текст в .lk-report-note — центрирование и мобильный
+     размер задаёт CSS (.lk-report-note). Идемпотентно: если уже обёрнут — выходим.
+     Скоуп по .dashboard-report-slot, как у hideRecordCounts. */
+  function centerReportNotes() {
+    var slots = document.querySelectorAll(".dashboard-report-slot");
+    [].forEach.call(slots, function (slot) {
+      var walker = document.createTreeWalker(
+        slot,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
+      var node,
+        hit = null;
+      while ((node = walker.nextNode())) {
+        if (/не оцениваются баллами/.test(node.nodeValue || "")) {
+          hit = node;
+          break;
+        }
+      }
+      if (!hit) return;
+      var parent = hit.parentNode;
+      if (!parent || /lk-report-note/.test(parent.className + "")) return;
+      /* прихватываем предшествующий <b>Примечание</b>, если он есть */
+      var first = hit;
+      var prev = hit.previousSibling;
+      if (prev && prev.nodeType === 1 && prev.tagName === "B") first = prev;
+      /* последовательность узлов от first до текста собираем ДО переноса */
+      var nodes = [],
+        n = first;
+      while (n) {
+        nodes.push(n);
+        if (n === hit) break;
+        n = n.nextSibling;
+      }
+      var wrap = document.createElement("div");
+      wrap.className = "lk-report-note";
+      parent.insertBefore(wrap, first);
+      for (var k = 0; k < nodes.length; k++) wrap.appendChild(nodes[k]);
+    });
+  }
+
   function enhanceReports() {
     initWideScroll();
     wrapExportBars();
     relocateFloatButtonRow();
     hideRecordCounts();
+    centerReportNotes();
     flexReportActions();
     enhanceExportDialogs();
     /* только телефон: на десктопе/планшете широкие таблицы и так помещаются */

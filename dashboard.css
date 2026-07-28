@@ -5741,6 +5741,24 @@ html.sb-open body.page-main-menu table.top_tabs_row {
    скролл; ставим left. Универсально на все отчёты.
    ============================================================ */
 .dashboard-report-slot { text-align: left !important; }
+/* Сноска отчёта «Примечание: Разделы, которые не оцениваются баллами…» —
+   голый текст-узел в .dashboard-report-slot (слот принудительно left, см. выше),
+   поэтому её оборачивает в .lk-report-note наш JS (sidebar-toggle.js
+   centerReportNotes). Здесь: центрируем (перебивает inherited left, т.к. задано
+   прямо на элементе). На мобилке она раздувалась до ~30px и не переносилась в
+   широком слоте — приводим к размеру текста отчёта (--fs-report-body) и
+   ограничиваем ширину окном, чтобы переносилась и не уезжала за край. */
+.lk-report-note {
+  display: block;
+  text-align: center;
+}
+html.lk-m .lk-report-note {
+  max-width: calc(100vw - 1.2rem);
+}
+html.lk-m .lk-report-note,
+html.lk-m .lk-report-note * {
+  font-size: var(--fs-report-body) !important;
+}
 input.btn-input[onclick*="IEprompt"],input.btn-input[onclick*="open_export_type_dialogue"],input.btn-input[onclick*="open_exportall_operation"] {
   border:0 !important; border-radius:1rem !important; color:#fff !important;
   font-family:"Montserrat",sans-serif !important; font-size:1.3rem !important; font-weight:800 !important;
