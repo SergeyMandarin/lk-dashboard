@@ -5812,8 +5812,11 @@ table.report.show-entire-crit-report > thead > tr > td:nth-child(8),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8),
 table.report.show-entire-crit-report > thead > tr > td:nth-child(9),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) {
-  width: 11rem !important;
-  max-width: 11rem !important;
+  /* min-width обязателен: в auto-layout один `width` — лишь пожелание, столбцы
+     оставались ~175px; min-width форсирует ровно 25rem. */
+  min-width: 25rem !important;
+  width: 25rem !important;
+  max-width: 25rem !important;
 }
 /* вложенные таблицы этих ячеек — строго в ширину столбца */
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) table,
@@ -5837,6 +5840,28 @@ table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) input {
   width: 100% !important;
   max-width: 100% !important;
   box-sizing: border-box !important;
+}
+/* Нативная выпадашка этих select у правого края таблицы раскрывалась ВЛЕВО-
+   ВПРАВО от левого края и уезжала за границу. direction:rtl разворачивает
+   нативный список к ПРАВОМУ краю контрола (он открывается «в стол», оставаясь
+   на экране). Побочно rtl уводит нативную стрелку влево и текст вправо —
+   поэтому гасим нативную стрелку (appearance:none) и рисуем свою справа, а
+   текст возвращаем влево (text-align:left); опции держим ltr для читаемости. */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select {
+  direction: rtl !important;
+  text-align: left !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23541261' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.7rem center !important;
+  background-size: 1.1rem !important;
+  padding-right: 2.2rem !important;
+}
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select option,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select option {
+  direction: ltr !important;
 }
 
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`
