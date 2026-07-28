@@ -5879,6 +5879,46 @@ form[id^="the_email_form_for"] {
   padding-left: 0 !important;
 }
 
+/* Пояснительные подписи к кнопке «Добавление замечания» (a#thenote.AddNote),
+   чисто на CSS. Кнопка — красный inline-block, поэтому псевдоэлементы «внутри»
+   получили бы её фон; вместо этого выносим подписи через position:absolute над
+   и под кнопкой, а вертикальное место резервируем margin-ом, чтобы текст не
+   наезжал на соседние блоки («Выбрать все/Скачать» сверху, статус-кнопки снизу).
+   pointer-events:none — подписи не перехватывают клики, кнопка остаётся кликабельной.
+   Текст пишем живой кириллицей (файл в UTF-8): при \uXXXX-эскейпах CSS съедал бы
+   пробел-терминатор после каждого символа. */
+a#thenote.AddNote {
+  position: relative !important;
+  margin-top: 8rem !important;
+  margin-bottom: 10rem !important;
+}
+a#thenote.AddNote::before,
+a#thenote.AddNote::after {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70rem;
+  max-width: 88vw;
+  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 1.45;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: default;
+  pointer-events: none;
+}
+a#thenote.AddNote::before {
+  content: "Для добавления апелляции (замечания) к отчёту нажмите кнопку «Добавление замечания», введите текст в соответствующее поле и нажмите кнопку «Отправить».";
+  bottom: calc(100% + 1.4rem);
+  color: #333;
+}
+a#thenote.AddNote::after {
+  content: "⚠️ После отправки не закрывайте страницу сразу. Дождитесь, пока она автоматически обновится два раза — это необходимо для корректной отправки уведомления об апелляции.";
+  top: calc(100% + 1.4rem);
+  color: #b00020;
+}
+
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`
    в style.css матчит тот же <p> с равной специфичностью и грузится позже —
    съедало наш margin. td-префикс поднимает специфичность, чтобы победить. */
