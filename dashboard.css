@@ -5797,37 +5797,46 @@ a#thenote::after  { content: " !"; }
    соседней ячейке mc-score по центру каждого ответа делает JS (report-appeal.js),
    т.к. высоты ответов разные — чистым CSS через ячейки таблицы не связать. */
 /* Столбцы «Сообщение» и «Tags» (два последних) в таблице полного отчёта
-   раздувались до ~360px: «Сообщение» — из-за длинных опций select «Send to»,
-   «Tags» — из-за чипов тегов, и таблица уезжала за правый край экрана.
-   Сжимаем к содержимому (width:1%) и КАПАЕМ max-width — при переполнении
-   (много тегов / длинный текст) столбцы не разъезжаются вправо, а переносят/
-   усекают внутри. Стабильный класс show-entire-crit-report (crit_<id>_gallery —
-   клиентский, не годится); nth-child(8)=Сообщение, (9)=Tags; `>`-комбинаторы,
-   чтобы не задеть ВЛОЖЕННЫЕ таблицы внутри этих же ячеек. */
+   раздувались до ~360px и таблица уезжала за правый край экрана. Причина —
+   ВНУТРИ каждого сидит <select>, который сайзится под самую длинную опцию:
+   «Сообщение» — «Send to» (список получателей), «Tags» — список тегов.
+   Даём столбцам фиксированную умеренную ширину (11rem = потолок «чтобы не
+   разлетелись»), а весь внутренний контент (вложенные таблицы, select, input)
+   загоняем в 100% ширины столбца. select показывает выбранное значение
+   («Нет» / «(All)»), полный список остаётся в выпадашке.
+   ⚠️ width:1% НЕ годится — Tags-select схлопывался до огрызка-стрелки.
+   Стабильный класс show-entire-crit-report (crit_<id>_gallery — клиентский);
+   nth-child(8)=Сообщение, (9)=Tags; `>`-комбинаторы, чтобы задеть только сами
+   ячейки, а внутренние таблицы ловим отдельными правилами ниже. */
 table.report.show-entire-crit-report > thead > tr > td:nth-child(8),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8),
 table.report.show-entire-crit-report > thead > tr > td:nth-child(9),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) {
-  width: 1%;
-  max-width: 16rem !important;
-  overflow: hidden !important;
+  width: 11rem !important;
+  max-width: 11rem !important;
 }
-/* внутренние таблицы этих ячеек не должны распирать столбец */
+/* вложенные таблицы этих ячеек — строго в ширину столбца */
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) table,
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) table {
+  width: 100% !important;
   max-width: 100% !important;
   table-layout: fixed !important;
 }
-/* select «Send to» и поле сообщения — под ширину столбца, длинное усекается */
-table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select,
-table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) input {
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-/* чипы тегов переносятся на новую строку, а не тянут столбец вправо */
+/* внутренние td — перенос, а не распирание */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) td,
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) td {
+  max-width: 100% !important;
   white-space: normal !important;
   word-break: break-word !important;
+}
+/* select «Send to»/тегов и поле сообщения — под ширину столбца */
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) input,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select,
+table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) input {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`
