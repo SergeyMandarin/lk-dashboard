@@ -2007,6 +2007,37 @@ html.lk-m input#general_rangeEnd {
   margin-right: 0 !important;
   box-sizing: border-box !important;
 }
+/* 5) Кнопки «Подтвердить» (input#update_filters) и «Очистить»
+   (a#link_to_clear_general_filters) в нашем контейнере #lk-filt-actions были
+   разной высоты/шрифта (input vs <a> рендерятся по-разному: 38 vs 44px, 15 vs
+   14px). Приводим к единому виду: одинаковая фикс-высота, равная ширина через
+   flex (fixed-ширину в rem не берём — на узких телефонах ~338px две по 15rem не
+   влезают в ряд; flex 1 1 0 всегда даёт равные 50/50 и помещается), единый
+   шрифт, текст по центру, иконка слева с отступом (padding-left резервирует под
+   неё место, чтобы текст не наезжал). ⚠️ Тройная спец-набивка через :not(#id)
+   вынужденная: шрифт «Подтвердить» перебивался очень специфичным платформенным
+   правилом, обычной специфичности (2 id + класс) не хватало. */
+html.lk-m #lk-filt-actions input#update_filters:not(#z1):not(#z2),
+html.lk-m #lk-filt-actions a#link_to_clear_general_filters:not(#z1):not(#z2) {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  height: 4rem !important;
+  min-height: 0 !important;
+  margin: 0.3rem !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  padding: 0 0.4rem 0 2.8rem !important;
+  line-height: normal !important;
+  position: static !important;
+  top: 0 !important;
+  font-size: 1.3rem !important;
+  background-position: left 1rem center !important;
+  background-size: auto 1.6rem !important;
+}
 
 body.page-menu-manage .reportItemTitle {
   margin-bottom: 0px;
