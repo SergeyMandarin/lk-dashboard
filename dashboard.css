@@ -5813,10 +5813,12 @@ table.report.show-entire-crit-report > tbody > tr > td:nth-child(8),
 table.report.show-entire-crit-report > thead > tr > td:nth-child(9),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) {
   /* min-width обязателен: в auto-layout один `width` — лишь пожелание, столбцы
-     оставались ~175px; min-width форсирует ровно 25rem. */
-  min-width: 25rem !important;
-  width: 25rem !important;
-  max-width: 25rem !important;
+     оставались ~175px; min-width форсирует ширину. 20rem вместо 25rem — чтобы
+     таблица (и её контейнер begin-report-area, +~87px обвязки) влезала в окно;
+     на всякий случай JS ещё оборачивает таблицу в скролл-контейнер. */
+  min-width: 20rem !important;
+  width: 20rem !important;
+  max-width: 20rem !important;
 }
 /* вложенные таблицы этих ячеек — строго в ширину столбца */
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) table,
