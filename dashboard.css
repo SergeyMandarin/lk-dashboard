@@ -5870,12 +5870,13 @@ table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select optio
   direction: ltr !important;
 }
 
-/* Форма отчёта (обёртка таблицы) имеет платформенный `padding-left: 2px`, из-за
-   которого её box на 2px шире контейнера и вылезает за правый край окна →
-   паразитная горизонтальная полоса прокрутки (docScrollW 1682 при окне 1680),
-   даже когда сама таблица влезает. Убираем этот паддинг только у формы отчёта
-   (id-префикс), прочие .inline-формы не трогаем. */
-form[id^="the_email_form_for"] {
+/* Формы отчёта (обёртки таблицы и блока экспорта) имеют платформенный
+   `padding-left: 2px`, из-за которого их box на 2px шире контейнера и вылезает
+   за правый край окна → паразитная горизонтальная полоса прокрутки (docScrollW
+   1682 при окне 1680), даже когда таблица влезает. Обе формы отчёта
+   (email + export) — по id-префиксу; прочие .inline-формы не трогаем. */
+form[id^="the_email_form_for"],
+form[id^="the_export_form_for"] {
   padding-left: 0 !important;
 }
 
@@ -5916,7 +5917,29 @@ a#thenote.AddNote::before {
 a#thenote.AddNote::after {
   content: "⚠️ После отправки не закрывайте страницу сразу. Дождитесь, пока она автоматически обновится два раза — это необходимо для корректной отправки уведомления об апелляции.";
   top: calc(100% + 1.4rem);
-  color: #b00020;
+  /* цвет как у инструкции (не красный — «иконки достаточно»). Эмодзи-шрифт в
+     начале стека нужен, чтобы ⚠️ (U+26A0 U+FE0F) рендерился ЦВЕТНЫМ значком с
+     восклицательным знаком; без него часть систем показывает пустой
+     текстовый треугольник без «!». Кириллица падает на следующий шрифт (per-glyph
+     fallback), поэтому текст остаётся обычным. */
+  color: #333;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji",
+    "Segoe UI", Arial, sans-serif;
+}
+
+/* Статус-бар отчёта (jQuery-UI .ui-state-highlight). Проблемы: box-sizing
+   content-box → padding 8.4px добавляется к ширине и вылезает за контейнер
+   (на узких экранах — горизонтальная полоса); плюс он тянется во всю ширину
+   смещённого влево контейнера begin-report-area (слева отступ ~60px, справа 0)
+   → выглядит перекошенным. Делаем border-box (padding внутрь, без вылета) и
+   сжимаем до содержимого с margin:auto → аккуратная центрированная «пилюля». */
+.ui-state-highlight.ui-corner-all {
+  box-sizing: border-box !important;
+  width: -moz-fit-content !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`
