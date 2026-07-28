@@ -5880,14 +5880,23 @@ form[id^="the_export_form_for"] {
   padding-left: 0 !important;
 }
 
-/* Пояснительные подписи к кнопке «Добавление замечания» (a#thenote.AddNote),
-   чисто на CSS. Кнопка — красный inline-block, поэтому псевдоэлементы «внутри»
-   получили бы её фон; вместо этого выносим подписи через position:absolute над
-   и под кнопкой, а вертикальное место резервируем margin-ом, чтобы текст не
-   наезжал на соседние блоки («Выбрать все/Скачать» сверху, статус-кнопки снизу).
-   pointer-events:none — подписи не перехватывают клики, кнопка остаётся кликабельной.
-   Текст пишем живой кириллицей (файл в UTF-8): при \uXXXX-эскейпах CSS съедал бы
-   пробел-терминатор после каждого символа. */
+/* Пояснительные подписи к кнопке «Добавление замечания» (a#thenote.AddNote).
+   ДВА СЛОЯ:
+   1) CSS-псевдоэлементы ::before/::after — мгновенный fallback (виден сразу через
+      CSS-оверрайд, пока не подгрузился report-appeal.js). Кнопка — красный
+      inline-block, поэтому псевдо выносим через position:absolute над/под ней, а
+      место резервируем margin-ом. НО в content нельзя выделить отдельные слова
+      жирным (это единый текстовый run).
+   2) Клиент попросил жирные фрагменты → их рисует report-appeal.js реальными
+      узлами .lk-note-hint (с <strong>), вставляя в поток до/после кнопки. Когда JS
+      отработал, он вешает на кнопку класс .lk-hinted → псевдо гасим (content:none)
+      и снимаем резервный margin, место занимают уже узлы. Так нет ни разрыва
+      (fallback), ни дубля.
+   Эмодзи-шрифт в начале font-family — чтобы ⚠️ (U+26A0 U+FE0F) рендерился цветным
+   значком с восклицательным знаком, а не пустым текстовым треугольником; кириллица
+   падает на следующий шрифт (per-glyph fallback). Тот же стек и у fallback, и у
+   узлов — шрифт/размер подписей одинаковые. Текст живой кириллицей (файл UTF-8):
+   при \uXXXX CSS съедал бы пробел-терминатор. */
 a#thenote.AddNote {
   position: relative !important;
   margin-top: 8rem !important;
@@ -5900,31 +5909,50 @@ a#thenote.AddNote::after {
   transform: translateX(-50%);
   width: 70rem;
   max-width: 88vw;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji",
+    "Segoe UI", Arial, sans-serif;
   font-weight: 400;
   font-size: 1.4rem;
   line-height: 1.45;
   text-align: center;
   text-decoration: none;
   white-space: normal;
+  color: #333;
   cursor: default;
   pointer-events: none;
 }
 a#thenote.AddNote::before {
   content: "Для добавления апелляции (замечания) к отчёту нажмите кнопку «Добавление замечания», введите текст в соответствующее поле и нажмите кнопку «Отправить».";
   bottom: calc(100% + 1.4rem);
-  color: #333;
 }
 a#thenote.AddNote::after {
   content: "⚠️ После отправки не закрывайте страницу сразу. Дождитесь, пока она автоматически обновится два раза — это необходимо для корректной отправки уведомления об апелляции.";
   top: calc(100% + 1.4rem);
-  /* цвет как у инструкции (не красный — «иконки достаточно»). Эмодзи-шрифт в
-     начале стека нужен, чтобы ⚠️ (U+26A0 U+FE0F) рендерился ЦВЕТНЫМ значком с
-     восклицательным знаком; без него часть систем показывает пустой
-     текстовый треугольник без «!». Кириллица падает на следующий шрифт (per-glyph
-     fallback), поэтому текст остаётся обычным. */
-  color: #333;
+}
+/* JS вставил узлы-подписи → гасим псевдо-fallback и убираем резервный отступ */
+a#thenote.AddNote.lk-hinted {
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
+}
+a#thenote.AddNote.lk-hinted::before,
+a#thenote.AddNote.lk-hinted::after {
+  content: none !important;
+}
+/* Узлы-подписи (report-appeal.js) — тот же шрифт/размер, что и fallback,
+   плюс возможность жирных фрагментов через <strong>. */
+.lk-note-hint {
   font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji",
     "Segoe UI", Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: center;
+  color: #333;
+  max-width: 70rem;
+  margin: 1.5rem auto;
+}
+.lk-note-hint strong {
+  font-weight: 700;
 }
 
 /* Статус-бар отчёта (jQuery-UI .ui-state-highlight). Проблемы: box-sizing

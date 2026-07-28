@@ -237,7 +237,63 @@
     alignTimer = setTimeout(alignMcScales, 150);
   }
 
+  /* ---- подписи к кнопке «Добавление замечания» с жирными фрагментами ----
+     CSS-псевдоэлементы дают подписи-fallback, но в content нельзя выделить
+     отдельные слова жирным (единый текстовый run). Поэтому здесь строим подписи
+     реальными узлами DOM (в потоке до/после кнопки) с <strong> на нужных кусках.
+     HTML платформы не трогаем — узлы создаём в рантайме. Повесив класс lk-hinted
+     на кнопку, гасим CSS-псевдо (см. dashboard.css) — не будет дубля. Оформление
+     узлов (.lk-note-hint) — в CSS, тот же шрифт/размер, что и у fallback.
+     Идемпотентно: если узлы уже есть — выходим. */
+  function hintFragment(parts) {
+    var f = document.createDocumentFragment();
+    for (var i = 0; i < parts.length; i++) {
+      var node;
+      if (parts[i][1]) {
+        node = document.createElement("strong");
+        node.appendChild(document.createTextNode(parts[i][0]));
+      } else {
+        node = document.createTextNode(parts[i][0]);
+      }
+      f.appendChild(node);
+    }
+    return f;
+  }
+  function addNoteHints() {
+    var btn = document.getElementById("thenote");
+    if (!btn || document.querySelector(".lk-note-hint")) return;
+    var before = document.createElement("div");
+    before.className = "lk-note-hint lk-note-hint--before";
+    before.appendChild(
+      hintFragment([
+        ["Для добавления апелляции", true],
+        [" (замечания) к отчёту нажмите кнопку ", false],
+        ["«Добавление замечания»", true],
+        [", введите текст в соответствующее поле и нажмите кнопку ", false],
+        ["«Отправить»", true],
+        [".", false],
+      ])
+    );
+    var after = document.createElement("div");
+    after.className = "lk-note-hint lk-note-hint--after";
+    after.appendChild(
+      hintFragment([
+        ["⚠️ После отправки ", false],
+        ["не закрывайте страницу сразу", true],
+        [
+          ". Дождитесь, пока она автоматически обновится два раза — это необходимо для корректной отправки уведомления об апелляции.",
+          false,
+        ],
+      ])
+    );
+    btn.parentNode.insertBefore(before, btn);
+    if (btn.nextSibling) btn.parentNode.insertBefore(after, btn.nextSibling);
+    else btn.parentNode.appendChild(after);
+    btn.classList.add("lk-hinted"); /* гасит CSS-псевдо-fallback */
+  }
+
   function init() {
+    addNoteHints();           /* подписи к кнопке с жирными фрагментами */
     watchCommentButton();    /* модалка «Добавление замечания» */
     armOnCommentsSave();      /* «Сохранить комментарии» с изменёнными полями */
     firePendingAppeal();      /* отложенная подача апелляции после reload */
