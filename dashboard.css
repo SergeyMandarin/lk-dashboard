@@ -5813,12 +5813,16 @@ table.report.show-entire-crit-report > tbody > tr > td:nth-child(8),
 table.report.show-entire-crit-report > thead > tr > td:nth-child(9),
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) {
   /* min-width обязателен: в auto-layout один `width` — лишь пожелание, столбцы
-     оставались ~175px; min-width форсирует ширину. 20rem вместо 25rem — чтобы
-     таблица (и её контейнер begin-report-area, +~87px обвязки) влезала в окно;
-     на всякий случай JS ещё оборачивает таблицу в скролл-контейнер. */
-  min-width: 20rem !important;
-  width: 20rem !important;
-  max-width: 20rem !important;
+     оставались ~175px; min-width форсирует ширину.
+     15rem (а не 20/25rem) выбрано осознанно: при большей ширине таблица упирается
+     в кап `table.report{max-width:95%}` (~1554px), её ячейки ВЫЛЕЗАЮТ за box
+     таблицы, справа проступает серый фон («обрыв» под шапкой в колонках 8-9), и
+     таблица заполняет весь контейнер → прижимается вправо (перекос полей). При
+     15rem содержимое укладывается в 95%-box, штатный `margin:0 auto` центрирует
+     таблицу → поля слева/справа симметричны, «обрыва» нет. Проверено вживую. */
+  min-width: 15rem !important;
+  width: 15rem !important;
+  max-width: 15rem !important;
 }
 /* вложенные таблицы этих ячеек — строго в ширину столбца */
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) table,
@@ -5864,6 +5868,15 @@ table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select {
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(8) select option,
 table.report.show-entire-crit-report > tbody > tr > td:nth-child(9) select option {
   direction: ltr !important;
+}
+
+/* Форма отчёта (обёртка таблицы) имеет платформенный `padding-left: 2px`, из-за
+   которого её box на 2px шире контейнера и вылезает за правый край окна →
+   паразитная горизонтальная полоса прокрутки (docScrollW 1682 при окне 1680),
+   даже когда сама таблица влезает. Убираем этот паддинг только у формы отчёта
+   (id-префикс), прочие .inline-формы не трогаем. */
+form[id^="the_email_form_for"] {
+  padding-left: 0 !important;
 }
 
 /* td.mc-answer (а не просто .mc-answer): платформенное `.mc-answers p{margin:0}`

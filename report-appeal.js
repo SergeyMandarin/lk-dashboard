@@ -231,84 +231,13 @@
     }
   }
 
-  /* ---- пришпиливаем таблицу отчёта к ширине окна ----
-     Широкие колонки «Сообщение»/«Tags» раздували контейнер begin-report-area
-     шире окна → горизонтальный скролл ВСЕЙ страницы (docScrollW > innerWidth).
-     Оборачиваем ТОЛЬКО эту таблицу (стабильный класс) в блок с overflow-x:auto:
-     контейнер перестаёт тянуться под таблицу, страница не выезжает, а сама
-     таблица при нехватке места скроллится по горизонтали. Другие таблицы не
-     трогаем. Идемпотентно (флаг data-lk-scroll на обёртке). */
-  function pinReportTable() {
-    var t = document.querySelector("table.report.show-entire-crit-report");
-    if (!t) return;
-    var p = t.parentNode;
-    if (!p || (p.getAttribute && p.getAttribute("data-lk-scroll"))) return;
-    var box = document.createElement("div");
-    box.setAttribute("data-lk-scroll", "1");
-    box.style.maxWidth = "100%";
-    box.style.overflowX = "auto";
-    p.insertBefore(box, t);
-    box.appendChild(t);
-  }
-
-  /* ---- поле «Сообщение» → саморастущая textarea ----
-     Поле msg[...] — однострочный <input maxlength=1500>; при длинном тексте он
-     прокручивается вбок, и всего сообщения не видно. <input> переносить слова не
-     умеет, поэтому подменяем его на <textarea> с тем же name/value/maxlength и
-     авто-высотой (растёт под контент, слова переносятся). Форма #save_comments
-     постит на страницу обычным POST (без JS-сбора именно input-ов, проверено),
-     textarea уходит под тем же именем → сервер получает то же значение.
-     Копируем ВСЕ атрибуты (кроме type), чтобы не потерять классы/inline-хендлеры.
-     Идемпотентно: после подмены input[name^=msg[] уже нет — это textarea. */
-  function autoGrow(el) {
-    el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
-  }
-  function enhanceMessageFields() {
-    var inputs = document.querySelectorAll('input[name^="msg["]');
-    for (var i = 0; i < inputs.length; i++) {
-      var inp = inputs[i];
-      if (inp.type === "hidden") continue;
-      var ta = document.createElement("textarea");
-      for (var a = 0; a < inp.attributes.length; a++) {
-        var at = inp.attributes[a];
-        if (at.name === "type") continue;
-        ta.setAttribute(at.name, at.value);
-      }
-      ta.value = inp.value; /* живое значение, а не default-атрибут */
-      ta.rows = 1;
-      ta.style.resize = "none";
-      ta.style.overflow = "hidden";
-      ta.style.whiteSpace = "pre-wrap";
-      ta.style.wordBreak = "break-word";
-      ta.style.width = "100%";
-      ta.style.boxSizing = "border-box";
-      inp.parentNode.replaceChild(ta, inp);
-      autoGrow(ta);
-      (function (t) {
-        t.addEventListener("input", function () {
-          autoGrow(t);
-        });
-      })(ta);
-    }
-  }
-  function regrowTextareas() {
-    var tas = document.querySelectorAll('textarea[name^="msg["]');
-    for (var i = 0; i < tas.length; i++) autoGrow(tas[i]);
-  }
-
   var alignTimer = null;
   function scheduleAlign() {
     if (alignTimer) clearTimeout(alignTimer);
-    alignTimer = setTimeout(function () {
-      alignMcScales();
-      regrowTextareas(); /* смена ширины окна меняет перенос → пересчитать высоту */
-    }, 150);
+    alignTimer = setTimeout(alignMcScales, 150);
   }
 
   function init() {
-    pinReportTable();         /* таблица не должна выезжать за окно */
-    enhanceMessageFields();   /* «Сообщение»: input→textarea ДО baseline armOnCommentsSave */
     watchCommentButton();    /* модалка «Добавление замечания» */
     armOnCommentsSave();      /* «Сохранить комментарии» с изменёнными полями */
     firePendingAppeal();      /* отложенная подача апелляции после reload */
