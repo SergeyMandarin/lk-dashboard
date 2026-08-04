@@ -1566,6 +1566,25 @@
       });
   }
 
+  /* Инлайн-блок выбора формата экспорта (span.mmfa-inline-export) платформа
+     выводит прямо в широкой прокручиваемой таблице отчёта — при горизонтальной
+     прокрутке он уезжал вместе с таблицей (position:relative), в отличие от
+     кнопок в нашем sticky-баре .lk-export-bar. Переносим его В этот бар (он —
+     sibling в том же родителе): бар уже sticky, нужной ширины и центрирует
+     содержимое, а CSS (.lk-export-bar > .mmfa-inline-export) ставит блок
+     отдельной центрированной строкой. Так он и таскается за прокруткой, и стоит
+     по центру. Идемпотентно: если уже внутри бара — пропускаем. */
+  function moveInlineExportToBar() {
+    var mmfas = document.querySelectorAll(".mmfa-inline-export");
+    [].forEach.call(mmfas, function (mmfa) {
+      if (mmfa.closest(".lk-export-bar")) return;
+      var parent = mmfa.parentElement;
+      var bar = parent && parent.querySelector(".lk-export-bar");
+      if (!bar) return;
+      bar.appendChild(mmfa);
+    });
+  }
+
   /* Сноска отчёта «Примечание: Разделы, которые не оцениваются баллами, не
      включены в отчёт.» — это ГОЛЫЙ текст-узел (перед ним <b>Примечание</b>),
      прямой ребёнок .dashboard-report-slot, сидит над таблицей данных. Слот у нас
@@ -1623,6 +1642,7 @@
     flexReportActions();
     enhanceExportDialogs();
     enhanceInlineExport();
+    moveInlineExportToBar();
     /* только телефон: на десктопе/планшете широкие таблицы и так помещаются */
     if (isAppMode()) addTableViewerButtons();
     /* Графики приезжают по AJAX и часто ПОЗЖЕ фиксированных повторов —

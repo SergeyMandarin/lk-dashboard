@@ -5879,6 +5879,45 @@ input.btn-input[onclick*="open_export_type_dialogue"]{background-color:#1d6f42 !
 input.btn-input[onclick*="open_export_type_dialogue"]:hover{background-color:#175833 !important;}
 input.btn-input[onclick*="open_exportall_operation"]{background-color:#541261 !important;background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm0%2C7C0%2C4.243%2C2.243%2C2%2C5%2C2h14c2.757%2C0%2C5%2C2.243%2C5%2C5H0Zm11%2C2H0v5h11v-5Zm13%2C0h-11v5h11v-5Zm-13%2C7H0v1c0%2C2.757%2C2.243%2C5%2C5%2C5h6v-6Zm2%2C0v6h6c2.757%2C0%2C5-2.243%2C5-5v-1h-11Z'%2F%3E%3C%2Fsvg%3E") !important;}
 input.btn-input[onclick*="open_exportall_operation"]:hover{background-color:#40104a !important;}
+/* Платформа (~2026-08) переделала кнопки экспорта: теперь это input.mmfa-tr-export
+   с name="Export" («Экспорт») и name="ExportAll" («Экспорт всех данных»). У них
+   сменился onclick → наши старые селекторы (по open_export_type_dialogue /
+   open_exportall_operation выше) перестали совпадать, и вид слетел (стали
+   платформенной фиолетовой кнопкой без иконки). Возвращаем прежний вид: «Экспорт»
+   — зелёная пилюля, «Экспорт всех данных» — фиолетовая, обе с иконкой. Иконки те
+   же, что были у старых кнопок. */
+input.mmfa-tr-export-direct,
+input.mmfa-tr-exportall-btn {
+  border: 0 !important;
+  border-radius: 1rem !important;
+  color: #fff !important;
+  font-family: "Montserrat", sans-serif !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  height: 3rem !important;
+  padding: 0 1.6rem 0 3.6rem !important;
+  cursor: pointer !important;
+  background-repeat: no-repeat !important;
+  background-position: left 1.2rem center !important;
+  background-size: auto 1.6rem !important;
+  margin: 0.4rem 0.8rem 0.4rem 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+input.mmfa-tr-export-direct {
+  background-color: #1d6f42 !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%0A  %3Cpath d%3D'm24%2C15H8v-6h16v6ZM8%2C7h16c0-2.757-2.243-5-5-5h-11v5Zm-2%2C2H0v6h6v-6Zm2%2C13h11c2.757%2C0%2C5-2.243%2C5-5H8v5ZM6%2C2h-1C2.243%2C2%2C0%2C4.243%2C0%2C7h6V2Zm0%2C15H0c0%2C2.757%2C2.243%2C5%2C5%2C5h1v-5Z'%2F%3E%0A%3C%2Fsvg%3E") !important;
+}
+input.mmfa-tr-export-direct:hover {
+  background-color: #175833 !important;
+}
+input.mmfa-tr-exportall-btn {
+  background-color: #541261 !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill%3D'%23ffffff' xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'Layer_1' data-name%3D'Layer 1' viewBox%3D'0 0 24 24'%3E%3Cpath d%3D'm0%2C7C0%2C4.243%2C2.243%2C2%2C5%2C2h14c2.757%2C0%2C5%2C2.243%2C5%2C5H0Zm11%2C2H0v5h11v-5Zm13%2C0h-11v5h11v-5Zm-13%2C7H0v1c0%2C2.757%2C2.243%2C5%2C5%2C5h6v-6Zm2%2C0v6h6c2.757%2C0%2C5-2.243%2C5-5v-1h-11Z'%2F%3E%3C%2Fsvg%3E") !important;
+}
+input.mmfa-tr-exportall-btn:hover {
+  background-color: #40104a !important;
+}
 
 /* ============================================================
    СТРАНИЦА ОТЧЁТА (show-entire-crit.php) — кнопки под макет.
@@ -6421,6 +6460,22 @@ a.export_download:hover {
 }
 .lk-export-bar > input.btn-input {
   margin: 0 !important;
+}
+/* Инлайн-блок выбора формата экспорта (span.mmfa-inline-export: подпись
+   «Пожалуйста, выберите формат…» + select + кнопка «Экспорт»). Платформа
+   (~2026-08) выводит его прямо в широкой прокручиваемой таблице, и он НЕ ехал
+   за горизонтальным скроллом (position:relative), в отличие от кнопок. JS
+   (moveInlineExportToBar) переносит его в наш sticky-бар — здесь оформляем как
+   отдельную строку на всю ширину бара с центрированным содержимым, чтобы он и
+   таскался за прокруткой, и стоял по центру блока. */
+.lk-export-bar > .mmfa-inline-export {
+  flex: 0 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 /* Релоцированная панель (relocateFloatButtonRow в JS строит 2 под-ряда div.lk-export-bar-row):
    «Сохранить» своей строкой сверху, «Выбрать все»+«Экспорт» строкой ниже — так эти 3 кнопки
