@@ -1488,6 +1488,84 @@
     });
   }
 
+  /* ⚠️ Платформа (~2026-08) убрала МОДАЛКУ выбора формата экспорта: теперь формат
+     выводится ИНЛАЙН прямо в слоте отчёта — <select name="export_type"> внутри
+     <span class="mmfa-inline-export">, рядом кнопка «Экспорт». Прежний
+     enhanceExportDialogs искал `.ui-dialog select#export_type` — такого больше нет,
+     поэтому «Excel (расширенный)» пропал из списка. Здесь то же самое, но под
+     новую разметку: пункт добавляем в инлайн-select, клик по инлайн-кнопке
+     перехватываем. Таблицу берём прямо из слота обёртки; пункт показываем только
+     где есть таблица «вопрос-ответ» (там, где умеем собрать раскрашенный .xlsx).
+     Идемпотентно (data-lk-colored-added). enhanceExportDialogs выше оставлен на
+     случай, если где-то ещё встретится старая модалка. */
+  function enhanceInlineExport() {
+    var selects = document.querySelectorAll(
+      "span.mmfa-inline-export select[name='export_type']"
+    );
+    [].forEach.call(selects, function (select) {
+      if (select.getAttribute("data-lk-colored-added")) return;
+      var wrap = select.closest(".mmfa-inline-export");
+      var slot = select.closest(".dashboard-report-slot");
+      var table = slot
+        ? slot.querySelector('table[id^="questions_in_reviews_"]')
+        : null;
+      if (!wrap || !table) return;
+      select.setAttribute("data-lk-colored-added", "1");
+      var opt = document.createElement("option");
+      opt.value = "lk_colored";
+      opt.textContent = "Excel (расширенный)";
+      select.insertBefore(opt, select.firstChild);
+      select.value = "lk_colored";
+      /* Кнопка «Экспорт» в той же обёртке. value локализован (в ЛК есть
+         переключатель языка) — ищем по типу, а не по тексту. */
+      var btn = wrap.querySelector(
+        'input[type="button"], input[type="submit"]'
+      );
+      if (!btn) return;
+      btn.addEventListener(
+        "click",
+        function (e) {
+          if (select.value !== "lk_colored") return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          runInlineColoredExport(table, btn);
+        },
+        true
+      );
+    });
+  }
+
+  /* Сборка/скачивание раскрашенного .xlsx для инлайн-кнопки. То же, что
+     handleColoredExportClick, но без модалки: таблица уже известна, закрывать
+     нечего. Исходную надпись кнопки запоминаем и восстанавливаем (локаль). */
+  function runInlineColoredExport(table, btn) {
+    var original = btn.value;
+    btn.setAttribute("disabled", "disabled");
+    btn.value = "Готовим файл...";
+    var failed = false;
+    loadExcelJS()
+      .then(function () {
+        var wb = buildColoredWorkbook(table);
+        return downloadWorkbook(wb, coloredExportFilename());
+      })
+      .catch(function (e) {
+        failed = true;
+        console.error("lk colored export failed:", e);
+        btn.value = "Ошибка (см. консоль)";
+      })
+      .then(function () {
+        btn.removeAttribute("disabled");
+        if (!failed) {
+          btn.value = original;
+        } else {
+          setTimeout(function () {
+            btn.value = original;
+          }, BTN_MSG_LONG_MS);
+        }
+      });
+  }
+
   /* Сноска отчёта «Примечание: Разделы, которые не оцениваются баллами, не
      включены в отчёт.» — это ГОЛЫЙ текст-узел (перед ним <b>Примечание</b>),
      прямой ребёнок .dashboard-report-slot, сидит над таблицей данных. Слот у нас
@@ -1544,6 +1622,7 @@
     centerReportNotes();
     flexReportActions();
     enhanceExportDialogs();
+    enhanceInlineExport();
     /* только телефон: на десктопе/планшете широкие таблицы и так помещаются */
     if (isAppMode()) addTableViewerButtons();
     /* Графики приезжают по AJAX и часто ПОЗЖЕ фиксированных повторов —
